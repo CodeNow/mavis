@@ -1,0 +1,32 @@
+{
+  "name": "mavis",
+  "version": "0.0.0",
+  "description": "Master Tactician, schedules task on the docks",
+  "main": "mavis.js",
+  "scripts": {
+    "test": "lab",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CodeNow/mavis.git"
+  },
+  "keywords": [
+    "scheduler"
+  ],
+  "author": "Anandkumar Patel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CodeNow/mavis/issues"
+  },
+  "homepage": "https://github.com/CodeNow/mavis",
+  "dependencies": {
+    "async": "^0.9.0",
+    "dotenv": "^0.4.0",
+    "eson": "^0.5.0",
+    "express": "^4.6.1",
+    "redis": "^0.11.0",
+    "body-parser": "^1.4.3",
+    "morgan": "^1.1.1"
+  }
+}
