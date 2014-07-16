@@ -1,10 +1,11 @@
+'use strict';
 /** scheduler
   params per box
     # builds acceptable/building
     # containres possible/running
     has hint.prevDock
 */
-var loadenv = require('./loadenv')();
+require('./loadenv')();
 var redis = require('redis');
 var redisClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_IPADDRESS);
 var error = require('./error.js').errorCaster;
@@ -12,10 +13,10 @@ var error = require('./error.js').errorCaster;
 function obtainOptimalHost (hint, cb) {
   // check data
   if (!hint || !hint.type) {
-    return cb(error(400, "no type specified"));
+    return cb(error(400, 'no type specified'));
   }
   if (hint.type !== 'container_run' && hint.type !== 'container_build') {
-    return cb(error(400, "cannot handle type "+hint.type));
+    return cb(error(400, 'cannot handle type '+hint.type));
   }
   getData(function(err, currentStates) {
     if (err) {
@@ -50,7 +51,7 @@ function updateData (host, type, cb) {
 
 function processData (hint, currentStates, cb) {
   if (currentStates.length <= 0) {
-    return cb(error(404, "no docks avalible"));
+    return cb(error(404, 'no docks avalible'));
   }
   // take info about docks and maps jobs do them
   var optimalDock = currentStates.reduce(function (prevDockData, dockData) {

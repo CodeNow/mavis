@@ -1,3 +1,4 @@
+'use strict';
 var dotenv = require('dotenv');
 var eson = require('eson');
 var path = require('path');

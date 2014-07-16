@@ -1,6 +1,9 @@
+'use strict';
 var async = require('async');
-var queue = async.queue(process, 1);
 var processer = null;
+var queue = async.queue(function (task, cb) {
+  processer(task.req, task.res, task.next, cb);
+}, 1);
 
 module.exports = function onReq (middleware) {
   processer = middleware;
@@ -12,7 +15,3 @@ module.exports = function onReq (middleware) {
     });
   };
 };
-
-function process (task, cb) {
-  processer(task.req, task.res, task.next, cb);
-}

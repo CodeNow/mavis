@@ -1,3 +1,4 @@
+'use strict';
 function errorCaster(code, message, data) {
   var err = new Error(message);
   err.code = code;
@@ -9,7 +10,7 @@ function errorCaster(code, message, data) {
 }
 
 
-function errorResponder(err, req, res, next) {
+function errorResponder(err, req, res) {
   console.error(err);
   if(err.code) {
     return res.json(err.code, err);
