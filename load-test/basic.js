@@ -11,9 +11,9 @@ Lab.experiment('performance test', function () {
     server = app.listen(testPort, done);
   });
   Lab.afterEach(function(done) {
-    server.close();
-    done();
+    server.close(done);
   });
+
   Lab.experiment('instant', function () {
     for (var i = 1; i <= 100000; i = i*10) {
       Lab.test(i + ' req',{ timeout: 2000+i*2 }, reqTest(i, 'instant'));
@@ -30,7 +30,11 @@ Lab.experiment('performance test', function () {
 function reqTest (numReq, type) {
   return function (done) {
     var start = new Date();
-    var count = createCount(numReq, function() {
+    var count = createCount(numReq, function(err) {
+      if(err) {
+        console.error('ERROR', err);
+        return done(err);
+      }
       console.log('avg req/s for', numReq, 'req', numReq / ((new Date() - start)/1000));
       done();
     });
@@ -50,18 +54,19 @@ function sendRequest(cb) {
     request.post({
         url: 'http://localhost:'+testPort+'/dock',
         json: {
-          hint: {
-            type: 'container_run'
-          }
+          type: 'container_run'
         }
-      }, afterReq(cb));
+      }, checkRes(cb));
   };
 }
 
-function afterReq(cb) {
-  return function(err) {
+function checkRes(cb) {
+  return function(err, res) {
     if (err) {
       return cb(err);
+    }
+    if (res.statusCode !== 200) {
+      return cb(new Error('req failed'));
     }
     cb();
   };
