@@ -1,3 +1,4 @@
+'use strict';
 var queue = require('./queue.js');
 var middleware = require('./middleware.js');
 var express = require('express');
@@ -5,9 +6,12 @@ var app = module.exports = express();
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
 
+if(process.env.LOG_REQ) {
+  app.use(morgan('--- :remote-addr - :response-time ms- [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'));
+}
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(morgan('--- :remote-addr - :response-time ms- [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'));
 
 // gets dock single threaded
 app.post('/dock', queue(middleware));
@@ -25,4 +29,3 @@ app.all('*', function (req, res) {
     message: 'route not implemented'
   });
 });
-

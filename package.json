@@ -4,7 +4,8 @@
   "description": "Master Tactician, schedules task on the docks",
   "main": "mavis.js",
   "scripts": {
-    "test": "lab",
+    "test": "NODE_ENV=test lab -v -c",
+    "loadTest": "NODE_ENV=test lab -v -c ./load-test/*",
     "start": "node index.js"
   },
   "repository": {
@@ -28,5 +29,11 @@
     "redis": "^0.11.0",
     "body-parser": "^1.4.3",
     "morgan": "^1.1.1"
+  },
+  "devDependencies": {
+    "lab": "^3.2.1",
+    "supertest": "^0.13.0",
+    "request": "^2.37.0",
+    "callback-count": "^0.1.0"
   }
 }
