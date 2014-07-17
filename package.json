@@ -4,7 +4,7 @@
   "description": "Master Tactician, schedules task on the docks",
   "main": "mavis.js",
   "scripts": {
-    "test": "NODE_ENV=test lab -v -c ./test/*",
+    "test": "NODE_ENV=test lab -v -c ./test/* ./unit/*",
     "loadTest": "NODE_ENV=test lab -v -c ./load-test/*",
     "start": "node index.js"
   },

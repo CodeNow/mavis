@@ -12,16 +12,15 @@ var error = require('./error.js').errorCaster;
 
 function obtainOptimalHost (hint, cb) {
   // check data
-  if (!hint || !hint.type) {
+  if (!hint.type) {
     return cb(error(400, 'no type specified'));
   }
   if (hint.type !== 'container_run' && hint.type !== 'container_build') {
     return cb(error(400, 'cannot handle type '+hint.type));
   }
   getData(function(err, currentStates) {
-    if (err) {
-      return cb(err);
-    }
+    if (err) { return cb(err); }
+
     processData(hint, currentStates, function (err, host) {
       if (err) {
         return cb(err);
@@ -42,9 +41,8 @@ function updateData (host, type, cb) {
     key = 'numBuilds';
   }
   redisClient.hincrby(host, key, 1, function(err) {
-    if (err) {
-      return cb(err);
-    }
+    if (err) { return cb(err); }
+
     cb(null);
   });
 }
@@ -67,7 +65,7 @@ function processData (hint, currentStates, cb) {
 function formulateWeight (hint, info) {
   var weight = info.numBuilds * process.env.BUILD_WEIGHT;
   weight += info.numContainers * process.env.CONTAINER_WEIGHT;
-  if(hint && info.host !== hint.prevDock) {
+  if(info.host !== hint.prevDock) {
     weight += process.env.HISTORY_WEIGHT;
   }
   return weight;
@@ -76,17 +74,14 @@ function formulateWeight (hint, info) {
 function getData (cb) {
   // get data about docks
   redisClient.lrange(process.env.REDIS_HOST_KEYS, 0, -1, function(err, keys) {
-    if (err) {
-      return cb(err);
-    }
+    if (err) { return cb(err); }
+
     var multi = redisClient.multi();
     keys.forEach(function(data) {
       multi.hgetall(data);
     });
     multi.exec(function (err, states) {
-      if (err) {
-        return cb(err);
-      }
+      if (err) { return cb(err); }
       // filter for only valid data
       return filterDockData(states, cb);
     });

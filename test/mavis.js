@@ -12,8 +12,7 @@ var rh = 'host';
 
 Lab.experiment('mavis tests', function () {
   Lab.beforeEach(function (done) {
-    var count = createCount(done);
-    redisClient.del(process.env.REDIS_HOST_KEYS, dock[1], dock[2], dock[0], count.inc().next);
+    redisClient.del(process.env.REDIS_HOST_KEYS, dock[1], dock[2], dock[0], done);
   });
 
   Lab.experiment('errors', function () {
@@ -171,6 +170,37 @@ Lab.experiment('mavis tests', function () {
         });
       });
       redisClient.hmset(dock[0], rnC, '1', rnB, '1', rh, dock[0], count.inc().next);
+    });
+    Lab.test('invalid data for docks should still be fine', function(done) {
+      var count = createCount(function(err) {
+        if (err) {
+          return done(err);
+        }
+        getDock('container_run', function(err, res) {
+          if(err) {
+            console.error('ERROR', err);
+            return done(err);
+          }
+          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          done();
+        });
+      });
+      redisClient.hdel(dock[1], rnC, rh, count.inc().next);
+      redisClient.hdel(dock[2], rnC, rnB, count.inc().next);
+
+      redisClient.hmset('0.0.0.3', rnB, '0', rh, '0.0.0.3', count.inc().next);
+      redisClient.hmset('0.0.0.4', rnC, '1', count.inc().next);
+      redisClient.hmset('0.0.0.5', rnC, '1', rh, '0.0.0.5', count.inc().next);
+      redisClient.hmset('0.0.0.6', rnC, '1', rnB, '0', count.inc().next);
+      redisClient.lpush(process.env.REDIS_HOST_KEYS,
+        '0.0.0.3',
+        '0.0.0.4',
+        '0.0.0.5',
+        '0.0.0.6',
+        '0.0.0.7',
+        count.inc().next);
+
+
     });
     Lab.test('should spread load evenly', function(done) {
       var count = createCount(function(err){
