@@ -10,7 +10,7 @@ function errorCaster(code, message, data) {
 }
 
 
-function errorResponder(err, req, res) {
+function errorResponder(err, req, res, next) {
   console.error(err);
   if(err.code) {
     return res.json(err.code, err);
