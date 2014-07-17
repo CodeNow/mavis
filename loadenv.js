@@ -20,7 +20,7 @@ module.exports = function readDotEnvConfigs () {
 };
 
 function convertStringToNumeral(key, val) {
-  if (typeof val === 'string' && ! isNaN(val)) {
+  if (!isNaN(val)) {
     return parseInt(val);
   } else {
     return val;
