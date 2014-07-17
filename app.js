@@ -22,7 +22,7 @@ app.post('/dock', queue(middleware));
 app.use(require('./error.js').errorResponder);
 
 app.get('/', function (req, res) {
-  res.json({
+  res.json(200, {
     message: 'runnable mavis: the fairy tactician'
   });
 });
