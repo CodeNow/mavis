@@ -51,7 +51,7 @@ function updateData (host, type, cb) {
 
 function processData (hint, currentStates, cb) {
   if (currentStates.length <= 0) {
-    return cb(error(404, 'no docks avalible'));
+    return cb(error(503, 'no docks avalible'));
   }
   // take info about docks and maps jobs do them
   var optimalDock = currentStates.reduce(function (prevDockData, dockData) {
@@ -64,7 +64,7 @@ function processData (hint, currentStates, cb) {
   cb(null, optimalDock.host);
 }
 
-function formulateWeight (hint, info, cb) {
+function formulateWeight (hint, info) {
   var weight = info.numBuilds * process.env.BUILD_WEIGHT;
   weight += info.numContainers * process.env.CONTAINER_WEIGHT;
   if(hint && info.host !== hint.prevDock) {
@@ -74,7 +74,6 @@ function formulateWeight (hint, info, cb) {
 }
 
 function getData (cb) {
-  var currentStates = {};
   // get data about docks
   redisClient.lrange(process.env.REDIS_HOST_KEYS, 0, -1, function(err, keys) {
     if (err) {
