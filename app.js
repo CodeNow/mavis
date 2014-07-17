@@ -6,11 +6,9 @@ var app = module.exports = express();
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
 
-if(process.env.LOG_REQ) {
-  app.use(morgan('--- :remote-addr - :response-time ms- [:date] ' +
-    '":method :url HTTP/:http-version" :status :res[content-length] ' +
-    '":referrer" ":user-agent"'));
-}
+app.use(morgan('--- :remote-addr - :response-time ms- [:date] ' +
+  '":method :url HTTP/:http-version" :status :res[content-length] ' +
+  '":referrer" ":user-agent"'));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
