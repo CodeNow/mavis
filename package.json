@@ -2,7 +2,7 @@
   "name": "mavis",
   "version": "0.0.0",
   "description": "Master Tactician, schedules task on the docks",
-  "main": "mavis.js",
+  "main": "app.js",
   "scripts": {
     "test": "NODE_ENV=test lab -v -c ./test/* ./unit/*",
     "loadTest": "NODE_ENV=test lab -v -c ./load-test/*",
