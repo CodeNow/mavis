@@ -17,6 +17,8 @@ module.exports = function readDotEnvConfigs () {
   process.env = eson()
     .use(convertStringToNumeral)
     .parse(JSON.stringify(process.env));
+
+  console.log(process.env);
 };
 
 function convertStringToNumeral(key, val) {
