@@ -10,6 +10,7 @@ module.exports = function readDotEnvConfigs () {
     return;
   }
   read = true;
+  dotenv._getKeysAndValuesFromEnvFilePath(path.resolve(__dirname, './configs/.env'));
   dotenv._getKeysAndValuesFromEnvFilePath(path.resolve(__dirname, './configs/.env.'+ env));
   dotenv._setEnvs();
   dotenv.load();
