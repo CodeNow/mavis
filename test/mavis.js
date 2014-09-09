@@ -17,14 +17,14 @@ lab.experiment('mavis tests', function () {
   });
 
   lab.experiment('errors', function () {
-    lab.test('should 400 if no type sent', function(done) {
+    lab.test('should 400 if no type sent', function (done) {
       supertest(app)
         .post('/dock')
         .expect(400)
         .end(done);
     });
 
-    lab.test('should 400 if invalid type sent', function(done) {
+    lab.test('should 400 if invalid type sent', function (done) {
       supertest(app)
         .post('/dock')
         .send({
@@ -34,7 +34,7 @@ lab.experiment('mavis tests', function () {
         .end(done);
     });
 
-    lab.test('should 404 if no docks are left', function(done) {
+    lab.test('should 404 if no docks are left', function (done) {
       supertest(app)
         .post('/dock')
         .send({
@@ -60,7 +60,7 @@ lab.experiment('mavis tests', function () {
   }
 
   lab.experiment('logic', function () {
-    lab.beforeEach(function(done){
+    lab.beforeEach(function (done){
       var count = createCount(done);
       redisClient.lpush(process.env.REDIS_HOST_KEYS, dock[1], dock[2], dock[0], count.inc().next);
       redisClient.hmset(dock[1], rnC, '0', rnB, '0', rh, dock[1], count.inc().next);
@@ -68,13 +68,13 @@ lab.experiment('mavis tests', function () {
       redisClient.hmset(dock[0], rnC, '0', rnB, '0', rh, dock[0], count.inc().next);
     });
 
-    lab.test('should update container_run redis key', function(done) {
-      getDock('container_run', function(err, res) {
+    lab.test('should update container_run redis key', function (done) {
+      getDock('container_run', function (err, res) {
         if(err) {
           console.error('ERROR', err);
           return done(err);
         }
-        redisClient.hget(res.body.dockHost, rnC, function(err, data) {
+        redisClient.hget(res.body.dockHost, rnC, function (err, data) {
           if (err) {
             return done(err);
           }
@@ -83,13 +83,13 @@ lab.experiment('mavis tests', function () {
         });
       });
     });
-    lab.test('should update container_build redis key', function(done) {
-      getDock('container_build', function(err, res) {
+    lab.test('should update container_build redis key', function (done) {
+      getDock('container_build', function (err, res) {
         if(err) {
           console.error('ERROR', err);
           return done(err);
         }
-        redisClient.hget(res.body.dockHost, rnB, function(err, data) {
+        redisClient.hget(res.body.dockHost, rnB, function (err, data) {
           if (err) {
             return done(err);
           }
@@ -98,12 +98,12 @@ lab.experiment('mavis tests', function () {
         });
       });
     });
-    lab.test('should grab dock with lowest builds', function(done) {
-      var count = createCount(function(err) {
+    lab.test('should grab dock with lowest builds', function (done) {
+      var count = createCount(function (err) {
         if (err) {
           return done(err);
         }
-        getDock('container_run', function(err, res) {
+        getDock('container_run', function (err, res) {
           if(err) {
             console.error('ERROR', err);
             return done(err);
@@ -117,12 +117,12 @@ lab.experiment('mavis tests', function () {
       redisClient.hmset(dock[0], rnC, '0', rnB, '3', rh, dock[0], count.inc().next);
     });
 
-    lab.test('should grab dock with lowest builds', function(done) {
-      var count = createCount(function(err) {
+    lab.test('should grab dock with lowest builds', function (done) {
+      var count = createCount(function (err) {
         if (err) {
           return done(err);
         }
-        getDock('container_run', function(err, res) {
+        getDock('container_run', function (err, res) {
           if(err) {
             console.error('ERROR', err);
             return done(err);
@@ -135,12 +135,12 @@ lab.experiment('mavis tests', function () {
       redisClient.hmset(dock[2], rnC, '0', rnB, '1', rh, dock[2], count.inc().next);
       redisClient.hmset(dock[0], rnC, '0', rnB, '3', rh, dock[0], count.inc().next);
     });
-    lab.test('should grab dock with lowest containers', function(done) {
-      var count = createCount(function(err) {
+    lab.test('should grab dock with lowest containers', function (done) {
+      var count = createCount(function (err) {
         if (err) {
           return done(err);
         }
-        getDock('container_run', function(err, res) {
+        getDock('container_run', function (err, res) {
           if(err) {
             console.error('ERROR', err);
             return done(err);
@@ -153,15 +153,15 @@ lab.experiment('mavis tests', function () {
       redisClient.hmset(dock[2], rnC, '2', rnB, '0', rh, dock[2], count.inc().next);
       redisClient.hmset(dock[0], rnC, '1', rnB, '0', rh, dock[0], count.inc().next);
     });
-    lab.test('should grab dock with history', function(done) {
-      var count = createCount(function(err) {
+    lab.test('should grab dock with history', function (done) {
+      var count = createCount(function (err) {
         if (err) {
           return done(err);
         }
         getDock({
           type: 'container_run',
           prevDock: dock[0]
-        }, function(err, res) {
+        }, function (err, res) {
           if(err) {
             console.error('ERROR', err);
             return done(err);
@@ -172,12 +172,12 @@ lab.experiment('mavis tests', function () {
       });
       redisClient.hmset(dock[0], rnC, '1', rnB, '1', rh, dock[0], count.inc().next);
     });
-    lab.test('invalid data for docks should still be fine', function(done) {
-      var count = createCount(function(err) {
+    lab.test('invalid data for docks should still be fine', function (done) {
+      var count = createCount(function (err) {
         if (err) {
           return done(err);
         }
-        getDock('container_run', function(err, res) {
+        getDock('container_run', function (err, res) {
           if(err) {
             console.error('ERROR', err);
             return done(err);
@@ -203,8 +203,8 @@ lab.experiment('mavis tests', function () {
 
 
     });
-    lab.test('should spread load evenly', function(done) {
-      var count = createCount(function(err){
+    lab.test('should spread load evenly', function (done) {
+      var count = createCount(function (err){
         if(err) {
           return done(err);
         }

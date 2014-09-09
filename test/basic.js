@@ -6,10 +6,10 @@ var supertest = require('supertest');
 
 lab.experiment('route tests', function () {
   lab.experiment('GET', function () {
-    lab.test('/ - app info', function(done) {
+    lab.test('/ - app info', function (done) {
       supertest(app)
         .get('/')
-        .end(function(err, res) {
+        .end(function (err, res) {
           if(err) {
             console.error('ERROR', err);
             return done(err);
@@ -19,11 +19,11 @@ lab.experiment('route tests', function () {
         });
     });
 
-    lab.test('/fake - unimplemented route', function(done) {
+    lab.test('/fake - unimplemented route', function (done) {
       supertest(app)
         .get('/fake')
         .expect(404)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             console.error('ERROR', err);
             return done(err);
