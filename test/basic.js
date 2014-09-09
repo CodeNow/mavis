@@ -1,11 +1,12 @@
 'use strict';
 var Lab = require('lab');
+var lab = exports.lab = Lab.script();
 var app = require('../lib/app.js');
 var supertest = require('supertest');
 
-Lab.experiment('route tests', function () {
-  Lab.experiment('GET', function () {
-    Lab.test('/ - app info', function(done) {
+lab.experiment('route tests', function () {
+  lab.experiment('GET', function () {
+    lab.test('/ - app info', function(done) {
       supertest(app)
         .get('/')
         .end(function(err, res) {
@@ -18,7 +19,7 @@ Lab.experiment('route tests', function () {
         });
     });
 
-    Lab.test('/fake - unimplemented route', function(done) {
+    lab.test('/fake - unimplemented route', function(done) {
       supertest(app)
         .get('/fake')
         .expect(404)

@@ -1,10 +1,11 @@
 'use strict';
 var Lab = require('lab');
+var lab = exports.lab = Lab.script();
 var error = require('../lib/error.js');
 
-Lab.experiment('error.js unit test', function () {
-  Lab.experiment('errorCaster', function () {
-    Lab.test('basic', function(done) {
+lab.experiment('error.js unit test', function () {
+  lab.experiment('errorCaster', function () {
+    lab.test('basic', function(done) {
       var err = error.errorCaster(404, 'anand', { type:'test' });
       Lab.expect(err.code).to.equal(404);
       Lab.expect(err.data.data.type).to.equal('test');
@@ -13,8 +14,8 @@ Lab.experiment('error.js unit test', function () {
       done();
     });
   });
-  Lab.experiment('errorResponder', function () {
-    Lab.test('casted error', function(done) {
+  lab.experiment('errorResponder', function () {
+    lab.test('casted error', function(done) {
       var err = error.errorCaster(404, 'anand', { type:'test' });
       var resTest = {
         json: function(errCode, error) {
@@ -25,7 +26,7 @@ Lab.experiment('error.js unit test', function () {
       };
       error.errorResponder(err, null, resTest, null);
     });
-    Lab.test('random error', function(done) {
+    lab.test('random error', function(done) {
       var err = new Error('test');
       var resTest = {
         json: function(errCode, error, stack) {

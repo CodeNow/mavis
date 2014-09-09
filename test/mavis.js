@@ -1,5 +1,6 @@
 'use strict';
 var Lab = require('lab');
+var lab = exports.lab = Lab.script();
 var app = require('../lib/app.js');
 var createCount = require('callback-count');
 var supertest = require('supertest');
@@ -10,20 +11,20 @@ var rnC = 'numContainers';
 var rnB = 'numBuilds';
 var rh = 'host';
 
-Lab.experiment('mavis tests', function () {
-  Lab.beforeEach(function (done) {
+lab.experiment('mavis tests', function () {
+  lab.beforeEach(function (done) {
     redisClient.del(process.env.REDIS_HOST_KEYS, dock[1], dock[2], dock[0], done);
   });
 
-  Lab.experiment('errors', function () {
-    Lab.test('should 400 if no type sent', function(done) {
+  lab.experiment('errors', function () {
+    lab.test('should 400 if no type sent', function(done) {
       supertest(app)
         .post('/dock')
         .expect(400)
         .end(done);
     });
 
-    Lab.test('should 400 if invalid type sent', function(done) {
+    lab.test('should 400 if invalid type sent', function(done) {
       supertest(app)
         .post('/dock')
         .send({
@@ -33,7 +34,7 @@ Lab.experiment('mavis tests', function () {
         .end(done);
     });
 
-    Lab.test('should 404 if no docks are left', function(done) {
+    lab.test('should 404 if no docks are left', function(done) {
       supertest(app)
         .post('/dock')
         .send({
@@ -58,8 +59,8 @@ Lab.experiment('mavis tests', function () {
     .end(done);
   }
 
-  Lab.experiment('logic', function () {
-    Lab.beforeEach(function(done){
+  lab.experiment('logic', function () {
+    lab.beforeEach(function(done){
       var count = createCount(done);
       redisClient.lpush(process.env.REDIS_HOST_KEYS, dock[1], dock[2], dock[0], count.inc().next);
       redisClient.hmset(dock[1], rnC, '0', rnB, '0', rh, dock[1], count.inc().next);
@@ -67,7 +68,7 @@ Lab.experiment('mavis tests', function () {
       redisClient.hmset(dock[0], rnC, '0', rnB, '0', rh, dock[0], count.inc().next);
     });
 
-    Lab.test('should update container_run redis key', function(done) {
+    lab.test('should update container_run redis key', function(done) {
       getDock('container_run', function(err, res) {
         if(err) {
           console.error('ERROR', err);
@@ -82,7 +83,7 @@ Lab.experiment('mavis tests', function () {
         });
       });
     });
-    Lab.test('should update container_build redis key', function(done) {
+    lab.test('should update container_build redis key', function(done) {
       getDock('container_build', function(err, res) {
         if(err) {
           console.error('ERROR', err);
@@ -97,7 +98,7 @@ Lab.experiment('mavis tests', function () {
         });
       });
     });
-    Lab.test('should grab dock with lowest builds', function(done) {
+    lab.test('should grab dock with lowest builds', function(done) {
       var count = createCount(function(err) {
         if (err) {
           return done(err);
@@ -116,7 +117,7 @@ Lab.experiment('mavis tests', function () {
       redisClient.hmset(dock[0], rnC, '0', rnB, '3', rh, dock[0], count.inc().next);
     });
 
-    Lab.test('should grab dock with lowest builds', function(done) {
+    lab.test('should grab dock with lowest builds', function(done) {
       var count = createCount(function(err) {
         if (err) {
           return done(err);
@@ -134,7 +135,7 @@ Lab.experiment('mavis tests', function () {
       redisClient.hmset(dock[2], rnC, '0', rnB, '1', rh, dock[2], count.inc().next);
       redisClient.hmset(dock[0], rnC, '0', rnB, '3', rh, dock[0], count.inc().next);
     });
-    Lab.test('should grab dock with lowest containers', function(done) {
+    lab.test('should grab dock with lowest containers', function(done) {
       var count = createCount(function(err) {
         if (err) {
           return done(err);
@@ -152,7 +153,7 @@ Lab.experiment('mavis tests', function () {
       redisClient.hmset(dock[2], rnC, '2', rnB, '0', rh, dock[2], count.inc().next);
       redisClient.hmset(dock[0], rnC, '1', rnB, '0', rh, dock[0], count.inc().next);
     });
-    Lab.test('should grab dock with history', function(done) {
+    lab.test('should grab dock with history', function(done) {
       var count = createCount(function(err) {
         if (err) {
           return done(err);
@@ -171,7 +172,7 @@ Lab.experiment('mavis tests', function () {
       });
       redisClient.hmset(dock[0], rnC, '1', rnB, '1', rh, dock[0], count.inc().next);
     });
-    Lab.test('invalid data for docks should still be fine', function(done) {
+    lab.test('invalid data for docks should still be fine', function(done) {
       var count = createCount(function(err) {
         if (err) {
           return done(err);
@@ -202,7 +203,7 @@ Lab.experiment('mavis tests', function () {
 
 
     });
-    Lab.test('should spread load evenly', function(done) {
+    lab.test('should spread load evenly', function(done) {
       var count = createCount(function(err){
         if(err) {
           return done(err);
