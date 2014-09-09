@@ -1,6 +1,6 @@
 'use strict';
 var Lab = require('lab');
-var app = require('../app.js');
+var app = require('../lib/app.js');
 var createCount = require('callback-count');
 var supertest = require('supertest');
 var redis = require('redis');

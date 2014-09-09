@@ -1,6 +1,6 @@
 'use strict';
 var Lab = require('lab');
-var app = require('../app.js');
+var app = require('../lib/app.js');
 var supertest = require('supertest');
 
 Lab.experiment('route tests', function () {
