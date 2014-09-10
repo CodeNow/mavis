@@ -25,12 +25,13 @@ POST /dock
 ----------
   inputs
 
-  body.type = type of task that needs to be run.
+  `body.type` = type of task that needs to be run.
+  
     currently supports `container_build` and `container_run`
 
   *optional*
 
-  body.prevDock = key of previous dock used by this container. used in calculations
+  `body.prevDock` = key of previous dock used by this container. used in calculations
 
   returns
 
@@ -39,6 +40,56 @@ POST /dock
     dockHost: dockHost
   }
   ```
+
+GET /docks
+----------
+  get list of active docks
+  
+  returns: array of active docks
+  ```
+  [{
+    host: 'localhost',
+    numContainer: 1
+    numBuilds: 2
+  }, ...]
+  ```
+
+POST /docks
+----------
+  update params of dock
+  
+  inputs (can also be query)
+  
+  `body.host` = host to update
+  
+  `body.value` = value to set
+  
+  `body.key` = key to update
+  
+    currently supports `container_build` and `container_run`
+
+
+  returns: nothing 
+
+DELETE /docks
+----------
+  removes dock from selection pool
+  
+  inputs (can also be query)
+  
+  `body.host` = host to delete
+
+  returns: nothing 
+  
+PUT /docks
+----------
+  adds dock to selection pool
+  
+  inputs (can also be query)
+  
+  `body.host` = host to add
+
+  returns: nothing 
 
 GET /
 -----
