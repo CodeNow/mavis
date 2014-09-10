@@ -18,10 +18,13 @@ lab.experiment('error.js unit test', function () {
     lab.test('casted error', function (done) {
       var err = error.errorCaster(404, 'anand', { type:'test' });
       var resTest = {
-        json: function (errCode, error) {
-          Lab.expect(errCode).to.equal(404);
+        json: function (error) {
           Lab.expect(error).to.equal(err);
           done();
+        },
+        status: function (errCode) {
+          Lab.expect(errCode).to.equal(404);
+          return this;
         }
       };
       error.errorResponder(err, null, resTest, null);
@@ -29,10 +32,13 @@ lab.experiment('error.js unit test', function () {
     lab.test('random error', function (done) {
       var err = new Error('test');
       var resTest = {
-        json: function (errCode, error, stack) {
-          Lab.expect(errCode).to.equal(500);
-          Lab.expect(stack).to.equal(err.stack);
+        json: function (error) {
+          Lab.expect(error).to.equal(err);
           done();
+        },
+        status: function (errCode) {
+          Lab.expect(errCode).to.equal(500);
+          return this;
         }
       };
       error.errorResponder(err, null, resTest, null);
