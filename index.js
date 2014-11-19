@@ -1,5 +1,7 @@
 'use strict';
 require('./lib/loadenv.js')();
+require('./lib/events/index.js');
+
 var app = require('./lib/app.js');
 
 app.listen(process.env.PORT);
