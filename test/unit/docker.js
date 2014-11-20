@@ -1,11 +1,11 @@
 'use strict';
-require('../lib/loadenv.js')();
+require('../../lib/loadenv.js')();
 
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
-var redisClient = require('../lib/models/redis.js');
-var dockerEvents = require('../lib/events/docker.js');
-var dockData = require('../lib/models/dockData.js');
+var redisClient = require('../../lib/models/redis.js');
+var dockerEvents = require('../../lib/events/docker.js');
+var dockData = require('../../lib/models/dockData.js');
 
 function dataExpect1(data, numContainers, numBuilds, host) {
   Lab.expect(data.length).to.equal(1);
@@ -24,9 +24,6 @@ function dataExpectNone (data) {
 
 lab.experiment('docker.js unit test', function () {
   lab.beforeEach(function (done) {
-    redisClient.flushall(done);
-  });
-  lab.afterEach(function (done) {
     redisClient.flushall(done);
   });
 
