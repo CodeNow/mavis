@@ -13,9 +13,12 @@ function dataExpect1(data, numContainers, numBuilds, host) {
 }
 
 function dataExpectN(data, n, numContainers, numBuilds, host) {
-  Lab.expect(data[n].numContainers).to.equal(numContainers);
-  Lab.expect(data[n].numBuilds).to.equal(numBuilds);
-  Lab.expect(data[n].host).to.equal(host);
+  data.forEach(function(item) {
+    if(item.host === host) {
+      Lab.expect(item.numContainers).to.equal(numContainers);
+      Lab.expect(item.numBuilds).to.equal(numBuilds);
+    }
+  });
 }
 
 function dataExpectNone (data) {
