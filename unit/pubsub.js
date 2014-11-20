@@ -3,9 +3,9 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 
 var createCount = require('callback-count');
-var pubSub = require('../lib/redis.js').pubSub;
+var pubSub = require('../lib/models/redis.js').pubSub;
 
-lab.experiment('event pubSub', function () {
+lab.experiment('event pubSub unit test', function () {
   lab.experiment('onEvent', function () {
     var testData = {
       string: 'hi',
