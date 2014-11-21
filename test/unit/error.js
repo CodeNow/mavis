@@ -1,7 +1,7 @@
 'use strict';
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
-var error = require('../lib/error.js');
+var error = require('../../lib/error.js');
 
 lab.experiment('error.js unit test', function () {
   lab.experiment('errorCaster', function () {
