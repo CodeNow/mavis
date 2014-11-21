@@ -94,6 +94,16 @@ lab.experiment('mavis tests', function () {
         });
       });
     });
+    lab.test('should return prev dock if sent', function (done) {
+      var dock = '10.5.1.4';
+      getDock({
+        type: 'container_run',
+        prevDock: dock
+      }, function (err, res) {
+        Lab.expect(res.body.dockHost).to.equal(dock);
+        done(err);
+      });
+    });
     lab.test('should update container_build redis key', function (done) {
       getDock('container_build', function (err, res) {
         if(err) {
