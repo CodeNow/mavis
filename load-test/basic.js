@@ -1,28 +1,29 @@
 'use strict';
 var Lab = require('lab');
-var app = require('../app.js');
+var lab = exports.lab = Lab.script();
+var app = require('../lib/app.js');
 var testPort = 44321;
 var request = require('request');
 var createCount = require('callback-count');
 
-Lab.experiment('performance test', function () {
+lab.experiment('performance test', function () {
   var server = null;
-  Lab.beforeEach(function (done) {
+  lab.beforeEach(function (done) {
     server = app.listen(testPort, done);
   });
-  Lab.afterEach(function(done) {
+  lab.afterEach(function(done) {
     server.close(done);
   });
 
-  Lab.experiment('instant', function () {
+  lab.experiment('instant', function () {
     for (var i = 1; i <= 100000; i = i*10) {
-      Lab.test(i + ' req',{ timeout: 2000+i*2 }, reqTest(i, 'instant'));
+      lab.test(i + ' req',{ timeout: 2000+i*2 }, reqTest(i, 'instant'));
     }
   });
 
-  Lab.experiment('gradual', function () {
+  lab.experiment('gradual', function () {
     for (var i = 1; i <= 100000; i = i*10) {
-      Lab.test(i + ' req',{ timeout: 2000+i*2 }, reqTest(i, 'gradual'));
+      lab.test(i + ' req',{ timeout: 2000+i*2 }, reqTest(i, 'gradual'));
     }
   });
 });
