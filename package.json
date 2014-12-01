@@ -30,7 +30,8 @@
     "express": "^4.9.0",
     "morgan": "^1.1.1",
     "redis": "^0.11.0",
-    "redis-pubsub-emitter": "^0.4.0"
+    "redis-pubsub-emitter": "^0.4.0",
+    "rollbar": "^0.4.0"
   },
   "devDependencies": {
     "lab": "4.3.0",
