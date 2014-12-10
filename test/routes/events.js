@@ -45,13 +45,13 @@ lab.experiment('events test', function () {
     redisClient.flushall(done);
   });
 
-  lab.experiment('runnable:docker:start', function () {
+  lab.experiment('runnable:docker:events:start', function () {
     lab.beforeEach(function (done) {
       dockData.addHost(host, done);
     });
 
     lab.test('should show normal container start', function(done){
-      pubSub.publish('runnable:docker:start', {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
         from: 'ubuntu'
       });
@@ -63,7 +63,7 @@ lab.experiment('events test', function () {
     });
 
     lab.test('should show build container start', function(done){
-      pubSub.publish('runnable:docker:start', {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
         from: process.env.IMAGE_BUILDER
       });
@@ -73,23 +73,23 @@ lab.experiment('events test', function () {
         done();
       });
     });
-  }); // runnable:docker:start
+  }); // runnable:docker:events:start
 
-  lab.experiment('runnable:docker:die', function () {
+  lab.experiment('runnable:docker:events:die', function () {
     lab.beforeEach(function (done) {
       dockData.addHost(host, done);
-      pubSub.publish('runnable:docker:start', {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
         from: process.env.IMAGE_BUILDER
       });
-      pubSub.publish('runnable:docker:start', {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
         from: 'ubuntu'
       });
     });
 
     lab.test('should show normal container die', function(done){
-      pubSub.publish('runnable:docker:die', {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
         ip: '0.0.0.0',
         from: 'ubuntu'
       });
@@ -101,7 +101,7 @@ lab.experiment('events test', function () {
     });
 
     lab.test('should show build container die', function(done){
-      pubSub.publish('runnable:docker:die', {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
         ip: '0.0.0.0',
         from: process.env.IMAGE_BUILDER
       });
@@ -111,15 +111,15 @@ lab.experiment('events test', function () {
         done();
       });
     });
-  }); // runnable:docker:die
+  }); // runnable:docker:events:die
 
-  lab.experiment('runnable:docker:docker_daemon_down', function () {
+  lab.experiment('runnable:docker:events:docker_daemon_down', function () {
     lab.beforeEach(function (done) {
       dockData.addHost(host, done);
     });
 
     lab.test('should remove host', function(done){
-      pubSub.publish('runnable:docker:docker_daemon_down', {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_down', {
         ip: '0.0.0.0',
         from: 'ubuntu'
       });
@@ -129,11 +129,11 @@ lab.experiment('events test', function () {
         done();
       });
     });
-  }); // runnable:docker:docker_daemon_down
+  }); // runnable:docker:events:docker_daemon_down
 
-  lab.experiment('runnable:docker:docker_daemon_up', function () {
+  lab.experiment('runnable:docker:events:docker_daemon_up', function () {
     lab.test('should add host', function(done){
-      pubSub.publish('runnable:docker:docker_daemon_up', {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
         ip: '0.0.0.0',
         from: 'ubuntu'
       });
@@ -143,5 +143,5 @@ lab.experiment('events test', function () {
         done();
       });
     });
-  }); // runnable:docker:docker_daemon_up
+  }); // runnable:docker:events:docker_daemon_up
 }); // events test
