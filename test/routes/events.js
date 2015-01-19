@@ -57,7 +57,7 @@ lab.experiment('events test', function () {
       });
       getDocks(function test(err, data) {
         if (data.length === 0) { return getDocks(test); }
-        dataExpect1(data, 1, 0, host);
+        dataExpect1(data, 0, 0, host);
         done();
       });
     });
@@ -95,7 +95,7 @@ lab.experiment('events test', function () {
       });
       getDocks(function test(err, data) {
         if (data.length === 0) { return getDocks(test); }
-        dataExpect1(data, 0, 1, host);
+        dataExpect1(data, -1, 1, host);
         done();
       });
     });
@@ -107,7 +107,8 @@ lab.experiment('events test', function () {
       });
       getDocks(function test(err, data) {
         if (data.length === 0) { return getDocks(test); }
-        dataExpect1(data, 1, 0, host);
+        console.log('data', data);
+        dataExpect1(data, 0, 0, host);
         done();
       });
     });
