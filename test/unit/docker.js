@@ -34,162 +34,12 @@ lab.experiment('docker.js unit test', function () {
     lab.beforeEach(function (done) {
       dockData.addHost('http://0.0.0.0:4242', done);
     });
-    lab.experiment('handleStart', function () {
-      lab.test('should not update for normal container start', function (done) {
-        dockerEvents.handleStart({
-          ip: '0.0.0.0',
-          from: 'ubuntu'
-        });
-        dockData.getAllDocks(function test(err, data) {
-          if (err || !data) {
-            return dockData.getAllDocks(test);
-          }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
-          done();
-        });
-      });
-
-      lab.test('should handle normal container start invalid ip', function (done) {
-        dockerEvents.handleStart({
-          ip: null,
-          from: 'ubuntu'
-        });
-        dockData.getAllDocks(function test(err, data) {
-          if (err || !data) {
-            return dockData.getAllDocks(test);
-          }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
-          done();
-        });
-      });
-
-      lab.test('should not update for normal container start * 2', function (done) {
-        dockerEvents.handleStart({
-          ip: '0.0.0.0',
-          from: 'ubuntu'
-        });
-        dockerEvents.handleStart({
-          ip: '0.0.0.0',
-          from: 'ubuntu'
-        });
-        dockData.getAllDocks(function test(err, data) {
-          if (err || !data) {
-            return dockData.getAllDocks(test);
-          }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
-          done();
-        });
-      });
-
-      lab.test('should not do anything if non registered dock', function (done) {
-        dockerEvents.handleStart({
-          ip: '0.0.0.10',
-          from: 'ubuntu'
-        });
-        dockData.getAllDocks(function test(err, data) {
-          if (err || !data) {
-            return dockData.getAllDocks(test);
-          }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
-          done();
-        });
-      });
-
-      lab.test('should handle container start invalid from', function (done) {
-        dockerEvents.handleStart({
-          ip: '0.0.0.0',
-          from: null
-        });
-        dockData.getAllDocks(function test(err, data) {
-          if (err || !data) {
-            return dockData.getAllDocks(test);
-          }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
-          done();
-        });
-      });
-
-      lab.test('should handle build container start', function (done) {
-        dockerEvents.handleStart({
-          ip: '0.0.0.0',
-          from: process.env.IMAGE_BUILDER
-        });
-        dockData.getAllDocks(function test(err, data) {
-          if (err || !data) {
-            return dockData.getAllDocks(test);
-          }
-          dataExpect1(data, '0', '1', 'http://0.0.0.0:4242');
-          done();
-        });
-      });
-
-      lab.test('should handle build container start invalid ip', function (done) {
-        dockerEvents.handleStart({
-          ip: null,
-          from: process.env.IMAGE_BUILDER
-        });
-        dockData.getAllDocks(function test(err, data) {
-          if (err || !data) {
-            return dockData.getAllDocks(test);
-          }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
-          done();
-        });
-      });
-
-      lab.test('should handle build container start * 2', function (done) {
-        dockerEvents.handleStart({
-          ip: '0.0.0.0',
-          from: process.env.IMAGE_BUILDER
-        });
-        dockerEvents.handleStart({
-          ip: '0.0.0.0',
-          from: process.env.IMAGE_BUILDER
-        });
-        dockData.getAllDocks(function test(err, data) {
-          if (err || !data) {
-            return dockData.getAllDocks(test);
-          }
-          dataExpect1(data, '0', '2', 'http://0.0.0.0:4242');
-          done();
-        });
-      });
-      lab.test('should not do anything if invalid data', function (done) {
-        dockerEvents.handleStart(null);
-        dockData.getAllDocks(function test(err, data) {
-          if (err || !data) {
-            return dockData.getAllDocks(test);
-          }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
-          done();
-        });
-      });
-      lab.test('should not do anything if non registered dock', function (done) {
-        dockerEvents.handleStart({
-          ip: '0.0.0.10',
-          from: process.env.IMAGE_BUILDER
-        });
-        dockData.getAllDocks(function test(err, data) {
-          if (err || !data) {
-            return dockData.getAllDocks(test);
-          }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
-          done();
-        });
-      });
-    }); // handleStart
-
     lab.experiment('handleDie', function () {
       lab.beforeEach(function(done) {
-        dockerEvents.handleStart({
-          ip: '0.0.0.0',
-          from: process.env.IMAGE_BUILDER
-        });
-        dockerEvents.handleStart({
-          ip: '0.0.0.0',
-          from: 'ubuntu'
-        });
-        done();
+        dockData.setKey('http://0.0.0.0:4242','numBuilds', 1, done);
+      });
+      lab.beforeEach(function(done) {
+        dockData.setKey('http://0.0.0.0:4242','numContainers', 1, done);
       });
 
       lab.test('should handle normal container stop', function (done) {
@@ -201,7 +51,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '-1', '1', 'http://0.0.0.0:4242');
+          dataExpect1(data, '0', '1', 'http://0.0.0.0:4242');
           done();
         });
       });
@@ -219,7 +69,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '-2', '1', 'http://0.0.0.0:4242');
+          dataExpect1(data, '-1', '1', 'http://0.0.0.0:4242');
           done();
         });
       });
@@ -233,7 +83,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '1', 'http://0.0.0.0:4242');
+          dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
           done();
         });
       });
@@ -247,7 +97,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '1', 'http://0.0.0.0:4242');
+          dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
           done();
         });
       });
@@ -261,7 +111,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '1', 'http://0.0.0.0:4242');
+          dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
           done();
         });
       });
@@ -275,7 +125,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
+          dataExpect1(data, '1', '0', 'http://0.0.0.0:4242');
           done();
         });
       });
@@ -293,7 +143,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '-1', 'http://0.0.0.0:4242');
+          dataExpect1(data, '1', '-1', 'http://0.0.0.0:4242');
           done();
         });
       });
@@ -307,7 +157,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '1', 'http://0.0.0.0:4242');
+          dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
           done();
         });
       });
@@ -317,7 +167,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '1', 'http://0.0.0.0:4242');
+          dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
           done();
         });
       });
@@ -330,7 +180,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '1', 'http://0.0.0.0:4242');
+          dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
           done();
         });
       });

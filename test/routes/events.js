@@ -9,7 +9,6 @@ var request = require('request');
 // start app
 require('../../index.js');
 
-
 function dataExpect1(data, numContainers, numBuilds, host) {
   Lab.expect(data.length).to.equal(1);
   dataExpectN(data, 0, numContainers, numBuilds, host);
@@ -23,7 +22,6 @@ function dataExpectN(data, n, numContainers, numBuilds, host) {
     }
   });
 }
-
 
 function dataExpectNone (data) {
   Lab.expect(data.length).to.equal(0);
@@ -45,36 +43,6 @@ lab.experiment('events test', function () {
     redisClient.flushall(done);
   });
 
-  lab.experiment('runnable:docker:events:start', function () {
-    lab.beforeEach(function (done) {
-      dockData.addHost(host, done);
-    });
-
-    lab.test('should show normal container start', function(done){
-      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
-        ip: '0.0.0.0',
-        from: 'ubuntu'
-      });
-      getDocks(function test(err, data) {
-        if (data.length === 0) { return getDocks(test); }
-        dataExpect1(data, 0, 0, host);
-        done();
-      });
-    });
-
-    lab.test('should show build container start', function(done){
-      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
-        ip: '0.0.0.0',
-        from: process.env.IMAGE_BUILDER
-      });
-      getDocks(function test(err, data) {
-        if (data.length === 0) { return getDocks(test); }
-        dataExpect1(data, 0, 1, host);
-        done();
-      });
-    });
-  }); // runnable:docker:events:start
-
   lab.experiment('runnable:docker:events:die', function () {
     lab.beforeEach(function (done) {
       dockData.addHost(host, done);
@@ -95,7 +63,7 @@ lab.experiment('events test', function () {
       });
       getDocks(function test(err, data) {
         if (data.length === 0) { return getDocks(test); }
-        dataExpect1(data, -1, 1, host);
+        dataExpect1(data, -1, 0, host);
         done();
       });
     });
@@ -107,8 +75,7 @@ lab.experiment('events test', function () {
       });
       getDocks(function test(err, data) {
         if (data.length === 0) { return getDocks(test); }
-        console.log('data', data);
-        dataExpect1(data, 0, 0, host);
+        dataExpect1(data, 0, -1, host);
         done();
       });
     });
