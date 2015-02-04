@@ -79,6 +79,21 @@ lab.experiment('mavis tests', function () {
       redisClient.hmset(augmentHost(dock[0]), rnC, '0', rnB, '0', rh, dock[0], count.inc().next);
     });
 
+    lab.test('should update container_run redis key', function (done) {
+      getDock('container_run', function (err, res) {
+        if(err) {
+          console.error('ERROR', err);
+          return done(err);
+        }
+        redisClient.hget(augmentHost(res.body.dockHost), rnC, function (err, data) {
+          if (err) {
+            return done(err);
+          }
+          Lab.expect(data).to.equal('1');
+          done();
+        });
+      });
+    });
     lab.test('should return prev dock if sent', function (done) {
       var dock = '10.5.1.4';
       getDock({
@@ -89,7 +104,21 @@ lab.experiment('mavis tests', function () {
         done(err);
       });
     });
-
+    lab.test('should update container_build redis key', function (done) {
+      getDock('container_build', function (err, res) {
+        if(err) {
+          console.error('ERROR', err);
+          return done(err);
+        }
+        redisClient.hget(augmentHost(res.body.dockHost), rnB, function (err, data) {
+          if (err) {
+            return done(err);
+          }
+          Lab.expect(data).to.equal('1');
+          done();
+        });
+      });
+    });
     lab.test('should grab dock with lowest builds', function (done) {
       var count = createCount(function (err) {
         if (err) {
@@ -191,6 +220,27 @@ lab.experiment('mavis tests', function () {
         rnC, '1', rnB, '0', count.inc().next);
       redisClient.hmset(augmentHost('http://0.0.0.7:4242'),
         'cat', '1', count.inc().next);
+    });
+    lab.test('should spread load evenly', function (done) {
+      var count = createCount(function (err){
+        if(err) {
+          return done(err);
+        }
+        var endCount = createCount(dock.length, done);
+        function checkData(err, data) {
+          if (err) {
+            return endCount.next(err);
+          }
+          Lab.expect(data).to.equal('10');
+          endCount.next();
+        }
+        for (var i = dock.length - 1; i >= 0; i--) {
+          redisClient.hget(augmentHost(dock[i]), rnC, checkData);
+        }
+      });
+      for (var i = 30 - 1; i >= 0; i--) {
+        getDock('container_run', count.inc().next);
+      }
     });
   });
 });
