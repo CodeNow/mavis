@@ -1,7 +1,9 @@
 'use strict';
-require('./lib/loadenv.js')();
 
-if (process.env.BYPASS_NEWRELIC != 'true') {
+require('./lib/loadenv.js')();
+var debug = require('debug')('mavis:startup');
+
+if (process.env.NEWRELIC_KEY) {
   require('newrelic');
 }
 
@@ -10,4 +12,4 @@ dd.monitorStart();
 
 var app = require('./lib/app.js');
 app.listen(process.env.PORT);
-console.log('mavis started and running on port ' + process.env.PORT);
+debug('running on port ' + process.env.PORT);
