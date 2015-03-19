@@ -136,6 +136,24 @@ lab.experiment('docker.js unit test', function () {
         });
       });
 
+      lab.test('should not do anything if given an non-instance normal container', function(done) {
+        var eventData = {
+          ip: '0.0.0.0',
+          from: 'ubuntu',
+          id: 'invalid'
+        };
+        dockerEvents.handleDie(eventData, function(err) {
+          if (err) { return done(err); }
+          dockData.getAllDocks(function test(err, data) {
+            if (err || !data) {
+              return dockData.getAllDocks(test);
+            }
+            dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
+            done();
+          });
+        });
+      });
+
       lab.test('should handle container stop with invalid `from` field', function (done) {
         var eventData = {
           ip: '0.0.0.0',
@@ -235,6 +253,24 @@ lab.experiment('docker.js unit test', function () {
           ip: '0.0.0.10',
           from: process.env.IMAGE_BUILDER,
           id: '1'
+        };
+        dockerEvents.handleDie(eventData, function(err) {
+          if (err) { return done(err); }
+          dockData.getAllDocks(function test(err, data) {
+            if (err || !data) {
+              return dockData.getAllDocks(test);
+            }
+            dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
+            done();
+          });
+        });
+      });
+
+      lab.test('should not do anything if given an non-instance build container', function(done) {
+        var eventData = {
+          ip: '0.0.0.0',
+          from: process.env.IMAGE_BUILDER,
+          id: 'invalid'
         };
         dockerEvents.handleDie(eventData, function(err) {
           if (err) { return done(err); }

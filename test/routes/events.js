@@ -64,7 +64,7 @@ lab.experiment('events test', function () {
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
         from: 'ubuntu',
-        id: '2'
+        id: '1'
       });
     });
 
@@ -72,7 +72,7 @@ lab.experiment('events test', function () {
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
         ip: '0.0.0.0',
         from: 'ubuntu',
-        id: '2'
+        id: '1'
       });
       getDocks(function test(err, data) {
         if (data.length === 0) { return getDocks(test); }
@@ -90,6 +90,19 @@ lab.experiment('events test', function () {
       getDocks(function test(err, data) {
         if (data.length === 0) { return getDocks(test); }
         dataExpect1(data, 0, -1, host);
+        done();
+      });
+    });
+
+    lab.test('should not handle non-instance build container death', function(done) {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
+        ip: '0.0.0.0',
+        from: process.env.IMAGE_BUILDER,
+        id: 'invalid'
+      });
+      getDocks(function test(err, data) {
+        if (data.length === 0) { return getDocks(test); }
+        dataExpect1(data, 0, 0, host);
         done();
       });
     });
