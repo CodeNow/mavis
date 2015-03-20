@@ -266,7 +266,7 @@ lab.experiment('docker.js unit test', function () {
         });
       });
 
-      lab.test('should not do anything if given an non-instance build container', function(done) {
+      lab.test('should work when given an non-instance build container from image builder', function(done) {
         var eventData = {
           ip: '0.0.0.0',
           from: process.env.IMAGE_BUILDER,
@@ -278,7 +278,7 @@ lab.experiment('docker.js unit test', function () {
             if (err || !data) {
               return dockData.getAllDocks(test);
             }
-            dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
+            dataExpect1(data, '1', '0', 'http://0.0.0.0:4242');
             done();
           });
         });

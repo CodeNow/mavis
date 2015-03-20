@@ -94,7 +94,7 @@ lab.experiment('events test', function () {
       });
     });
 
-    lab.test('should not handle non-instance build container death', function(done) {
+    lab.test('should handle non-instance build container death', function(done) {
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
         ip: '0.0.0.0',
         from: process.env.IMAGE_BUILDER,
@@ -102,7 +102,7 @@ lab.experiment('events test', function () {
       });
       getDocks(function test(err, data) {
         if (data.length === 0) { return getDocks(test); }
-        dataExpect1(data, 0, 0, host);
+        dataExpect1(data, 0, -1, host);
         done();
       });
     });
