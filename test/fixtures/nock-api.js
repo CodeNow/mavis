@@ -21,9 +21,9 @@ function intercept(cb) {
     .reply(200);
 
   scope
-    .get('/instances?owner[github]=10224339&container.dockerContainer=1')
+    .get('/instances?container.dockerContainer=1')
       .replyWithFile(200, __dirname + '/data/instances.json')
-    .get('/instances?owner[github]=10224339&container.dockerContainer=invalid')
+    .get('/instances?container.dockerContainer=invalid')
       .reply(200, '[]')
 
   if (cb) { cb(); }
