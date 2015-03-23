@@ -5,6 +5,8 @@ var app = require('../../lib/app.js');
 var createCount = require('callback-count');
 var supertest = require('supertest');
 var redis = require('redis');
+var createCount = require('callback-count');
+
 var redisClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_IPADDRESS);
 var dock = ['http://10.101.2.1:4242','http://10.101.2.2:4242','http://10.101.2.3:4242'];
 var rnC = 'numContainers';
@@ -94,6 +96,25 @@ lab.experiment('mavis tests', function () {
         });
       });
     });
+
+    lab.test( 'should not update redis container keys when finding random dock', function(done) {
+      getDock('find_random_dock', function (err, res) {
+        var counter = createCount(2 * dock.length, done);
+        dock.forEach(function(dock) {
+          redisClient.hget(augmentHost(dock), rnC, function(err, data) {
+            if (err) { return done(err); }
+            Lab.expect(data).to.equal('0');
+            counter.next();
+          });
+          redisClient.hget(augmentHost(dock), rnB, function (err, data) {
+            if (err) { return done(err); }
+            Lab.expect(data).to.equal('0');
+            counter.next();
+          });
+        });
+      });
+    });
+
     lab.test('should return prev dock if sent', function (done) {
       var dock = '10.5.1.4';
       getDock({
