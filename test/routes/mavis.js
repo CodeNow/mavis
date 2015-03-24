@@ -5,7 +5,6 @@ var app = require('../../lib/app.js');
 var createCount = require('callback-count');
 var supertest = require('supertest');
 var redis = require('redis');
-var createCount = require('callback-count');
 
 var redisClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_IPADDRESS);
 var dock = ['http://10.101.2.1:4242','http://10.101.2.2:4242','http://10.101.2.3:4242'];
@@ -60,25 +59,30 @@ lab.experiment('mavis tests', function () {
   });
 
 
-  function getDock (data, done) {
+  function getDock (data, done, status) {
     if (typeof data === 'string') {
       data = {
         type: data
       };
     }
+
+    if (!status) {
+      status = 200;
+    }
+
     supertest(app)
       .post('/dock')
       .send(data)
-    .expect(200)
+    .expect(status)
     .end(done);
   }
 
   lab.experiment('logic', function () {
     lab.beforeEach(function (done){
-      var count = createCount(done);
-      redisClient.hmset(augmentHost(dock[1]), rnC, '0', rnB, '0', rh, dock[1], count.inc().next);
-      redisClient.hmset(augmentHost(dock[2]), rnC, '0', rnB, '0', rh, dock[2], count.inc().next);
-      redisClient.hmset(augmentHost(dock[0]), rnC, '0', rnB, '0', rh, dock[0], count.inc().next);
+      var count = createCount(3, done);
+      redisClient.hmset(augmentHost(dock[1]), rnC, '0', rnB, '0', rh, dock[1], count.next);
+      redisClient.hmset(augmentHost(dock[2]), rnC, '0', rnB, '0', rh, dock[2], count.next);
+      redisClient.hmset(augmentHost(dock[0]), rnC, '0', rnB, '0', rh, dock[0], count.next);
     });
 
     lab.test('should update container_run redis key', function (done) {
@@ -93,24 +97,6 @@ lab.experiment('mavis tests', function () {
           }
           Lab.expect(data).to.equal('1');
           done();
-        });
-      });
-    });
-
-    lab.test( 'should not update redis container keys when finding random dock', function(done) {
-      getDock('find_random_dock', function (err, res) {
-        var counter = createCount(2 * dock.length, done);
-        dock.forEach(function(dock) {
-          redisClient.hget(augmentHost(dock), rnC, function(err, data) {
-            if (err) { return done(err); }
-            Lab.expect(data).to.equal('0');
-            counter.next();
-          });
-          redisClient.hget(augmentHost(dock), rnB, function (err, data) {
-            if (err) { return done(err); }
-            Lab.expect(data).to.equal('0');
-            counter.next();
-          });
         });
       });
     });
@@ -243,10 +229,11 @@ lab.experiment('mavis tests', function () {
         'cat', '1', count.inc().next);
     });
     lab.test('should spread load evenly', function (done) {
-      var count = createCount(function (err){
-        if(err) {
-          return done(err);
-        }
+      var numRequests = 30;
+
+      var count = createCount(numRequests, function (err) {
+        if(err) { return done(err); }
+
         var endCount = createCount(dock.length, done);
         function checkData(err, data) {
           if (err) {
@@ -255,13 +242,48 @@ lab.experiment('mavis tests', function () {
           Lab.expect(data).to.equal('10');
           endCount.next();
         }
-        for (var i = dock.length - 1; i >= 0; i--) {
+
+        for (var i = 0; i < dock.length; i++) {
           redisClient.hget(augmentHost(dock[i]), rnC, checkData);
         }
       });
-      for (var i = 30 - 1; i >= 0; i--) {
-        getDock('container_run', count.inc().next);
+
+      for (var i = 0; i < numRequests; i++) {
+        getDock('container_run', count.next);
       }
+    });
+
+    lab.test('should return a dock when using `find_random_dock`', function (done) {
+      getDock('find_random_dock', function(err, res) {
+        Lab.expect(res.body.dockHost).to.exist();
+        done();
+      });
+    });
+
+    lab.test('should not update redis container keys when finding random dock', function (done) {
+      getDock('find_random_dock', function (err, res) {
+        var counter = createCount(2 * dock.length, done);
+        dock.forEach(function(dock) {
+          redisClient.hget(augmentHost(dock), rnC, function(err, data) {
+            if (err) { return done(err); }
+            Lab.expect(data).to.equal('0');
+            counter.next();
+          });
+          redisClient.hget(augmentHost(dock), rnB, function (err, data) {
+            if (err) { return done(err); }
+            Lab.expect(data).to.equal('0');
+            counter.next();
+          });
+        });
+      });
+    });
+
+    lab.test('should 400 when using `find_random_dock` with a `prevDock` hint', function (done) {
+      var options = {
+        type: 'find_random_dock',
+        prevDock: 'anything'
+      };
+      getDock(options, done, 400);
     });
   });
 });
