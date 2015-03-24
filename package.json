@@ -36,12 +36,15 @@
     "node-dogstatsd": "0.0.6",
     "redis": "^0.11.0",
     "redis-pubsub-emitter": "^0.4.0",
-    "rollbar": "^0.4.0"
+    "rollbar": "^0.4.0",
+    "runnable": "git+ssh://git@github.com:CodeNow/runnable-api-client#v0.38.22"
   },
   "devDependencies": {
+    "callback-count": "^0.1.0",
+    "code": "^1.3.0",
     "lab": "4.3.0",
-    "supertest": "^0.13.0",
+    "nock": "^1.2.0",
     "request": "^2.42.0",
-    "callback-count": "^0.1.0"
+    "supertest": "^0.13.0"
   }
 }

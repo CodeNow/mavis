@@ -4,10 +4,10 @@ var lab = exports.lab = Lab.script();
 var redisClient = require('../../lib/models/redis.js');
 var pubSub = require('../../lib/models/redis.js').pubSub;
 var dockData = require('../../lib/models/dockData.js');
-
+var api = require('../fixtures/nock-api');
+var server = require('../../lib/server.js');
 var request = require('request');
-// start app
-require('../../index.js');
+var nock = require('nock');
 
 function dataExpect1(data, numContainers, numBuilds, host) {
   Lab.expect(data.length).to.equal(1);
@@ -39,6 +39,16 @@ function getDocks(cb) {
 var host = 'http://0.0.0.0:4242';
 
 lab.experiment('events test', function () {
+  lab.before(function(done) {
+    api.nock();
+    server.start(done);
+  });
+
+  lab.after(function(done) {
+    api.clean();
+    server.stop(done);
+  });
+
   lab.beforeEach(function (done) {
     redisClient.flushall(done);
   });
@@ -48,18 +58,21 @@ lab.experiment('events test', function () {
       dockData.addHost(host, done);
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
-        from: process.env.IMAGE_BUILDER
+        from: process.env.IMAGE_BUILDER,
+        id: '1'
       });
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
-        from: 'ubuntu'
+        from: 'ubuntu',
+        id: '1'
       });
     });
 
     lab.test('should show normal container die', function(done){
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
         ip: '0.0.0.0',
-        from: 'ubuntu'
+        from: 'ubuntu',
+        id: '1'
       });
       getDocks(function test(err, data) {
         if (data.length === 0) { return getDocks(test); }
@@ -71,7 +84,21 @@ lab.experiment('events test', function () {
     lab.test('should show build container die', function(done){
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
         ip: '0.0.0.0',
-        from: process.env.IMAGE_BUILDER
+        from: process.env.IMAGE_BUILDER,
+        id: '1'
+      });
+      getDocks(function test(err, data) {
+        if (data.length === 0) { return getDocks(test); }
+        dataExpect1(data, 0, -1, host);
+        done();
+      });
+    });
+
+    lab.test('should handle non-instance build container death', function(done) {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
+        ip: '0.0.0.0',
+        from: process.env.IMAGE_BUILDER,
+        id: 'invalid'
       });
       getDocks(function test(err, data) {
         if (data.length === 0) { return getDocks(test); }
