@@ -4,10 +4,8 @@ var lab = exports.lab = Lab.script();
 var redisClient = require('../../lib/models/redis.js');
 var pubSub = require('../../lib/models/redis.js').pubSub;
 var dockData = require('../../lib/models/dockData.js');
-var api = require('../fixtures/nock-api');
 var server = require('../../lib/server.js');
 var request = require('request');
-var nock = require('nock');
 
 function dataExpect1(data, numContainers, numBuilds, host) {
   Lab.expect(data.length).to.equal(1);
@@ -40,12 +38,10 @@ var host = 'http://0.0.0.0:4242';
 
 lab.experiment('events test', function () {
   lab.before(function(done) {
-    api.nock();
     server.start(done);
   });
 
   lab.after(function(done) {
-    api.clean();
     server.stop(done);
   });
 
@@ -54,6 +50,9 @@ lab.experiment('events test', function () {
   });
 
   lab.experiment('runnable:docker:events:die', function () {
+    var containerRunFrom = process.env.RUNNABLE_REGISTRY +
+      '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
+
     lab.beforeEach(function (done) {
       dockData.addHost(host, done);
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
@@ -71,7 +70,7 @@ lab.experiment('events test', function () {
     lab.test('should show normal container die', function(done){
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
         ip: '0.0.0.0',
-        from: 'ubuntu',
+        from: containerRunFrom,
         id: '1'
       });
       getDocks(function test(err, data) {

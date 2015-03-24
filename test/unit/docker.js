@@ -6,8 +6,6 @@ var lab = exports.lab = Lab.script();
 var redisClient = require('../../lib/models/redis.js');
 var dockerEvents = require('../../lib/events/docker.js');
 var dockData = require('../../lib/models/dockData.js');
-var apiClient = require('../../lib/models/api-client.js');
-var api = require('../fixtures/nock-api.js');
 
 function dataExpect1(data, numContainers, numBuilds, host) {
   Lab.expect(data.length).to.equal(1);
@@ -38,19 +36,8 @@ lab.experiment('docker.js unit test', function () {
     });
 
     lab.experiment('handleDie', function () {
-      lab.before(function(done) {
-        api.nock(function(err) {
-          if (err) { return done(err); }
-          apiClient.login(done);
-        });
-      });
-
-      lab.after(function(done) {
-        apiClient.logout(function(err) {
-          if (err) { return done(err); }
-          api.clean(done);
-        });
-      });
+      var containerRunFrom = process.env.RUNNABLE_REGISTRY +
+        '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
 
       lab.beforeEach(function(done) {
         dockData.setKey('http://0.0.0.0:4242','numBuilds', 1, done);
@@ -63,7 +50,7 @@ lab.experiment('docker.js unit test', function () {
       lab.test('should handle normal container stop', function (done) {
         var eventData = {
           ip: '0.0.0.0',
-          from: 'ubuntu',
+          from: containerRunFrom,
           id: '1'
         };
         dockerEvents.handleDie(eventData, function(err) {
@@ -81,7 +68,7 @@ lab.experiment('docker.js unit test', function () {
       lab.test('should handle normal container stop * 2', function (done) {
         var eventData = {
           ip: '0.0.0.0',
-          from: 'ubuntu',
+          from: containerRunFrom,
           id: '1'
         };
         dockerEvents.handleDie(eventData, function(err) {
@@ -102,7 +89,7 @@ lab.experiment('docker.js unit test', function () {
       lab.test('should handle normal container stop invalid `ip` field', function (done) {
         var eventData = {
           ip: null,
-          from: 'ubuntu',
+          from: containerRunFrom,
           id: '1'
         };
         dockerEvents.handleDie(eventData, function(err) {
@@ -122,7 +109,7 @@ lab.experiment('docker.js unit test', function () {
       lab.test('should not do anything when given a non registered dock', function (done) {
         var eventData = {
           ip: '0.0.0.10',
-          from: 'ubuntu',
+          from: containerRunFrom,
           id: '1'
         };
         dockerEvents.handleDie(eventData, function(err) {
@@ -139,7 +126,7 @@ lab.experiment('docker.js unit test', function () {
       lab.test('should not do anything if given an non-instance normal container', function(done) {
         var eventData = {
           ip: '0.0.0.0',
-          from: 'ubuntu',
+          from: 'zettio/weavetools:0.9.0',
           id: 'invalid'
         };
         dockerEvents.handleDie(eventData, function(err) {
