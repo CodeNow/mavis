@@ -99,10 +99,10 @@ lab.experiment('events test', function () {
         });
         var spy = sinon.stub(error, 'log');
         getDocks(function test () {
-          expect(spy.called).to.be.true();
-          expect(spy.firstCall).to.be.exist();
-          expect(spy.firstCall.args).to.be.exist();
-          expect(spy.firstCall.args[0]).to.be.exist();
+          expect(spy.calledOnce).to.be.true();
+          expect(spy.firstCall).to.exist();
+          expect(spy.firstCall.args).to.exist();
+          expect(spy.firstCall.args[0]).to.exist();
           expect(spy.firstCall.args[0]).to.match(/invalid data/);
           done();
         });
@@ -139,10 +139,10 @@ lab.experiment('events test', function () {
         });
         var spy = sinon.stub(error, 'log');
         getDocks(function test () {
-          expect(spy.called).to.be.true();
-          expect(spy.firstCall).to.be.exist();
-          expect(spy.firstCall.args).to.be.exist();
-          expect(spy.firstCall.args[0]).to.be.exist();
+          expect(spy.calledOnce).to.be.true();
+          expect(spy.firstCall).to.exist();
+          expect(spy.firstCall.args).to.exist();
+          expect(spy.firstCall.args[0]).to.exist();
           expect(spy.firstCall.args[0]).to.match(/invalid data/);
           done();
         });
@@ -175,10 +175,10 @@ lab.experiment('events test', function () {
         });
         var spy = sinon.stub(error, 'log');
         getDocks(function test () {
-          expect(spy.called).to.be.true();
-          expect(spy.firstCall).to.be.exist();
-          expect(spy.firstCall.args).to.be.exist();
-          expect(spy.firstCall.args[0]).to.be.exist();
+          expect(spy.calledOnce).to.be.true();
+          expect(spy.firstCall).to.exist();
+          expect(spy.firstCall.args).to.exist();
+          expect(spy.firstCall.args[0]).to.exist();
           expect(spy.firstCall.args[0]).to.match(/invalid data/);
           done();
         });
