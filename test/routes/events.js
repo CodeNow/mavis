@@ -48,10 +48,12 @@ lab.experiment('events test', function () {
       dockData.addHost(host, done);
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
+        host: host,
         from: process.env.IMAGE_BUILDER
       });
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
+        host: host,
         from: 'ubuntu'
       });
     });
@@ -59,6 +61,7 @@ lab.experiment('events test', function () {
     lab.test('should show normal container die', function(done){
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
         ip: '0.0.0.0',
+        host: host,
         from: 'ubuntu'
       });
       getDocks(function test(err, data) {
@@ -71,6 +74,7 @@ lab.experiment('events test', function () {
     lab.test('should show build container die', function(done){
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
         ip: '0.0.0.0',
+        host: host,
         from: process.env.IMAGE_BUILDER
       });
       getDocks(function test(err, data) {
@@ -89,6 +93,7 @@ lab.experiment('events test', function () {
     lab.test('should remove host', function(done){
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_down', {
         ip: '0.0.0.0',
+        host: host,
         from: 'ubuntu'
       });
       getDocks(function test(err, data) {
@@ -103,6 +108,7 @@ lab.experiment('events test', function () {
     lab.test('should add host', function(done){
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
         ip: '0.0.0.0',
+        host: host,
         from: 'ubuntu'
       });
       getDocks(function test(err, data) {
