@@ -6,6 +6,7 @@ var lab = exports.lab = Lab.script();
 var redisClient = require('../../lib/models/redis.js');
 var dockerEvents = require('../../lib/events/docker.js');
 var dockData = require('../../lib/models/dockData.js');
+var host = 'http://0.0.0.0:4242';
 
 function dataExpect1(data, numContainers, numBuilds, host) {
   Lab.expect(data.length).to.equal(1);
@@ -32,7 +33,7 @@ lab.experiment('docker.js unit test', function () {
 
   lab.experiment('container', function () {
     lab.beforeEach(function (done) {
-      dockData.addHost('http://0.0.0.0:4242', done);
+      dockData.addHost(host, done);
     });
 
     lab.experiment('handleDie', function () {
@@ -40,234 +41,175 @@ lab.experiment('docker.js unit test', function () {
         '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
 
       lab.beforeEach(function(done) {
-        dockData.setKey('http://0.0.0.0:4242','numBuilds', 1, done);
+        dockData.setKey(host,'numBuilds', 1, done);
       });
 
       lab.beforeEach(function(done) {
-        dockData.setKey('http://0.0.0.0:4242','numContainers', 1, done);
+        dockData.setKey(host,'numContainers', 1, done);
       });
 
       lab.test('should handle normal container stop', function (done) {
-        var eventData = {
+        dockerEvents.handleDie({
           ip: '0.0.0.0',
+          host: host,
           from: containerRunFrom,
-          id: '1'
-        };
-        dockerEvents.handleDie(eventData, function(err) {
-          if (err) { return done(err); }
-          dockData.getAllDocks(function test(err, data) {
-            if (err || !data) {
-              return dockData.getAllDocks(test);
-            }
-            dataExpect1(data, '0', '1', 'http://0.0.0.0:4242');
-            done();
-          });
+        });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '0', '1', host);
+          done();
         });
       });
 
       lab.test('should handle normal container stop * 2', function (done) {
         var eventData = {
           ip: '0.0.0.0',
-          from: containerRunFrom,
-          id: '1'
+          host: host,
+          from: containerRunFrom
         };
-        dockerEvents.handleDie(eventData, function(err) {
-          if (err) { return done(err); }
-          dockerEvents.handleDie(eventData, function(err) {
-            if (err) { return done(err); }
-            dockData.getAllDocks(function test(err, data) {
-              if (err || !data) {
-                return dockData.getAllDocks(test);
-              }
-              dataExpect1(data, '-1', '1', 'http://0.0.0.0:4242');
-              done();
-            });
-          });
+        dockerEvents.handleDie(eventData);
+        dockerEvents.handleDie(eventData);
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '-1', '1', host);
+          done();
         });
       });
 
       lab.test('should handle normal container stop invalid `ip` field', function (done) {
-        var eventData = {
+        dockerEvents.handleDie({
           ip: null,
-          from: containerRunFrom,
-          id: '1'
-        };
-        dockerEvents.handleDie(eventData, function(err) {
-          if (!err) {
-            return done(new Error('Did not recieve error from handleDie.'));
+          host: null,
+          from: containerRunFrom
+        });
+
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
           }
-          dockData.getAllDocks(function test(err, data) {
-            if (err || !data) {
-              return dockData.getAllDocks(test);
-            }
-            dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
-            done();
-          });
+          dataExpect1(data, '1', '1', host);
+          done();
         });
       });
 
       lab.test('should not do anything when given a non registered dock', function (done) {
-        var eventData = {
-          ip: '0.0.0.10',
-          from: containerRunFrom,
-          id: '1'
-        };
-        dockerEvents.handleDie(eventData, function(err) {
-          dockData.getAllDocks(function test(err, data) {
-            if (err || !data) {
-              return dockData.getAllDocks(test);
-            }
-            dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
-            done();
-          });
+        dockerEvents.handleDie({
+          ip: '0.0.1.0',
+          host: 'http://0.0.1.0:4242',
+          from: containerRunFrom
         });
-      });
-
-      lab.test('should not do anything if given an non-instance normal container', function(done) {
-        var eventData = {
-          ip: '0.0.0.0',
-          from: 'zettio/weavetools:0.9.0',
-          id: 'invalid'
-        };
-        dockerEvents.handleDie(eventData, function(err) {
-          if (err) { return done(err); }
-          dockData.getAllDocks(function test(err, data) {
-            if (err || !data) {
-              return dockData.getAllDocks(test);
-            }
-            dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
-            done();
-          });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '1', host);
+          done();
         });
       });
 
       lab.test('should handle container stop with invalid `from` field', function (done) {
-        var eventData = {
+        dockerEvents.handleDie({
           ip: '0.0.0.0',
-          from: null,
-          id: '1'
-        };
-        dockerEvents.handleDie(eventData, function(err) {
-          if (!err) {
-            return done(new Error('Did not recieve error from handleDie.'));
+          host: host,
+          from: null
+        });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
           }
-          dockData.getAllDocks(function test(err, data) {
-            if (err || !data) {
-              return dockData.getAllDocks(test);
-            }
-            dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
-            done();
-          });
+          dataExpect1(data, '1', '1', host);
+          done();
+        });
+      });
+
+      lab.test('should do nothing when given unknown container type via `from`', function(done) {
+        dockerEvents.handleDie({
+          ip: '0.0.0.0',
+          host: host,
+          from: 'zettio/weavetools:0.9.0'
+        });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '1', host);
+          done();
         });
       });
 
       lab.test('should handle build container stop', function (done) {
-        var eventData = {
+        dockerEvents.handleDie({
           ip: '0.0.0.0',
-          from: process.env.IMAGE_BUILDER,
-          id: '1'
-        };
-        dockerEvents.handleDie(eventData, function(err) {
-          if (err) { return done(err); }
-          dockData.getAllDocks(function test(err, data) {
-            if (err || !data) {
-              return dockData.getAllDocks(test);
-            }
-            dataExpect1(data, '1', '0', 'http://0.0.0.0:4242');
-            done();
-          });
+          host: host,
+          from: process.env.IMAGE_BUILDER
+        });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '0', host);
+          done();
         });
       });
 
       lab.test('should handle build container stop * 2', function (done) {
         var eventData = {
           ip: '0.0.0.0',
-          from: process.env.IMAGE_BUILDER,
-          id: '1'
+          host: host,
+          from: process.env.IMAGE_BUILDER
         };
-        dockerEvents.handleDie(eventData, function(err) {
-          if (err) { return done(err); }
-          dockerEvents.handleDie(eventData, function(err) {
-            if (err) { return done(err); }
-            dockData.getAllDocks(function test(err, data) {
-              if (err || !data) {
-                return dockData.getAllDocks(test);
-              }
-              dataExpect1(data, '1', '-1', 'http://0.0.0.0:4242');
-              done();
-            });
-          });
+        dockerEvents.handleDie(eventData);
+        dockerEvents.handleDie(eventData);
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '-1', host);
+          done();
         });
       });
 
-      lab.test('should handle build container stop invalid ip', function (done) {
-        var eventData = {
+      lab.test('should handle build container stop with invalid ip', function (done) {
+        dockerEvents.handleDie({
           ip: null,
-          from: process.env.IMAGE_BUILDER,
-          id: '1'
-        };
-        dockerEvents.handleDie(eventData, function(err) {
-          if (!err) {
-            return done(new Error('Did not recieve error from handleDie.'));
+          from: process.env.IMAGE_BUILDER
+        });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
           }
-          dockData.getAllDocks(function test(err, data) {
-            if (err || !data) {
-              return dockData.getAllDocks(test);
-            }
-            dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
-            done();
-          });
+          dataExpect1(data, '1', '1', host);
+          done();
         });
       });
 
-      lab.test('should not do anything if invalid data', function (done) {
-        dockerEvents.handleDie(null, function(err) {
-          if (!err) {
-            return done(new Error('Did not recieve error from handleDie.'));
+      lab.test('should do nothing when given invalid data', function (done) {
+        dockerEvents.handleDie(null);
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
           }
-          dockData.getAllDocks(function test(err, data) {
-            if (err || !data) {
-              return dockData.getAllDocks(test);
-            }
-            dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
-            done();
-          });
+          dataExpect1(data, '1', '1', host);
+          done();
         });
       });
 
-      lab.test('should not do anything if non registered dock', function (done) {
-        var eventData = {
-          ip: '0.0.0.10',
-          from: process.env.IMAGE_BUILDER,
-          id: '1'
-        };
-        dockerEvents.handleDie(eventData, function(err) {
-          if (err) { return done(err); }
-          dockData.getAllDocks(function test(err, data) {
-            if (err || !data) {
-              return dockData.getAllDocks(test);
-            }
-            dataExpect1(data, '1', '1', 'http://0.0.0.0:4242');
-            done();
-          });
+      lab.test('should not do anything when given a non registered dock from image builder', function (done) {
+        dockerEvents.handleDie({
+          ip: '0.0.1.0',
+          host: 'http://0.0.1.0:4242',
+          from: process.env.IMAGE_BUILDER
         });
-      });
-
-      lab.test('should work when given an non-instance build container from image builder', function(done) {
-        var eventData = {
-          ip: '0.0.0.0',
-          from: process.env.IMAGE_BUILDER,
-          id: 'invalid'
-        };
-        dockerEvents.handleDie(eventData, function(err) {
-          if (err) { return done(err); }
-          dockData.getAllDocks(function test(err, data) {
-            if (err || !data) {
-              return dockData.getAllDocks(test);
-            }
-            dataExpect1(data, '1', '0', 'http://0.0.0.0:4242');
-            done();
-          });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '1', host);
+          done();
         });
       });
     }); // handleDie
@@ -277,46 +219,51 @@ lab.experiment('docker.js unit test', function () {
     lab.experiment('handleDockUp', function () {
       lab.test('should add host', function (done) {
         dockerEvents.handleDockUp({
-          ip: '0.0.0.0'
+          ip: '0.0.0.0',
+          host: host
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
+          dataExpect1(data, '0', '0', host);
           done();
         });
       });
 
       lab.test('should add host only once', function (done) {
         dockerEvents.handleDockUp({
-          ip: '0.0.0.0'
+          ip: '0.0.0.0',
+          host: host
         });
         dockerEvents.handleDockUp({
-          ip: '0.0.0.0'
+          ip: '0.0.0.0',
+          host: host
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
+          dataExpect1(data, '0', '0', host);
           done();
         });
       });
 
       lab.test('should add different hosts', function (done) {
         dockerEvents.handleDockUp({
-          ip: '0.0.0.0'
+          ip: '0.0.0.0',
+          host: host
         });
         dockerEvents.handleDockUp({
-          ip: '0.0.1.0'
+          ip: '0.0.1.0',
+          host: 'http://0.0.1.0:4242'
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
           Lab.expect(data.length).to.equal(2);
-          dataExpectN(data, 1, '0', '0', 'http://0.0.0.0:4242');
+          dataExpectN(data, 1, '0', '0', host);
           dataExpectN(data, 0, '0', '0', 'http://0.0.1.0:4242');
           done();
         });
@@ -349,13 +296,15 @@ lab.experiment('docker.js unit test', function () {
     lab.experiment('handleDockDown', function () {
       lab.beforeEach(function(done) {
         dockerEvents.handleDockUp({
-          ip: '0.0.0.0'
+          ip: '0.0.0.0',
+          host: host
         });
         done();
       });
       lab.test('should remove host', function (done) {
         dockerEvents.handleDockDown({
-          ip: '0.0.0.0'
+          ip: '0.0.0.0',
+          host: host
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -367,10 +316,12 @@ lab.experiment('docker.js unit test', function () {
       });
       lab.test('should do nothing if host removed twice', function (done) {
         dockerEvents.handleDockDown({
-          ip: '0.0.0.0'
+          ip: '0.0.0.0',
+          host: host
         });
         dockerEvents.handleDockDown({
-          ip: '0.0.0.0'
+          ip: '0.0.0.0',
+          host: host
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -382,13 +333,14 @@ lab.experiment('docker.js unit test', function () {
       });
       lab.test('should not remove host if diff ip', function (done) {
         dockerEvents.handleDockDown({
-          ip: '0.0.1.0'
+          ip: '0.0.1.0',
+          host: 'http://0.0.1.0:4242'
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
+          dataExpect1(data, '0', '0', host);
           done();
         });
       });
@@ -400,7 +352,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
+          dataExpect1(data, '0', '0', host);
           done();
         });
       });
@@ -410,7 +362,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '0', 'http://0.0.0.0:4242');
+          dataExpect1(data, '0', '0', host);
           done();
         });
       });
