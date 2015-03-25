@@ -39,9 +39,10 @@
     "rollbar": "^0.4.0"
   },
   "devDependencies": {
+    "callback-count": "^0.1.0",
     "lab": "4.3.0",
-    "supertest": "^0.13.0",
     "request": "^2.42.0",
-    "callback-count": "^0.1.0"
+    "sinon": "^1.14.1",
+    "supertest": "^0.13.0"
   }
 }
