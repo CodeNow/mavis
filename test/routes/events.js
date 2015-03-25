@@ -88,10 +88,6 @@ lab.experiment('events test', function () {
     });
 
     lab.experiment('missing host error', function() {
-      lab.afterEach(function (done) {
-        error.log.restore();
-        done();
-      });
       lab.test('should show build container die', function(done){
         pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
           ip: '0.0.0.0',
@@ -104,6 +100,7 @@ lab.experiment('events test', function () {
           expect(spy.firstCall.args).to.exist();
           expect(spy.firstCall.args[0]).to.exist();
           expect(spy.firstCall.args[0]).to.match(/invalid data/);
+          error.log.restore();
           done();
         });
       });
@@ -128,10 +125,6 @@ lab.experiment('events test', function () {
       });
     });
     lab.experiment('missing host error', function() {
-      lab.afterEach(function (done) {
-        error.log.restore();
-        done();
-      });
       lab.test('should show build container die', function(done){
         pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_down', {
           ip: '0.0.0.0',
@@ -144,6 +137,7 @@ lab.experiment('events test', function () {
           expect(spy.firstCall.args).to.exist();
           expect(spy.firstCall.args[0]).to.exist();
           expect(spy.firstCall.args[0]).to.match(/invalid data/);
+          error.log.restore();
           done();
         });
       });
@@ -164,10 +158,6 @@ lab.experiment('events test', function () {
       });
     });
     lab.experiment('missing host error', function() {
-      lab.afterEach(function (done) {
-        error.log.restore();
-        done();
-      });
       lab.test('should show build container die', function(done){
         pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
           ip: '0.0.0.0',
@@ -180,6 +170,7 @@ lab.experiment('events test', function () {
           expect(spy.firstCall.args).to.exist();
           expect(spy.firstCall.args[0]).to.exist();
           expect(spy.firstCall.args[0]).to.match(/invalid data/);
+          error.log.restore();
           done();
         });
       });
