@@ -7,10 +7,8 @@ var dockData = require('../../lib/models/dockData.js');
 var expect = Lab.expect;
 var sinon = require('sinon');
 var error = require('../../lib/error');
-
+var server = require('../../lib/server.js');
 var request = require('request');
-// start app
-require('../../index.js');
 
 function dataExpect1(data, numContainers, numBuilds, host) {
   expect(data.length).to.equal(1);
@@ -42,11 +40,22 @@ function getDocks(cb) {
 var host = 'http://0.0.0.0:4242';
 
 lab.experiment('events test', function () {
+  lab.before(function(done) {
+    server.start(done);
+  });
+
+  lab.after(function(done) {
+    server.stop(done);
+  });
+
   lab.beforeEach(function (done) {
     redisClient.flushall(done);
   });
 
   lab.experiment('runnable:docker:events:die', function () {
+    var containerRunFrom = process.env.RUNNABLE_REGISTRY +
+      '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
+
     lab.beforeEach(function (done) {
       dockData.addHost(host, done);
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
@@ -57,7 +66,7 @@ lab.experiment('events test', function () {
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
         host: host,
-        from: 'ubuntu'
+        from: containerRunFrom
       });
     });
 
@@ -65,7 +74,7 @@ lab.experiment('events test', function () {
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
         ip: '0.0.0.0',
         host: host,
-        from: 'ubuntu'
+        from: containerRunFrom
       });
       getDocks(function test (err, data) {
         if (data.length === 0) { return getDocks(test); }
@@ -80,9 +89,22 @@ lab.experiment('events test', function () {
         host: host,
         from: process.env.IMAGE_BUILDER
       });
-      getDocks(function test (err, data) {
+      getDocks(function test(err, data) {
         if (data.length === 0) { return getDocks(test); }
         dataExpect1(data, 0, -1, host);
+        done();
+      });
+    });
+
+    lab.test('should handle unknown containe type death', function(done) {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
+        ip: '0.0.0.0',
+        host: host,
+        from: 'zettio/weavetools:0.9.0'
+      });
+      getDocks(function test (err, data) {
+        if (data.length === 0) { return getDocks(test); }
+        dataExpect1(data, 0, 0, host);
         done();
       });
     });
