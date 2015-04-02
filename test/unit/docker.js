@@ -39,6 +39,8 @@ lab.experiment('docker.js unit test', function () {
     lab.experiment('handleDie', function () {
       var containerRunFrom = process.env.RUNNABLE_REGISTRY +
         '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
+      var imageBuilderFrom = process.env.IMAGE_BUILDER +
+        ':d1.4.1-v2.0.2';
 
       lab.beforeEach(function(done) {
         dockData.setKey(host,'numBuilds', 1, done);
@@ -145,7 +147,7 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDie({
           ip: '0.0.0.0',
           host: host,
-          from: process.env.IMAGE_BUILDER
+          from: imageBuilderFrom
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -160,7 +162,7 @@ lab.experiment('docker.js unit test', function () {
         var eventData = {
           ip: '0.0.0.0',
           host: host,
-          from: process.env.IMAGE_BUILDER
+          from: imageBuilderFrom
         };
         dockerEvents.handleDie(eventData);
         dockerEvents.handleDie(eventData);
@@ -176,7 +178,7 @@ lab.experiment('docker.js unit test', function () {
       lab.test('should handle build container stop with invalid ip', function (done) {
         dockerEvents.handleDie({
           ip: null,
-          from: process.env.IMAGE_BUILDER
+          from: imageBuilderFrom
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -202,7 +204,7 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDie({
           ip: '0.0.1.0',
           host: 'http://0.0.1.0:4242',
-          from: process.env.IMAGE_BUILDER
+          from: imageBuilderFrom
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
