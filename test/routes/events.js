@@ -71,7 +71,7 @@ lab.experiment('events test', function () {
     });
 
     lab.test('should show normal container die', function(done){
-      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'destroy', {
         ip: '0.0.0.0',
         host: host,
         from: containerRunFrom
@@ -84,7 +84,7 @@ lab.experiment('events test', function () {
     });
 
     lab.test('should show build container die', function(done){
-      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'destroy', {
         ip: '0.0.0.0',
         host: host,
         from: process.env.IMAGE_BUILDER
@@ -97,7 +97,7 @@ lab.experiment('events test', function () {
     });
 
     lab.test('should handle unknown containe type death', function(done) {
-      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'destroy', {
         ip: '0.0.0.0',
         host: host,
         from: 'zettio/weavetools:0.9.0'
@@ -111,7 +111,7 @@ lab.experiment('events test', function () {
 
     lab.experiment('missing host error', function() {
       lab.test('should show build container die', function(done){
-        pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
+        pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'destroy', {
           ip: '0.0.0.0',
           from: process.env.IMAGE_BUILDER
         });
