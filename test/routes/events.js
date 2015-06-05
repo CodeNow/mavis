@@ -52,6 +52,83 @@ lab.experiment('events test', function () {
     redisClient.flushall(done);
   });
 
+  lab.experiment('runnable:docker:events:destroy', function () {
+    var containerRunFrom = process.env.RUNNABLE_REGISTRY +
+      '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
+
+    lab.beforeEach(function (done) {
+      dockData.addHost(host, done);
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
+        ip: '0.0.0.0',
+        host: host,
+        from: process.env.IMAGE_BUILDER
+      });
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
+        ip: '0.0.0.0',
+        host: host,
+        from: containerRunFrom
+      });
+    });
+
+    lab.test('should decrement container count', function(done){
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'destroy', {
+        ip: '0.0.0.0',
+        host: host,
+        from: containerRunFrom
+      });
+      getDocks(function test (err, data) {
+        if (data.length === 0) { return getDocks(test); }
+        dataExpect1(data, -1, 0, host);
+        done();
+      });
+    });
+
+    lab.test('should not update build count', function(done){
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'destroy', {
+        ip: '0.0.0.0',
+        host: host,
+        from: process.env.IMAGE_BUILDER
+      });
+      getDocks(function test(err, data) {
+        if (data.length === 0) { return getDocks(test); }
+        dataExpect1(data, 0, 0, host);
+        done();
+      });
+    });
+
+    lab.test('should not update any counts for unknown images', function(done) {
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'destroy', {
+        ip: '0.0.0.0',
+        host: host,
+        from: 'zettio/weavetools:0.9.0'
+      });
+      getDocks(function test (err, data) {
+        if (data.length === 0) { return getDocks(test); }
+        dataExpect1(data, 0, 0, host);
+        done();
+      });
+    });
+
+    lab.experiment('missing host error', function() {
+      lab.test('should show build container die', function(done){
+        pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'destroy', {
+          ip: '0.0.0.0',
+          from: process.env.IMAGE_BUILDER
+        });
+        var spy = sinon.stub(error, 'log');
+        getDocks(function test () {
+          expect(spy.calledOnce).to.be.true();
+          expect(spy.firstCall).to.exist();
+          expect(spy.firstCall.args).to.exist();
+          expect(spy.firstCall.args[0]).to.exist();
+          expect(spy.firstCall.args[0]).to.match(/invalid data/);
+          error.log.restore();
+          done();
+        });
+      });
+    });
+  }); // runnable:docker:events:destroy
+
   lab.experiment('runnable:docker:events:die', function () {
     var containerRunFrom = process.env.RUNNABLE_REGISTRY +
       '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
@@ -70,7 +147,7 @@ lab.experiment('events test', function () {
       });
     });
 
-    lab.test('should show normal container die', function(done){
+    lab.test('should not update container count', function(done){
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
         ip: '0.0.0.0',
         host: host,
@@ -78,12 +155,12 @@ lab.experiment('events test', function () {
       });
       getDocks(function test (err, data) {
         if (data.length === 0) { return getDocks(test); }
-        dataExpect1(data, -1, 0, host);
+        dataExpect1(data, 0, 0, host);
         done();
       });
     });
 
-    lab.test('should show build container die', function(done){
+    lab.test('should decrement build count', function(done){
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
         ip: '0.0.0.0',
         host: host,
@@ -96,7 +173,7 @@ lab.experiment('events test', function () {
       });
     });
 
-    lab.test('should handle unknown containe type death', function(done) {
+    lab.test('should not update any counts for unknown images', function(done) {
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
         ip: '0.0.0.0',
         host: host,

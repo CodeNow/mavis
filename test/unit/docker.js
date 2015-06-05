@@ -35,8 +35,7 @@ lab.experiment('docker.js unit test', function () {
     lab.beforeEach(function (done) {
       dockData.addHost(host, done);
     });
-
-    lab.experiment('handleDie', function () {
+        lab.experiment('handleDie', function () {
       var containerRunFrom = process.env.RUNNABLE_REGISTRY +
         '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
       var imageBuilderFrom = process.env.IMAGE_BUILDER +
@@ -50,7 +49,7 @@ lab.experiment('docker.js unit test', function () {
         dockData.setKey(host,'numContainers', 1, done);
       });
 
-      lab.test('should handle normal container stop', function (done) {
+      lab.test('should not decrement container run count', function (done) {
         dockerEvents.handleDie({
           ip: '0.0.0.0',
           host: host,
@@ -60,12 +59,12 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '0', '1', host);
+          dataExpect1(data, '1', '1', host);
           done();
         });
       });
 
-      lab.test('should handle normal container stop * 2', function (done) {
+      lab.test('should not decrement container run count * 2', function (done) {
         var eventData = {
           ip: '0.0.0.0',
           host: host,
@@ -77,12 +76,12 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          dataExpect1(data, '-1', '1', host);
+          dataExpect1(data, '1', '1', host);
           done();
         });
       });
 
-      lab.test('should handle normal container stop invalid `ip` field', function (done) {
+      lab.test('should not decrement counts for invalid `ip` field', function (done) {
         dockerEvents.handleDie({
           ip: null,
           host: null,
@@ -113,7 +112,7 @@ lab.experiment('docker.js unit test', function () {
         });
       });
 
-      lab.test('should handle container stop with invalid `from` field', function (done) {
+      lab.test('should handle container die with invalid `from` field', function (done) {
         dockerEvents.handleDie({
           ip: '0.0.0.0',
           host: host,
@@ -143,7 +142,7 @@ lab.experiment('docker.js unit test', function () {
         });
       });
 
-      lab.test('should handle build container stop', function (done) {
+      lab.test('should decrement container build count', function (done) {
         dockerEvents.handleDie({
           ip: '0.0.0.0',
           host: host,
@@ -158,7 +157,7 @@ lab.experiment('docker.js unit test', function () {
         });
       });
 
-      lab.test('should handle build container stop * 2', function (done) {
+      lab.test('should decrement container build count * 2', function (done) {
         var eventData = {
           ip: '0.0.0.0',
           host: host,
@@ -175,7 +174,7 @@ lab.experiment('docker.js unit test', function () {
         });
       });
 
-      lab.test('should handle build container stop with invalid ip', function (done) {
+      lab.test('should not decrement container build count with invalid ip', function (done) {
         dockerEvents.handleDie({
           ip: null,
           from: imageBuilderFrom
@@ -215,6 +214,186 @@ lab.experiment('docker.js unit test', function () {
         });
       });
     }); // handleDie
+
+    lab.experiment('handleDestroy', function () {
+      var containerRunFrom = process.env.RUNNABLE_REGISTRY +
+        '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
+      var imageBuilderFrom = process.env.IMAGE_BUILDER +
+        ':d1.4.1-v2.0.2';
+
+      lab.beforeEach(function(done) {
+        dockData.setKey(host,'numBuilds', 1, done);
+      });
+
+      lab.beforeEach(function(done) {
+        dockData.setKey(host,'numContainers', 1, done);
+      });
+
+      lab.test('should handle normal container stop', function (done) {
+        dockerEvents.handleDestroy({
+          ip: '0.0.0.0',
+          host: host,
+          from: containerRunFrom,
+        });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '0', '1', host);
+          done();
+        });
+      });
+
+      lab.test('should handle normal container stop * 2', function (done) {
+        var eventData = {
+          ip: '0.0.0.0',
+          host: host,
+          from: containerRunFrom
+        };
+        dockerEvents.handleDestroy(eventData);
+        dockerEvents.handleDestroy(eventData);
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '-1', '1', host);
+          done();
+        });
+      });
+
+      lab.test('should handle normal container stop invalid `ip` field', function (done) {
+        dockerEvents.handleDestroy({
+          ip: null,
+          host: null,
+          from: containerRunFrom
+        });
+
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '1', host);
+          done();
+        });
+      });
+
+      lab.test('should not do anything when given a non registered dock', function (done) {
+        dockerEvents.handleDestroy({
+          ip: '0.0.1.0',
+          host: 'http://0.0.1.0:4242',
+          from: containerRunFrom
+        });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '1', host);
+          done();
+        });
+      });
+
+      lab.test('should handle container stop with invalid `from` field', function (done) {
+        dockerEvents.handleDestroy({
+          ip: '0.0.0.0',
+          host: host,
+          from: null
+        });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '1', host);
+          done();
+        });
+      });
+
+      lab.test('should do nothing when given unknown container type via `from`', function(done) {
+        dockerEvents.handleDestroy({
+          ip: '0.0.0.0',
+          host: host,
+          from: 'zettio/weavetools:0.9.0'
+        });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '1', host);
+          done();
+        });
+      });
+
+      lab.test('should not decrement container build count', function (done) {
+        dockerEvents.handleDestroy({
+          ip: '0.0.0.0',
+          host: host,
+          from: imageBuilderFrom
+        });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '1', host);
+          done();
+        });
+      });
+
+      lab.test('should not decrement container build count * 2', function (done) {
+        var eventData = {
+          ip: '0.0.0.0',
+          host: host,
+          from: imageBuilderFrom
+        };
+        dockerEvents.handleDestroy(eventData);
+        dockerEvents.handleDestroy(eventData);
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '1', host);
+          done();
+        });
+      });
+
+      lab.test('should not decrement container build count with invalid ip', function (done) {
+        dockerEvents.handleDestroy({
+          ip: null,
+          from: imageBuilderFrom
+        });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '1', host);
+          done();
+        });
+      });
+
+      lab.test('should do nothing when given invalid data', function (done) {
+        dockerEvents.handleDestroy(null);
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '1', host);
+          done();
+        });
+      });
+
+      lab.test('should not do anything when given a non registered dock from image builder', function (done) {
+        dockerEvents.handleDestroy({
+          ip: '0.0.1.0',
+          host: 'http://0.0.1.0:4242',
+          from: imageBuilderFrom
+        });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          dataExpect1(data, '1', '1', host);
+          done();
+        });
+      });
+    }); // handleDestroy
   }); // container
 
   lab.experiment('deamon', function () {
