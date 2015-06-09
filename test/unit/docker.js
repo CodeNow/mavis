@@ -33,9 +33,9 @@ lab.experiment('docker.js unit test', function () {
 
   lab.experiment('container', function () {
     lab.beforeEach(function (done) {
-      dockData.addHost(host, done);
+      dockData.addHost(host, [], done);
     });
-        lab.experiment('handleDie', function () {
+    lab.experiment('handleDie', function () {
       var containerRunFrom = process.env.RUNNABLE_REGISTRY +
         '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
       var imageBuilderFrom = process.env.IMAGE_BUILDER +
@@ -398,7 +398,7 @@ lab.experiment('docker.js unit test', function () {
 
   lab.experiment('deamon', function () {
     lab.experiment('handleDockUp', function () {
-      lab.test('should add host', function (done) {
+      lab.test('should add host without tags', function (done) {
         dockerEvents.handleDockUp({
           ip: '0.0.0.0',
           host: host
@@ -407,6 +407,22 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
+          dataExpect1(data, '0', '0', host);
+          done();
+        });
+      });
+      lab.test('should add host with tags', function (done) {
+        var tags = ['test', 'tags'];
+        dockerEvents.handleDockUp({
+          ip: '0.0.0.0',
+          host: host,
+          tags: tags
+        });
+        dockData.getAllDocks(function test(err, data) {
+          if (err || !data) {
+            return dockData.getAllDocks(test);
+          }
+          Lab.expect(data[0].tags).to.deep.equal(tags.join(','));
           dataExpect1(data, '0', '0', host);
           done();
         });

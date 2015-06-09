@@ -11,6 +11,7 @@ var dock = ['http://10.101.2.1:4242','http://10.101.2.2:4242','http://10.101.2.3
 var rnC = 'numContainers';
 var rnB = 'numBuilds';
 var rh = 'host';
+var dockData = require('../../lib/models/dockData.js');
 
 function augmentHost(host) {
   return process.env.REDIS_HOST_KEYS + host;
@@ -78,11 +79,12 @@ lab.experiment('mavis tests', function () {
   }
 
   lab.experiment('logic', function () {
+    var testTags = ['those', 'tags'];
     lab.beforeEach(function (done){
       var count = createCount(3, done);
-      redisClient.hmset(augmentHost(dock[1]), rnC, '0', rnB, '0', rh, dock[1], count.next);
-      redisClient.hmset(augmentHost(dock[2]), rnC, '0', rnB, '0', rh, dock[2], count.next);
-      redisClient.hmset(augmentHost(dock[0]), rnC, '0', rnB, '0', rh, dock[0], count.next);
+      dockData.addHost(dock[0], [], count.next);
+      dockData.addHost(dock[1], [], count.next);
+      dockData.addHost(dock[2], testTags, count.next);
     });
 
     lab.test('should update container_run redis key', function (done) {
@@ -111,6 +113,27 @@ lab.experiment('mavis tests', function () {
         done(err);
       });
     });
+
+    lab.test('should return only dock with tags', function (done) {
+      getDock({
+        type: 'container_run',
+        tags: testTags,
+      }, function (err, res) {
+        Lab.expect(res.body.dockHost).to.equal(dock[2]);
+        done(err);
+      });
+    });
+
+    lab.test('should return only dock with tags', function (done) {
+      getDock({
+        type: 'container_build',
+        tags: testTags,
+      }, function (err, res) {
+        Lab.expect(res.body.dockHost).to.equal(dock[2]);
+        done(err);
+      });
+    });
+
     lab.test('should update container_build redis key', function (done) {
       getDock('container_build', function (err, res) {
         if(err) {
@@ -261,7 +284,7 @@ lab.experiment('mavis tests', function () {
     });
 
     lab.test('should not update redis container keys when finding random dock', function (done) {
-      getDock('find_random_dock', function (err, res) {
+      getDock('find_random_dock', function () {
         var counter = createCount(2 * dock.length, done);
         dock.forEach(function(dock) {
           redisClient.hget(augmentHost(dock), rnC, function(err, data) {

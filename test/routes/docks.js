@@ -44,7 +44,8 @@ lab.experiment('docks route tests', function () {
             return done(err);
           }
           dock.forEach(function (host){
-            Lab.expect(res.body).to.contain({ numContainers: 0, numBuilds: 0, host: host });
+            Lab.expect(res.body)
+              .to.deep.contain({ numContainers: 0, numBuilds: 0, host: host, tags: [] });
           });
           done(err);
         });
@@ -122,7 +123,8 @@ lab.experiment('docks route tests', function () {
             .expect(200)
             .end(function (err, res) {
               dock.forEach(function (host){
-                Lab.expect(res.body).to.contain({ numContainers: 0, numBuilds: 0, host: host });
+                Lab.expect(res.body)
+                  .to.contain({ numContainers: 0, numBuilds: 0, host: host, tags: [] });
               });
               done(err);
             });
@@ -195,7 +197,8 @@ lab.experiment('docks route tests', function () {
         value: 1234
       }, function (err, res) {
         if (err) { return done(err); }
-        Lab.expect(res.body).to.contain({ numContainers: 0, numBuilds: 1234, host: host });
+        Lab.expect(res.body)
+          .to.contain({ numContainers: 0, numBuilds: 1234, host: host, tags: [] });
         done();
       });
     });
@@ -207,7 +210,8 @@ lab.experiment('docks route tests', function () {
         value: 1234
       }, function (err, res) {
         if (err) { return done(err); }
-        Lab.expect(res.body).to.contain({ numContainers: 1234, numBuilds: 0, host: host });
+        Lab.expect(res.body)
+          .to.contain({ numContainers: 1234, numBuilds: 0, host: host, tags: [] });
         done();
       });
     });
@@ -270,11 +274,11 @@ lab.experiment('docks route tests', function () {
             .get('/docks')
             .expect(200)
             .end(function (err, res) {
-              Lab.expect(res.body).to.contain({
-                numContainers: 0,
-                numBuilds: 0,
-                host: host
-              });
+              var result = res.body[0];
+              Lab.expect(result.numContainers).to.equal(0);
+              Lab.expect(result.numBuilds).to.equal(0);
+              Lab.expect(result.host).to.equal(host);
+              Lab.expect(result.tags).to.deep.equal([]);
               done(err);
             });
         });
@@ -294,11 +298,65 @@ lab.experiment('docks route tests', function () {
             .get('/docks')
             .expect(200)
             .end(function (err, res) {
-              Lab.expect(res.body).to.contain({
-                numContainers: 0,
-                numBuilds: 0,
-                host: host
-              });
+              var result = res.body[0];
+              Lab.expect(result.numContainers).to.equal(0);
+              Lab.expect(result.numBuilds).to.equal(0);
+              Lab.expect(result.host).to.equal(host);
+              Lab.expect(result.tags).to.deep.equal([]);
+              done(err);
+            });
+        });
+    });
+
+    lab.test('should add a dock (host in body) w/tags in query', function (done) {
+      var host = 'http://10.101.2.1:4242';
+      var tags = ['cool', 'tags'];
+      supertest(app)
+        .put('/docks')
+        .query({
+          tags: tags
+        })
+        .send({
+          host: host
+        })
+        .expect(200)
+        .end(function (err) {
+          if(err) { return done(err); }
+          supertest(app)
+            .get('/docks')
+            .expect(200)
+            .end(function (err, res) {
+              var result = res.body[0];
+              Lab.expect(result.numContainers).to.equal(0);
+              Lab.expect(result.numBuilds).to.equal(0);
+              Lab.expect(result.host).to.equal(host);
+              Lab.expect(result.tags).to.deep.equal(tags);
+              done(err);
+            });
+        });
+    });
+
+    lab.test('should add a dock (host in body) w/tags in body', function (done) {
+      var host = 'http://10.101.2.1:4242';
+      var tags = ['cool', 'tags'];
+      supertest(app)
+        .put('/docks')
+        .send({
+          host: host,
+          tags: tags
+        })
+        .expect(200)
+        .end(function (err) {
+          if(err) { return done(err); }
+          supertest(app)
+            .get('/docks')
+            .expect(200)
+            .end(function (err, res) {
+              var result = res.body[0];
+              Lab.expect(result.numContainers).to.equal(0);
+              Lab.expect(result.numBuilds).to.equal(0);
+              Lab.expect(result.host).to.equal(host);
+              Lab.expect(result.tags).to.deep.equal(tags);
               done(err);
             });
         });
