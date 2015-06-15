@@ -57,7 +57,7 @@ lab.experiment('events test', function () {
       '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
 
     lab.beforeEach(function (done) {
-      dockData.addHost(host, done);
+      dockData.addHost(host, [], done);
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
         host: host,
@@ -134,7 +134,7 @@ lab.experiment('events test', function () {
       '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
 
     lab.beforeEach(function (done) {
-      dockData.addHost(host, done);
+      dockData.addHost(host, [], done);
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
         host: host,
@@ -208,7 +208,7 @@ lab.experiment('events test', function () {
 
   lab.experiment('runnable:docker:events:docker_daemon_down', function () {
     lab.beforeEach(function (done) {
-      dockData.addHost(host, done);
+      dockData.addHost(host, [], done);
     });
 
     lab.test('should remove host', function(done){
@@ -244,7 +244,7 @@ lab.experiment('events test', function () {
   }); // runnable:docker:events:docker_daemon_down
 
   lab.experiment('runnable:docker:events:docker_daemon_up', function () {
-    lab.test('should add host', function(done){
+    lab.test('should add host without tags', function(done){
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
         ip: '0.0.0.0',
         host: host,
@@ -252,6 +252,21 @@ lab.experiment('events test', function () {
       });
       getDocks(function test (err, data) {
         if (data.length === 0) { return getDocks(test); }
+        dataExpect1(data, 0, 0, host);
+        done();
+      });
+    });
+    lab.test('should add host with tags', function(done){
+      var tags = ['test', 'tags'];
+      pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
+        ip: '0.0.0.0',
+        host: host,
+        from: 'ubuntu',
+        tags: tags
+      });
+      getDocks(function test (err, data) {
+        if (data.length === 0) { return getDocks(test); }
+        expect(data[0].tags).to.deep.equal(tags);
         dataExpect1(data, 0, 0, host);
         done();
       });

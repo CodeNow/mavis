@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/CodeNow/mavis",
   "dependencies": {
-    "101": "^0.7.1",
+    "101": "^0.7.3",
     "async": "^0.9.0",
     "body-parser": "^1.4.3",
     "boom": "^2.6.1",
