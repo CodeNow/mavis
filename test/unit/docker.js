@@ -33,7 +33,7 @@ lab.experiment('docker.js unit test', function () {
 
   lab.experiment('container', function () {
     lab.beforeEach(function (done) {
-      dockData.addHost(host, [], done);
+      dockData.addHost(host, '', done);
     });
     lab.experiment('handleDie', function () {
       var containerRunFrom = process.env.RUNNABLE_REGISTRY +
@@ -412,7 +412,7 @@ lab.experiment('docker.js unit test', function () {
         });
       });
       lab.test('should add host with tags', function (done) {
-        var tags = ['test', 'tags'];
+        var tags = 'test, tags';
         dockerEvents.handleDockUp({
           ip: '0.0.0.0',
           host: host,
@@ -422,7 +422,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          Lab.expect(data[0].tags).to.deep.equal(tags.join(','));
+          Lab.expect(data[0].tags).to.equal(tags);
           dataExpect1(data, '0', '0', host);
           done();
         });
