@@ -79,7 +79,7 @@ lab.experiment('mavis tests', function () {
   }
 
   lab.experiment('logic', function () {
-    var testTags = 'those, tags';
+    var testTags = 'those,tags';
     lab.beforeEach(function (done){
       var count = createCount(3, done);
       dockData.addHost(dock[0], '', count.next);

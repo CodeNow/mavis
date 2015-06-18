@@ -412,7 +412,7 @@ lab.experiment('docker.js unit test', function () {
         });
       });
       lab.test('should add host with tags', function (done) {
-        var tags = 'test, tags';
+        var tags = 'test,tags';
         dockerEvents.handleDockUp({
           ip: '0.0.0.0',
           host: host,

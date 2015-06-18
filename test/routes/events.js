@@ -257,7 +257,7 @@ lab.experiment('events test', function () {
       });
     });
     lab.test('should add host with tags', function(done){
-      var tags = 'test, tags';
+      var tags = 'test,tags';
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
         ip: '0.0.0.0',
         host: host,

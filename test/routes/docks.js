@@ -38,12 +38,12 @@ lab.experiment('docks route tests', function () {
           });
       });
     });
-    lab.experiment('with tags', function () {
+    lab.experiment('with same tags', function () {
       lab.beforeEach(function (done){
         var count = createCount(3, done);
-        dockData.addHost(dock[0], 'test', count.next);
-        dockData.addHost(dock[1], 'test', count.next);
-        dockData.addHost(dock[2], 'test', count.next);
+        dockData.addHost(dock[0], 'throw,some, more', count.next);
+        dockData.addHost(dock[1], 'throw ,some ,more', count.next);
+        dockData.addHost(dock[2], ' throw , some  , more  ', count.next);
       });
 
       lab.test('should get list of docks', function (done) {
@@ -56,7 +56,7 @@ lab.experiment('docks route tests', function () {
             }
             dock.forEach(function (host){
               Lab.expect(res.body)
-                .to.deep.contain({ numContainers: 0, numBuilds: 0, host: host, tags: 'test' });
+                .to.deep.contain({ numContainers: 0, numBuilds: 0, host: host, tags: 'throw,some,more' });
             });
             done(err);
           });
@@ -321,7 +321,7 @@ lab.experiment('docks route tests', function () {
 
     lab.test('should add a dock (host in body) w/tags in query', function (done) {
       var host = 'http://10.101.2.1:4242';
-      var tags = 'cool, tags';
+      var tags = 'cool,tags';
       supertest(app)
         .put('/docks')
         .query({
@@ -349,7 +349,7 @@ lab.experiment('docks route tests', function () {
 
     lab.test('should add a dock (host in body) w/tags in body', function (done) {
       var host = 'http://10.101.2.1:4242';
-      var tags = 'cool, tags';
+      var tags = 'cool,tags';
       supertest(app)
         .put('/docks')
         .send({
