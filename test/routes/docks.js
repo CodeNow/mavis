@@ -7,57 +7,69 @@ var supertest = require('supertest');
 var redis = require('redis');
 var redisClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_IPADDRESS);
 var dock = ['http://10.101.2.1:4242','http://10.101.2.2:4242','http://10.101.2.3:4242'];
-var rnC = 'numContainers';
-var rnB = 'numBuilds';
-var rh = 'host';
-
-function augmentHost(host) {
-  return process.env.REDIS_HOST_KEYS + host;
-}
+var dockData = require('../../lib/models/dockData.js');
 
 lab.experiment('docks route tests', function () {
   lab.beforeEach(function (done) {
-    redisClient.keys(process.env.REDIS_HOST_KEYS+'*', function(err, data) {
-      if (!data) { return done(); }
-      var count = createCount(done);
-      count.inc();
-      data.forEach(function(key) {
-        redisClient.del(key, count.inc().next);
-      });
-      count.next();
-    });
+    redisClient.flushall(done);
   });
   lab.experiment('GET /docks', function () {
-    lab.beforeEach(function (done){
-      var count = createCount(done);
-      redisClient.hmset(augmentHost(dock[1]), rnC, '0', rnB, '0', rh, dock[1], count.inc().next);
-      redisClient.hmset(augmentHost(dock[2]), rnC, '0', rnB, '0', rh, dock[2], count.inc().next);
-      redisClient.hmset(augmentHost(dock[0]), rnC, '0', rnB, '0', rh, dock[0], count.inc().next);
-    });
+    lab.experiment('docks with no tags', function () {
+      lab.beforeEach(function (done){
+        var count = createCount(3, done);
+        dockData.addHost(dock[0], '', count.next);
+        dockData.addHost(dock[1], '', count.next);
+        dockData.addHost(dock[2], '', count.next);
+      });
 
-    lab.test('should get list of docks', function (done) {
-      supertest(app)
-        .get('/docks')
-        .expect(200)
-        .end(function (err, res) {
-          if(err) {
-            return done(err);
-          }
-          dock.forEach(function (host){
-            Lab.expect(res.body)
-              .to.deep.contain({ numContainers: 0, numBuilds: 0, host: host, tags: [] });
+      lab.test('should get list of docks', function (done) {
+        supertest(app)
+          .get('/docks')
+          .expect(200)
+          .end(function (err, res) {
+            if(err) {
+              return done(err);
+            }
+            dock.forEach(function (host){
+              Lab.expect(res.body)
+                .to.deep.contain({ numContainers: 0, numBuilds: 0, host: host, tags: '' });
+            });
+            done(err);
           });
-          done(err);
-        });
+      });
+    });
+    lab.experiment('with same tags', function () {
+      lab.beforeEach(function (done){
+        var count = createCount(3, done);
+        dockData.addHost(dock[0], 'throw,some, more', count.next);
+        dockData.addHost(dock[1], 'throw ,some ,more', count.next);
+        dockData.addHost(dock[2], ' throw , some  , more  ', count.next);
+      });
+
+      lab.test('should get list of docks', function (done) {
+        supertest(app)
+          .get('/docks')
+          .expect(200)
+          .end(function (err, res) {
+            if(err) {
+              return done(err);
+            }
+            dock.forEach(function (host){
+              Lab.expect(res.body)
+                .to.deep.contain({ numContainers: 0, numBuilds: 0, host: host, tags: 'throw,some,more' });
+            });
+            done(err);
+          });
+      });
     });
   });
 
   lab.experiment('DELETE /docks', function () {
     lab.beforeEach(function (done){
-      var count = createCount(done);
-      redisClient.hmset(augmentHost(dock[1]), rnC, '0', rnB, '0', rh, dock[1], count.inc().next);
-      redisClient.hmset(augmentHost(dock[2]), rnC, '0', rnB, '0', rh, dock[2], count.inc().next);
-      redisClient.hmset(augmentHost(dock[0]), rnC, '0', rnB, '0', rh, dock[0], count.inc().next);
+      var count = createCount(3, done);
+      dockData.addHost(dock[0], '', count.next);
+      dockData.addHost(dock[1], '', count.next);
+      dockData.addHost(dock[2], '', count.next);
     });
 
     lab.test('should delete given host in body', function (done) {
@@ -124,7 +136,7 @@ lab.experiment('docks route tests', function () {
             .end(function (err, res) {
               dock.forEach(function (host){
                 Lab.expect(res.body)
-                  .to.contain({ numContainers: 0, numBuilds: 0, host: host, tags: [] });
+                  .to.contain({ numContainers: 0, numBuilds: 0, host: host, tags: '' });
               });
               done(err);
             });
@@ -186,8 +198,7 @@ lab.experiment('docks route tests', function () {
 
   lab.experiment('POST /docks', function () {
     lab.beforeEach(function (done){
-      var count = createCount(done);
-      redisClient.hmset(augmentHost(dock[0]), rnC, '0', rnB, '0', rh, dock[0], count.inc().next);
+      dockData.addHost(dock[0], '', done);
     });
     lab.test('should update numBuilds', function (done) {
       var host = 'http://10.101.2.1:4242';
@@ -198,7 +209,7 @@ lab.experiment('docks route tests', function () {
       }, function (err, res) {
         if (err) { return done(err); }
         Lab.expect(res.body)
-          .to.contain({ numContainers: 0, numBuilds: 1234, host: host, tags: [] });
+          .to.contain({ numContainers: 0, numBuilds: 1234, host: host, tags: '' });
         done();
       });
     });
@@ -211,7 +222,7 @@ lab.experiment('docks route tests', function () {
       }, function (err, res) {
         if (err) { return done(err); }
         Lab.expect(res.body)
-          .to.contain({ numContainers: 1234, numBuilds: 0, host: host, tags: [] });
+          .to.contain({ numContainers: 1234, numBuilds: 0, host: host, tags: '' });
         done();
       });
     });
@@ -278,7 +289,7 @@ lab.experiment('docks route tests', function () {
               Lab.expect(result.numContainers).to.equal(0);
               Lab.expect(result.numBuilds).to.equal(0);
               Lab.expect(result.host).to.equal(host);
-              Lab.expect(result.tags).to.deep.equal([]);
+              Lab.expect(result.tags).to.deep.equal('');
               done(err);
             });
         });
@@ -302,7 +313,7 @@ lab.experiment('docks route tests', function () {
               Lab.expect(result.numContainers).to.equal(0);
               Lab.expect(result.numBuilds).to.equal(0);
               Lab.expect(result.host).to.equal(host);
-              Lab.expect(result.tags).to.deep.equal([]);
+              Lab.expect(result.tags).to.deep.equal('');
               done(err);
             });
         });
@@ -310,7 +321,7 @@ lab.experiment('docks route tests', function () {
 
     lab.test('should add a dock (host in body) w/tags in query', function (done) {
       var host = 'http://10.101.2.1:4242';
-      var tags = ['cool', 'tags'];
+      var tags = 'cool,tags';
       supertest(app)
         .put('/docks')
         .query({
@@ -330,7 +341,7 @@ lab.experiment('docks route tests', function () {
               Lab.expect(result.numContainers).to.equal(0);
               Lab.expect(result.numBuilds).to.equal(0);
               Lab.expect(result.host).to.equal(host);
-              Lab.expect(result.tags).to.deep.equal(tags);
+              Lab.expect(result.tags).to.equal(tags);
               done(err);
             });
         });
@@ -338,7 +349,7 @@ lab.experiment('docks route tests', function () {
 
     lab.test('should add a dock (host in body) w/tags in body', function (done) {
       var host = 'http://10.101.2.1:4242';
-      var tags = ['cool', 'tags'];
+      var tags = 'cool,tags';
       supertest(app)
         .put('/docks')
         .send({
@@ -356,7 +367,7 @@ lab.experiment('docks route tests', function () {
               Lab.expect(result.numContainers).to.equal(0);
               Lab.expect(result.numBuilds).to.equal(0);
               Lab.expect(result.host).to.equal(host);
-              Lab.expect(result.tags).to.deep.equal(tags);
+              Lab.expect(result.tags).to.equal(tags);
               done(err);
             });
         });

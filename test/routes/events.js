@@ -57,7 +57,7 @@ lab.experiment('events test', function () {
       '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
 
     lab.beforeEach(function (done) {
-      dockData.addHost(host, [], done);
+      dockData.addHost(host, '', done);
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
         host: host,
@@ -134,7 +134,7 @@ lab.experiment('events test', function () {
       '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
 
     lab.beforeEach(function (done) {
-      dockData.addHost(host, [], done);
+      dockData.addHost(host, '', done);
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
         ip: '0.0.0.0',
         host: host,
@@ -208,7 +208,7 @@ lab.experiment('events test', function () {
 
   lab.experiment('runnable:docker:events:docker_daemon_down', function () {
     lab.beforeEach(function (done) {
-      dockData.addHost(host, [], done);
+      dockData.addHost(host, '', done);
     });
 
     lab.test('should remove host', function(done){
@@ -257,7 +257,7 @@ lab.experiment('events test', function () {
       });
     });
     lab.test('should add host with tags', function(done){
-      var tags = ['test', 'tags'];
+      var tags = 'test,tags';
       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
         ip: '0.0.0.0',
         host: host,
