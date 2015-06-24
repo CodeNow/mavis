@@ -6,7 +6,7 @@
   "scripts": {
     "test": "NODE_ENV=test lab -v -c ./test/* ",
     "loadTest": "NODE_ENV=test lab -v -c ./load-test/*",
-    "start": "node index.js"
+    "start": "node index.js | bunyan"
   },
   "repository": {
     "type": "git",
