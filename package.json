@@ -4,7 +4,10 @@
   "description": "Master Tactician, schedules task on the docks",
   "main": "./lib/app.js",
   "scripts": {
-    "test": "NODE_ENV=test lab -v -c ./test/* ",
+    "lint": "jshint lib/",
+    "functional": "NODE_ENV=test lab -v -c -a code test/routes",
+    "unit": "NODE_ENV=test lab -v -c -a code test/unit",
+    "test": "NODE_ENV=test npm run lint && lab -v -c -a code",
     "loadTest": "NODE_ENV=test lab -v -c ./load-test/*",
     "start": "node index.js"
   },
@@ -28,10 +31,10 @@
     "boom": "^2.6.1",
     "bunyan": "^1.4.0",
     "debug": "^2.1.0",
-    "dotenv": "^0.4.0",
     "eson": "^0.5.0",
     "express": "^4.9.0",
     "express-bunyan-logger": "^1.1.1",
+    "loadenv": "^1.1.0",
     "newrelic": "^1.14.7",
     "node-dogstatsd": "0.0.6",
     "redis": "^0.11.0",
@@ -40,6 +43,8 @@
   },
   "devDependencies": {
     "callback-count": "^0.1.0",
+    "code": "^1.4.1",
+    "jshint": "^2.8.0",
     "lab": "4.3.0",
     "request": "^2.54.0",
     "sinon": "^1.14.1",

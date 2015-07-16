@@ -1,5 +1,6 @@
 'use strict';
-require('../../lib/loadenv.js')();
+
+require('loadenv')('mavis:env');
 
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
