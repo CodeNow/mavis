@@ -5,10 +5,10 @@
   "main": "./lib/app.js",
   "scripts": {
     "lint": "jshint lib/",
-    "functional": "NODE_ENV=test lab -v -c -a code test/routes",
-    "unit": "NODE_ENV=test lab -v -c -a code test/unit",
-    "test": "NODE_ENV=test npm run lint && lab -v -c -a code",
-    "loadTest": "NODE_ENV=test lab -v -c ./load-test/*",
+    "functional": "NODE_ENV=test lab -m 2000 -v -c -a code test/routes",
+    "unit": "NODE_ENV=test lab -m 2000  -v -c -a code test/unit",
+    "test": "NODE_ENV=test npm run lint && lab -m 2000 -v -c -a code",
+    "loadTest": "NODE_ENV=test lab -m 2000 -v -c ./load-test/*",
     "start": "node index.js"
   },
   "repository": {
@@ -35,6 +35,7 @@
     "express": "^4.9.0",
     "express-bunyan-logger": "^1.1.1",
     "loadenv": "^1.1.0",
+    "monitor-dog": "^1.3.0",
     "newrelic": "^1.14.7",
     "node-dogstatsd": "0.0.6",
     "redis": "^0.11.0",
