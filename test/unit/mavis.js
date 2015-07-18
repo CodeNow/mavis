@@ -39,7 +39,8 @@ describe('mavis', function() {
       mavis.obtainOptimalHost(hint, function (err) {
         if (err) { return done(err); }
         expect(monitor.event.calledOnce).to.be.true();
-        expect(monitor.event.firstCall.args[0].title).to.equal('mavis.host.selected');
+        expect(monitor.event.firstCall.args[0].title)
+          .to.equal('mavis.host.selected');
         done();
       });
     });
