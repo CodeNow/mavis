@@ -15,23 +15,19 @@ var sinon = require('sinon');
 require('loadenv')('mavis:test');
 var monitor = require('monitor-dog');
 var monitorFixture = require('../fixtures/monitor');
+var dockDataFixture = require('../fixtures/dockData');
 var dockData = require('../../lib/models/dockData');
 var docksMonitor = require('../../lib/models/docks-monitor');
 
 describe('docks-monitor', function() {
   var clock;
-  var docks = [
-    { host: 'http://1.2.3.4:1234', numBuilds: 30, numContainers: 1 },
-    { host: 'http://1.2.3.5:1234', numBuilds: 10, numContainers: 100 }
-  ];
+  var docks = dockDataFixture.docks;
 
   beforeEach(function (done) {
-    monitorFixture.stubAll();
     clock = sinon.useFakeTimers();
+    monitorFixture.stubAll();
     docksMonitor.start();
-    // Note: this needs to be .yields and not .yieldsAsync to work with the
-    //       tests below.
-    sinon.stub(dockData, 'getValidDocks').yields(null, docks);
+    dockDataFixture.stub();
     done();
   });
 
@@ -39,7 +35,7 @@ describe('docks-monitor', function() {
     monitorFixture.restoreAll();
     clock.restore();
     docksMonitor.stop();
-    dockData.getValidDocks.restore();
+    dockDataFixture.restore();
     done();
   });
 
