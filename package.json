@@ -35,7 +35,7 @@
     "express": "^4.9.0",
     "express-bunyan-logger": "^1.1.1",
     "loadenv": "^1.1.0",
-    "monitor-dog": "^1.3.0",
+    "monitor-dog": "^1.4.1",
     "newrelic": "^1.14.7",
     "node-dogstatsd": "0.0.6",
     "redis": "^0.11.0",
