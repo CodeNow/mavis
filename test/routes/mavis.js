@@ -77,8 +77,289 @@ lab.experiment('mavis tests', function () {
     .expect(status)
     .end(done);
   }
-
-  lab.experiment('logic', function () {
+  lab.experiment('with different tags, same order', function () {
+    var orgId = '2335750';
+    lab.beforeEach(function (done){
+      var count = createCount(3, done);
+      dockData.addHost(dock[0], orgId + ',run', count.next);
+      dockData.addHost(dock[1], orgId + ',build', count.next);
+      dockData.addHost(dock[2], 'default', count.next);
+    });
+    lab.experiment('container_run', function() {
+      lab.test('should return only a 2335750 dock', function (done) {
+        getDock({
+          type: 'container_run',
+          tags: '2335750'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          if (res.body.dockHost === dock[1]) {
+            Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          } else {
+            Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          }
+          done();
+        });
+      });
+      lab.test('should return only default dock', function (done) {
+        getDock({
+          type: 'container_run',
+          tags: 'default'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[2]);
+          done();
+        });
+      });
+      lab.test('should return only build,2335750 dock', function (done) {
+        getDock({
+          type: 'container_run',
+          tags: 'build,' + orgId
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          done();
+        });
+      });
+      lab.test('should return only build,2335750 dock', function (done) {
+        getDock({
+          type: 'container_run',
+          tags: orgId + ',build'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          done();
+        });
+      });
+       lab.test('should return only run,2335750 dock', function (done) {
+        getDock({
+          type: 'container_run',
+          tags: 'run,' + orgId
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          done();
+        });
+      });
+      lab.test('should return only run,2335750 dock', function (done) {
+        getDock({
+          type: 'container_run',
+          tags: orgId + ',run'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          done();
+        });
+      });
+    });
+    lab.experiment('container_build', function() {
+      lab.test('should return only a 2335750 dock', function (done) {
+        getDock({
+          type: 'container_build',
+          tags: '2335750'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          if (res.body.dockHost === dock[1]) {
+            Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          } else {
+            Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          }
+          done();
+        });
+      });
+      lab.test('should return only default dock', function (done) {
+        getDock({
+          type: 'container_build',
+          tags: 'default'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[2]);
+          done();
+        });
+      });
+      lab.test('should return only build,2335750 dock', function (done) {
+        getDock({
+          type: 'container_build',
+          tags: 'build,' + orgId
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          done();
+        });
+      });
+      lab.test('should return only build,2335750 dock', function (done) {
+        getDock({
+          type: 'container_build',
+          tags: orgId + ',build'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          done();
+        });
+      });
+       lab.test('should return only run,2335750 dock', function (done) {
+        getDock({
+          type: 'container_build',
+          tags: 'run,' + orgId
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          done();
+        });
+      });
+      lab.test('should return only run,2335750 dock', function (done) {
+        getDock({
+          type: 'container_build',
+          tags: orgId + ',run'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          done();
+        });
+      });
+    });
+  });
+  lab.experiment('with different tags, different order', function () {
+    var orgId = '2335750';
+    lab.beforeEach(function (done){
+      var count = createCount(3, done);
+      dockData.addHost(dock[0], orgId + ',run', count.next);
+      dockData.addHost(dock[1], 'build,' + orgId, count.next);
+      dockData.addHost(dock[2], 'default', count.next);
+    });
+    lab.experiment('container_run', function() {
+      lab.test('should return only a 2335750 dock', function (done) {
+        getDock({
+          type: 'container_run',
+          tags: '2335750'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          if (res.body.dockHost === dock[1]) {
+            Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          } else {
+            Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          }
+          done();
+        });
+      });
+      lab.test('should return only default dock', function (done) {
+        getDock({
+          type: 'container_run',
+          tags: 'default'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[2]);
+          done();
+        });
+      });
+      lab.test('should return only build,2335750 dock', function (done) {
+        getDock({
+          type: 'container_run',
+          tags: 'build,' + orgId
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          done();
+        });
+      });
+      lab.test('should return only build,2335750 dock', function (done) {
+        getDock({
+          type: 'container_run',
+          tags: orgId + ',build'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          done();
+        });
+      });
+       lab.test('should return only run,2335750 dock', function (done) {
+        getDock({
+          type: 'container_run',
+          tags: 'run,' + orgId
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          done();
+        });
+      });
+      lab.test('should return only run,2335750 dock', function (done) {
+        getDock({
+          type: 'container_run',
+          tags: orgId + ',run'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          done();
+        });
+      });
+    });
+  lab.experiment('container_build', function() {
+      lab.test('should return only a 2335750 dock', function (done) {
+        getDock({
+          type: 'container_build',
+          tags: '2335750'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          if (res.body.dockHost === dock[1]) {
+            Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          } else {
+            Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          }
+          done();
+        });
+      });
+      lab.test('should return only default dock', function (done) {
+        getDock({
+          type: 'container_build',
+          tags: 'default'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[2]);
+          done();
+        });
+      });
+      lab.test('should return only build,2335750 dock', function (done) {
+        getDock({
+          type: 'container_build',
+          tags: 'build,' + orgId
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          done();
+        });
+      });
+      lab.test('should return only build,2335750 dock', function (done) {
+        getDock({
+          type: 'container_build',
+          tags: orgId + ',build'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          done();
+        });
+      });
+       lab.test('should return only run,2335750 dock', function (done) {
+        getDock({
+          type: 'container_build',
+          tags: 'run,' + orgId
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          done();
+        });
+      });
+      lab.test('should return only run,2335750 dock', function (done) {
+        getDock({
+          type: 'container_build',
+          tags: orgId + ',run'
+        }, function (err, res) {
+          if (err) { return done(err); }
+          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          done();
+        });
+      });
+    });
+  });
+  lab.experiment('one tag', function () {
     var testTags = 'those,tags';
     lab.beforeEach(function (done){
       var count = createCount(3, done);
@@ -89,14 +370,9 @@ lab.experiment('mavis tests', function () {
 
     lab.test('should update container_run redis key', function (done) {
       getDock('container_run', function (err, res) {
-        if(err) {
-          console.error('ERROR', err);
-          return done(err);
-        }
+        if (err) { return done(err); }
         redisClient.hget(augmentHost(res.body.dockHost), rnC, function (err, data) {
-          if (err) {
-            return done(err);
-          }
+          if (err) {return done(err); }
           Lab.expect(data).to.equal('1');
           done();
         });
@@ -136,14 +412,9 @@ lab.experiment('mavis tests', function () {
 
     lab.test('should update container_build redis key', function (done) {
       getDock('container_build', function (err, res) {
-        if(err) {
-          console.error('ERROR', err);
-          return done(err);
-        }
+        if (err) { return done(err); }
         redisClient.hget(augmentHost(res.body.dockHost), rnB, function (err, data) {
-          if (err) {
-            return done(err);
-          }
+          if (err) {return done(err); }
           Lab.expect(data).to.equal('1');
           done();
         });
@@ -155,10 +426,7 @@ lab.experiment('mavis tests', function () {
           return done(err);
         }
         getDock('container_run', function (err, res) {
-          if(err) {
-            console.error('ERROR', err);
-            return done(err);
-          }
+          if (err) {return done(err); }
           Lab.expect(res.body.dockHost).to.equal(dock[2]);
           done();
         });
@@ -174,10 +442,7 @@ lab.experiment('mavis tests', function () {
           return done(err);
         }
         getDock('container_run', function (err, res) {
-          if(err) {
-            console.error('ERROR', err);
-            return done(err);
-          }
+          if (err) {return done(err); }
           Lab.expect(res.body.dockHost).to.equal(dock[2]);
           done();
         });
@@ -192,10 +457,7 @@ lab.experiment('mavis tests', function () {
           return done(err);
         }
         getDock('container_run', function (err, res) {
-          if(err) {
-            console.error('ERROR', err);
-            return done(err);
-          }
+          if (err) {return done(err); }
           Lab.expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
@@ -213,10 +475,7 @@ lab.experiment('mavis tests', function () {
           type: 'container_run',
           prevDock: dock[0]
         }, function (err, res) {
-          if(err) {
-            console.error('ERROR', err);
-            return done(err);
-          }
+          if (err) {return done(err); }
           Lab.expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
@@ -229,10 +488,7 @@ lab.experiment('mavis tests', function () {
           return done(err);
         }
         getDock('container_run', function (err, res) {
-          if(err) {
-            console.error('ERROR', err);
-            return done(err);
-          }
+          if (err) {return done(err); }
           Lab.expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
@@ -255,7 +511,7 @@ lab.experiment('mavis tests', function () {
       var numRequests = 30;
 
       var count = createCount(numRequests, function (err) {
-        if(err) { return done(err); }
+        if (err) { return done(err); }
 
         var endCount = createCount(dock.length, done);
         function checkData(err, data) {
