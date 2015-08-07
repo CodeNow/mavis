@@ -379,15 +379,25 @@ lab.experiment('mavis tests', function () {
       });
     });
 
-    lab.test('should return prev dock if sent', function (done) {
+    lab.test('should return prev dock if sent with default', function (done) {
       var dock = '10.5.1.4';
       getDock({
         type: 'container_run',
+        tags: 'default',
         prevDock: dock
       }, function (err, res) {
         Lab.expect(res.body.dockHost).to.equal(dock);
         done(err);
       });
+    });
+
+    lab.test('should return non 200 if no tag exist', function (done) {
+      var dock = '10.5.1.4';
+      getDock({
+        type: 'container_run',
+        tags: 'fake',
+        prevDock: dock
+      }, done, 503);
     });
 
     lab.test('should return only dock with tags', function (done) {
@@ -473,7 +483,8 @@ lab.experiment('mavis tests', function () {
         }
         getDock({
           type: 'container_run',
-          prevDock: dock[0]
+          prevDock: dock[0],
+          tags: 'default'
         }, function (err, res) {
           if (err) {return done(err); }
           Lab.expect(res.body.dockHost).to.equal(dock[0]);
