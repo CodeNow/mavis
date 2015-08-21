@@ -13,9 +13,10 @@ var expect = Code.expect;
 
 var sinon = require('sinon');
 
-var Worker = require('workers/on-dock-unhealthy.js');
-var dockData = require('models/dockData.js');
-var error = require('error.js');
+var Worker = require('../../../lib/workers/on-dock-unhealthy.js');
+var dockData = require('../../../lib/models/dockData.js');
+var error = require('../../../lib/error.js');
+var rabbitMQ = require('../../../lib/rabbitmq.js');
 
 describe('on-dock-unhealthy unit test', function () {
   var worker;
@@ -60,6 +61,7 @@ describe('on-dock-unhealthy unit test', function () {
   describe('handle', function () {
     beforeEach(function(done) {
       sinon.stub(Worker, '_isValidHost');
+      sinon.stub(rabbitMQ.hermesClient, 'publish');
       sinon.stub(dockData, 'deleteHost');
       sinon.stub(error, 'log').returns();
       done();
@@ -68,6 +70,7 @@ describe('on-dock-unhealthy unit test', function () {
     afterEach(function(done) {
       Worker._isValidHost.restore();
       dockData.deleteHost.restore();
+      rabbitMQ.hermesClient.publish.restore();
       error.log.restore();
       done();
     });
@@ -84,10 +87,13 @@ describe('on-dock-unhealthy unit test', function () {
 
     it('should delete host', function(done) {
       Worker._isValidHost.returns(true);
+      rabbitMQ.hermesClient.publish.returns(true);
       worker.handle({host: 'http://10.0.0.0:4242'}, function (err) {
         expect(err).to.not.exist();
         expect(dockData.deleteHost.called).to.be.true();
         expect(error.log.called).to.be.false();
+        expect(rabbitMQ.hermesClient.publish
+          .withArgs('on-dock-removed', {host: 'http://10.0.0.0:4242'}));
         done();
       });
     });
