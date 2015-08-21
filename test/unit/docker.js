@@ -8,23 +8,25 @@ var redisClient = require('../../lib/models/redis.js');
 var dockerEvents = require('../../lib/events/docker.js');
 var dockData = require('../../lib/models/dockData.js');
 var host = 'http://0.0.0.0:4242';
+var Code = require('code');
+var expect = Code.expect;
 
 function dataExpect1(data, numContainers, numBuilds, host) {
-  Lab.expect(data.length).to.equal(1);
+  expect(data.length).to.equal(1);
   dataExpectN(data, 0, numContainers, numBuilds, host);
 }
 
 function dataExpectN(data, n, numContainers, numBuilds, host) {
   data.forEach(function(item) {
     if(item.host === host) {
-      Lab.expect(item.numContainers).to.equal(numContainers);
-      Lab.expect(item.numBuilds).to.equal(numBuilds);
+      expect(item.numContainers).to.equal(numContainers);
+      expect(item.numBuilds).to.equal(numBuilds);
     }
   });
 }
 
 function dataExpectNone (data) {
-  Lab.expect(data.length).to.equal(0);
+  expect(data.length).to.equal(0);
 }
 
 lab.experiment('docker.js unit test', function () {
@@ -423,7 +425,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          Lab.expect(data[0].tags).to.equal(tags);
+          expect(data[0].tags).to.equal(tags);
           dataExpect1(data, '0', '0', host);
           done();
         });
@@ -460,7 +462,7 @@ lab.experiment('docker.js unit test', function () {
           if (err || !data) {
             return dockData.getAllDocks(test);
           }
-          Lab.expect(data.length).to.equal(2);
+          expect(data.length).to.equal(2);
           dataExpectN(data, 1, '0', '0', host);
           dataExpectN(data, 0, '0', '0', 'http://0.0.1.0:4242');
           done();
