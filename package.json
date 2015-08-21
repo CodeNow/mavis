@@ -5,10 +5,10 @@
   "main": "./lib/app.js",
   "scripts": {
     "lint": "jshint lib/",
-    "functional": "NODE_PATH=./lib NODE_ENV=test lab -m 2000 -v -c test/routes",
-    "unit": "NODE_PATH=./lib NODE_ENV=test lab -m 2000  -v -c test/unit",
+    "functional": "NODE_ENV=test lab -m 2000 -v -c test/routes",
+    "unit": "NODE_ENV=test lab -m 2000  -v -c test/unit",
     "test": "npm run lint && NODE_PATH=./lib NODE_ENV=test lab -m 2000 -v -c",
-    "loadTest": "NODE_PATH=./lib NODE_ENV=test lab -m 2000 -v -c ./load-test/*",
+    "loadTest": "NODE_ENV=test lab -m 2000 -v -c ./load-test/*",
     "start": "node index.js"
   },
   "repository": {
