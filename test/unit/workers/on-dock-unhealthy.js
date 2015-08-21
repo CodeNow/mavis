@@ -30,11 +30,13 @@ describe('on-dock-unhealthy unit test', function () {
       sinon.stub(error, 'log').returns();
       done();
     });
+
     afterEach(function(done) {
       Worker.prototype.handle.restore();
       error.log.restore();
       done();
     });
+
     it('should call handle', function(done) {
       Worker.prototype.handle.yieldsAsync();
       Worker.worker({}, function (err) {
@@ -43,6 +45,7 @@ describe('on-dock-unhealthy unit test', function () {
         done();
       });
     });
+
     it('should catch thrown errors', function(done) {
       Worker.prototype.handle.throws();
       Worker.worker({}, function (err) {
@@ -89,6 +92,7 @@ describe('on-dock-unhealthy unit test', function () {
       });
     });
   }); // handle
+
   describe('_isValidHost', function() {
     it('should return true', function(done) {
       ['http://10.2.1.0:4242',
@@ -100,6 +104,7 @@ describe('on-dock-unhealthy unit test', function () {
       });
       done();
     });
+
     it('should return false', function(done) {
       ['://10.2.1.0:4242',
       {}, [], null, undefined,
@@ -115,4 +120,4 @@ describe('on-dock-unhealthy unit test', function () {
       done();
     });
   }); // end _isValidHost
-});
+}); // end on-dock-unhealthy unit test
