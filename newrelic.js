@@ -1,6 +1,6 @@
 'use strict';
 
-require('./loadenv.js')('mavis:env');
+require('loadenv')('mavis:env');
 
 /**
  * New Relic agent configuration.
