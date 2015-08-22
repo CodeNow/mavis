@@ -11,10 +11,10 @@ var beforeEach = lab.beforeEach;
 var Code = require('code');
 var expect = Code.expect;
 
-var dockData = require('models/dockData.js');
-var server = require('server.js');
-var rabbitMQ = require('rabbitmq.js');
-var redisClient = require('models/redis.js');
+var dockData = require('../../../lib/models/dockData.js');
+var server = require('../../../lib/server.js');
+var rabbitMQ = require('../../../lib/rabbitmq.js');
+var redisClient = require('../../../lib/models/redis.js');
 
 describe('on-dock-unhealthy functional test', function () {
   var testHost = 'http://10.20.1.26:4242';
