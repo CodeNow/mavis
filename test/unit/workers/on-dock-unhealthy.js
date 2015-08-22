@@ -6,7 +6,9 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
+var after = lab.after;
 var afterEach = lab.afterEach;
+var before = lab.before;
 var beforeEach = lab.beforeEach;
 var Code = require('code');
 var expect = Code.expect;
@@ -22,6 +24,14 @@ describe('on-dock-unhealthy unit test', function () {
   var worker;
   beforeEach(function (done) {
     worker = new Worker();
+    rabbitMQ.hermesClient =  {
+      publish: sinon.stub()
+    };
+    done();
+  });
+
+  afterEach(function(done) {
+    delete rabbitMQ.hermesClient;
     done();
   });
 
@@ -61,7 +71,6 @@ describe('on-dock-unhealthy unit test', function () {
   describe('handle', function () {
     beforeEach(function(done) {
       sinon.stub(Worker, '_isValidHost');
-      sinon.stub(rabbitMQ.hermesClient, 'publish');
       sinon.stub(dockData, 'deleteHost');
       sinon.stub(error, 'log').returns();
       done();
@@ -70,24 +79,38 @@ describe('on-dock-unhealthy unit test', function () {
     afterEach(function(done) {
       Worker._isValidHost.restore();
       dockData.deleteHost.restore();
-      rabbitMQ.hermesClient.publish.restore();
       error.log.restore();
       done();
     });
 
     it('should error if invalid host', function(done) {
       Worker._isValidHost.returns(false);
+      rabbitMQ.hermesClient.publish.returns();
       worker.handle({}, function (err) {
         expect(err).to.not.exist();
         expect(dockData.deleteHost.called).to.be.false();
         expect(error.log.called).to.be.true();
+        expect(rabbitMQ.hermesClient.publish.called).to.be.false();
+        done();
+      });
+    });
+
+    it('should error if delete failed', function(done) {
+      Worker._isValidHost.returns(true);
+      dockData.deleteHost.yieldsAsync(new Error('fire sword'));
+      worker.handle({host: 'http://10.0.0.0:4242'}, function (err) {
+        expect(err).to.not.exist();
+        expect(dockData.deleteHost.called).to.be.true();
+        expect(error.log.called).to.be.true();
+        expect(rabbitMQ.hermesClient.publish.called).to.be.false();
         done();
       });
     });
 
     it('should delete host', function(done) {
       Worker._isValidHost.returns(true);
-      rabbitMQ.hermesClient.publish.returns(true);
+      dockData.deleteHost.yieldsAsync();
+      rabbitMQ.hermesClient.publish.returns();
       worker.handle({host: 'http://10.0.0.0:4242'}, function (err) {
         expect(err).to.not.exist();
         expect(dockData.deleteHost.called).to.be.true();
