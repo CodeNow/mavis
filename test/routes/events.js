@@ -1,10 +1,11 @@
 'use strict';
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
+var Code = require('code');
+var expect = Code.expect;
 var redisClient = require('../../lib/models/redis.js');
 var pubSub = require('../../lib/models/redis.js').pubSub;
 var dockData = require('../../lib/models/dockData.js');
-var expect = Lab.expect;
 var sinon = require('sinon');
 var error = require('../../lib/error');
 var server = require('../../lib/server.js');

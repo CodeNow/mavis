@@ -1,6 +1,8 @@
 'use strict';
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
+var Code = require('code');
+var expect = Code.expect;
 
 var createCount = require('callback-count');
 var pubSub = require('../../lib/models/redis.js').pubSub;
@@ -19,7 +21,7 @@ lab.experiment('event pubSub unit test', function () {
     lab.test('should callback with correct data on registered event', function (done) {
       pubSub.on(key, function test (data) {
         pubSub.removeListener(key, test);
-        Lab.expect(testData).to.deep.equal(data);
+        expect(testData).to.deep.equal(data);
         done();
       });
 
@@ -30,7 +32,7 @@ lab.experiment('event pubSub unit test', function () {
       var globKey = 'runnable:test:*';
       pubSub.on(globKey, function test (data) {
         pubSub.removeListener(globKey, test);
-        Lab.expect(testData).to.deep.equal(data);
+        expect(testData).to.deep.equal(data);
         done();
       });
 
@@ -55,7 +57,7 @@ lab.experiment('event pubSub unit test', function () {
     lab.test('should callback all functions', function (done) {
       var globKey = 'runnable:test:*';
       function test (data) {
-        Lab.expect(testData).to.deep.equal(data);
+        expect(testData).to.deep.equal(data);
         count.next();
       }
       var count = createCount(4, function() {

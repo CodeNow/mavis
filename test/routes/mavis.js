@@ -1,6 +1,8 @@
 'use strict';
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
+var Code = require('code');
+var expect = Code.expect;
 var app = require('../../lib/app.js');
 var createCount = require('callback-count');
 var supertest = require('supertest');
@@ -93,9 +95,9 @@ lab.experiment('mavis tests', function () {
         }, function (err, res) {
           if (err) { return done(err); }
           if (res.body.dockHost === dock[1]) {
-            Lab.expect(res.body.dockHost).to.equal(dock[1]);
+            expect(res.body.dockHost).to.equal(dock[1]);
           } else {
-            Lab.expect(res.body.dockHost).to.equal(dock[0]);
+            expect(res.body.dockHost).to.equal(dock[0]);
           }
           done();
         });
@@ -106,7 +108,7 @@ lab.experiment('mavis tests', function () {
           tags: 'default'
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[2]);
+          expect(res.body.dockHost).to.equal(dock[2]);
           done();
         });
       });
@@ -116,7 +118,7 @@ lab.experiment('mavis tests', function () {
           tags: 'build,' + orgId
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          expect(res.body.dockHost).to.equal(dock[1]);
           done();
         });
       });
@@ -126,7 +128,7 @@ lab.experiment('mavis tests', function () {
           tags: orgId + ',build'
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          expect(res.body.dockHost).to.equal(dock[1]);
           done();
         });
       });
@@ -136,7 +138,7 @@ lab.experiment('mavis tests', function () {
           tags: 'run,' + orgId
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
       });
@@ -146,7 +148,7 @@ lab.experiment('mavis tests', function () {
           tags: orgId + ',run'
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
       });
@@ -159,9 +161,9 @@ lab.experiment('mavis tests', function () {
         }, function (err, res) {
           if (err) { return done(err); }
           if (res.body.dockHost === dock[1]) {
-            Lab.expect(res.body.dockHost).to.equal(dock[1]);
+            expect(res.body.dockHost).to.equal(dock[1]);
           } else {
-            Lab.expect(res.body.dockHost).to.equal(dock[0]);
+            expect(res.body.dockHost).to.equal(dock[0]);
           }
           done();
         });
@@ -172,7 +174,7 @@ lab.experiment('mavis tests', function () {
           tags: 'default'
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[2]);
+          expect(res.body.dockHost).to.equal(dock[2]);
           done();
         });
       });
@@ -182,7 +184,7 @@ lab.experiment('mavis tests', function () {
           tags: 'build,' + orgId
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          expect(res.body.dockHost).to.equal(dock[1]);
           done();
         });
       });
@@ -192,7 +194,7 @@ lab.experiment('mavis tests', function () {
           tags: orgId + ',build'
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          expect(res.body.dockHost).to.equal(dock[1]);
           done();
         });
       });
@@ -202,7 +204,7 @@ lab.experiment('mavis tests', function () {
           tags: 'run,' + orgId
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
       });
@@ -212,7 +214,7 @@ lab.experiment('mavis tests', function () {
           tags: orgId + ',run'
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
       });
@@ -234,9 +236,9 @@ lab.experiment('mavis tests', function () {
         }, function (err, res) {
           if (err) { return done(err); }
           if (res.body.dockHost === dock[1]) {
-            Lab.expect(res.body.dockHost).to.equal(dock[1]);
+            expect(res.body.dockHost).to.equal(dock[1]);
           } else {
-            Lab.expect(res.body.dockHost).to.equal(dock[0]);
+            expect(res.body.dockHost).to.equal(dock[0]);
           }
           done();
         });
@@ -247,7 +249,7 @@ lab.experiment('mavis tests', function () {
           tags: 'default'
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[2]);
+          expect(res.body.dockHost).to.equal(dock[2]);
           done();
         });
       });
@@ -257,7 +259,7 @@ lab.experiment('mavis tests', function () {
           tags: 'build,' + orgId
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          expect(res.body.dockHost).to.equal(dock[1]);
           done();
         });
       });
@@ -267,7 +269,7 @@ lab.experiment('mavis tests', function () {
           tags: orgId + ',build'
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          expect(res.body.dockHost).to.equal(dock[1]);
           done();
         });
       });
@@ -277,7 +279,7 @@ lab.experiment('mavis tests', function () {
           tags: 'run,' + orgId
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
       });
@@ -287,7 +289,7 @@ lab.experiment('mavis tests', function () {
           tags: orgId + ',run'
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
       });
@@ -300,9 +302,9 @@ lab.experiment('mavis tests', function () {
         }, function (err, res) {
           if (err) { return done(err); }
           if (res.body.dockHost === dock[1]) {
-            Lab.expect(res.body.dockHost).to.equal(dock[1]);
+            expect(res.body.dockHost).to.equal(dock[1]);
           } else {
-            Lab.expect(res.body.dockHost).to.equal(dock[0]);
+            expect(res.body.dockHost).to.equal(dock[0]);
           }
           done();
         });
@@ -313,7 +315,7 @@ lab.experiment('mavis tests', function () {
           tags: 'default'
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[2]);
+          expect(res.body.dockHost).to.equal(dock[2]);
           done();
         });
       });
@@ -323,7 +325,7 @@ lab.experiment('mavis tests', function () {
           tags: 'build,' + orgId
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          expect(res.body.dockHost).to.equal(dock[1]);
           done();
         });
       });
@@ -333,7 +335,7 @@ lab.experiment('mavis tests', function () {
           tags: orgId + ',build'
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[1]);
+          expect(res.body.dockHost).to.equal(dock[1]);
           done();
         });
       });
@@ -343,7 +345,7 @@ lab.experiment('mavis tests', function () {
           tags: 'run,' + orgId
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
       });
@@ -353,7 +355,7 @@ lab.experiment('mavis tests', function () {
           tags: orgId + ',run'
         }, function (err, res) {
           if (err) { return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
       });
@@ -373,7 +375,7 @@ lab.experiment('mavis tests', function () {
         if (err) { return done(err); }
         redisClient.hget(augmentHost(res.body.dockHost), rnC, function (err, data) {
           if (err) {return done(err); }
-          Lab.expect(data).to.equal('1');
+          expect(data).to.equal('1');
           done();
         });
       });
@@ -385,7 +387,7 @@ lab.experiment('mavis tests', function () {
         type: 'container_run',
         prevDock: dock
       }, function (err, res) {
-        Lab.expect(res.body.dockHost).to.equal(dock);
+        expect(res.body.dockHost).to.equal(dock);
         done(err);
       });
     });
@@ -395,7 +397,7 @@ lab.experiment('mavis tests', function () {
         type: 'container_run',
         tags: testTags,
       }, function (err, res) {
-        Lab.expect(res.body.dockHost).to.equal(dock[2]);
+        expect(res.body.dockHost).to.equal(dock[2]);
         done(err);
       });
     });
@@ -405,7 +407,7 @@ lab.experiment('mavis tests', function () {
         type: 'container_build',
         tags: testTags,
       }, function (err, res) {
-        Lab.expect(res.body.dockHost).to.equal(dock[2]);
+        expect(res.body.dockHost).to.equal(dock[2]);
         done(err);
       });
     });
@@ -415,7 +417,7 @@ lab.experiment('mavis tests', function () {
         if (err) { return done(err); }
         redisClient.hget(augmentHost(res.body.dockHost), rnB, function (err, data) {
           if (err) {return done(err); }
-          Lab.expect(data).to.equal('1');
+          expect(data).to.equal('1');
           done();
         });
       });
@@ -427,7 +429,7 @@ lab.experiment('mavis tests', function () {
         }
         getDock('container_run', function (err, res) {
           if (err) {return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[2]);
+          expect(res.body.dockHost).to.equal(dock[2]);
           done();
         });
       });
@@ -443,7 +445,7 @@ lab.experiment('mavis tests', function () {
         }
         getDock('container_run', function (err, res) {
           if (err) {return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[2]);
+          expect(res.body.dockHost).to.equal(dock[2]);
           done();
         });
       });
@@ -458,7 +460,7 @@ lab.experiment('mavis tests', function () {
         }
         getDock('container_run', function (err, res) {
           if (err) {return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
       });
@@ -476,7 +478,7 @@ lab.experiment('mavis tests', function () {
           prevDock: dock[0]
         }, function (err, res) {
           if (err) {return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
       });
@@ -489,7 +491,7 @@ lab.experiment('mavis tests', function () {
         }
         getDock('container_run', function (err, res) {
           if (err) {return done(err); }
-          Lab.expect(res.body.dockHost).to.equal(dock[0]);
+          expect(res.body.dockHost).to.equal(dock[0]);
           done();
         });
       });
@@ -518,7 +520,7 @@ lab.experiment('mavis tests', function () {
           if (err) {
             return endCount.next(err);
           }
-          Lab.expect(data).to.equal('10');
+          expect(data).to.equal('10');
           endCount.next();
         }
 
@@ -534,7 +536,7 @@ lab.experiment('mavis tests', function () {
 
     lab.test('should return a dock when using `find_random_dock`', function (done) {
       getDock('find_random_dock', function(err, res) {
-        Lab.expect(res.body.dockHost).to.exist();
+        expect(res.body.dockHost).to.exist();
         done();
       });
     });
@@ -545,12 +547,12 @@ lab.experiment('mavis tests', function () {
         dock.forEach(function(dock) {
           redisClient.hget(augmentHost(dock), rnC, function(err, data) {
             if (err) { return done(err); }
-            Lab.expect(data).to.equal('0');
+            expect(data).to.equal('0');
             counter.next();
           });
           redisClient.hget(augmentHost(dock), rnB, function (err, data) {
             if (err) { return done(err); }
-            Lab.expect(data).to.equal('0');
+            expect(data).to.equal('0');
             counter.next();
           });
         });

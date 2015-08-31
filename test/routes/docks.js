@@ -1,6 +1,8 @@
 'use strict';
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
+var Code = require('code');
+var expect = Code.expect;
 var app = require('../../lib/app.js');
 var createCount = require('callback-count');
 var supertest = require('supertest');
@@ -31,7 +33,7 @@ lab.experiment('docks route tests', function () {
               return done(err);
             }
             dock.forEach(function (host){
-              Lab.expect(res.body)
+              expect(res.body)
                 .to.deep.contain({ numContainers: 0, numBuilds: 0, host: host, tags: '' });
             });
             done(err);
@@ -55,7 +57,7 @@ lab.experiment('docks route tests', function () {
               return done(err);
             }
             dock.forEach(function (host){
-              Lab.expect(res.body)
+              expect(res.body)
                 .to.deep.contain({ numContainers: 0, numBuilds: 0, host: host, tags: 'throw,some,more' });
             });
             done(err);
@@ -86,7 +88,7 @@ lab.experiment('docks route tests', function () {
             .get('/docks')
             .expect(200)
             .end(function (err, res) {
-              Lab.expect(res.body).to.not.contain({
+              expect(res.body).to.not.contain({
                 numContainers: 0,
                 numBuilds: 0,
                 host: delHost
@@ -110,7 +112,7 @@ lab.experiment('docks route tests', function () {
             .get('/docks')
             .expect(200)
             .end(function (err, res) {
-              Lab.expect(res.body).to.not.contain({
+              expect(res.body).to.not.contain({
                 numContainers: 0,
                 numBuilds: 0,
                 host: delHost
@@ -135,8 +137,8 @@ lab.experiment('docks route tests', function () {
             .expect(200)
             .end(function (err, res) {
               dock.forEach(function (host){
-                Lab.expect(res.body)
-                  .to.contain({ numContainers: 0, numBuilds: 0, host: host, tags: '' });
+                expect(res.body)
+                  .to.deep.contain({ numContainers: 0, numBuilds: 0, host: host, tags: '' });
               });
               done(err);
             });
@@ -208,8 +210,8 @@ lab.experiment('docks route tests', function () {
         value: 1234
       }, function (err, res) {
         if (err) { return done(err); }
-        Lab.expect(res.body)
-          .to.contain({ numContainers: 0, numBuilds: 1234, host: host, tags: '' });
+        expect(res.body)
+          .to.deep.contain({ numContainers: 0, numBuilds: 1234, host: host, tags: '' });
         done();
       });
     });
@@ -221,8 +223,8 @@ lab.experiment('docks route tests', function () {
         value: 1234
       }, function (err, res) {
         if (err) { return done(err); }
-        Lab.expect(res.body)
-          .to.contain({ numContainers: 1234, numBuilds: 0, host: host, tags: '' });
+        expect(res.body)
+          .to.deep.contain({ numContainers: 1234, numBuilds: 0, host: host, tags: '' });
         done();
       });
     });
@@ -286,10 +288,10 @@ lab.experiment('docks route tests', function () {
             .expect(200)
             .end(function (err, res) {
               var result = res.body[0];
-              Lab.expect(result.numContainers).to.equal(0);
-              Lab.expect(result.numBuilds).to.equal(0);
-              Lab.expect(result.host).to.equal(host);
-              Lab.expect(result.tags).to.deep.equal('');
+              expect(result.numContainers).to.equal(0);
+              expect(result.numBuilds).to.equal(0);
+              expect(result.host).to.equal(host);
+              expect(result.tags).to.deep.equal('');
               done(err);
             });
         });
@@ -310,10 +312,10 @@ lab.experiment('docks route tests', function () {
             .expect(200)
             .end(function (err, res) {
               var result = res.body[0];
-              Lab.expect(result.numContainers).to.equal(0);
-              Lab.expect(result.numBuilds).to.equal(0);
-              Lab.expect(result.host).to.equal(host);
-              Lab.expect(result.tags).to.deep.equal('');
+              expect(result.numContainers).to.equal(0);
+              expect(result.numBuilds).to.equal(0);
+              expect(result.host).to.equal(host);
+              expect(result.tags).to.deep.equal('');
               done(err);
             });
         });
@@ -338,10 +340,10 @@ lab.experiment('docks route tests', function () {
             .expect(200)
             .end(function (err, res) {
               var result = res.body[0];
-              Lab.expect(result.numContainers).to.equal(0);
-              Lab.expect(result.numBuilds).to.equal(0);
-              Lab.expect(result.host).to.equal(host);
-              Lab.expect(result.tags).to.equal(tags);
+              expect(result.numContainers).to.equal(0);
+              expect(result.numBuilds).to.equal(0);
+              expect(result.host).to.equal(host);
+              expect(result.tags).to.equal(tags);
               done(err);
             });
         });
@@ -364,10 +366,10 @@ lab.experiment('docks route tests', function () {
             .expect(200)
             .end(function (err, res) {
               var result = res.body[0];
-              Lab.expect(result.numContainers).to.equal(0);
-              Lab.expect(result.numBuilds).to.equal(0);
-              Lab.expect(result.host).to.equal(host);
-              Lab.expect(result.tags).to.equal(tags);
+              expect(result.numContainers).to.equal(0);
+              expect(result.numBuilds).to.equal(0);
+              expect(result.host).to.equal(host);
+              expect(result.tags).to.equal(tags);
               done(err);
             });
         });

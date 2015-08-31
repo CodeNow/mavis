@@ -1,6 +1,8 @@
 'use strict';
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
+var Code = require('code');
+var expect = Code.expect;
 var noop = require('101/noop');
 var error = require('../../lib/error.js');
 var rollbar = require('rollbar');
@@ -9,10 +11,10 @@ lab.experiment('error.js unit test', function () {
   lab.experiment('errorCaster', function () {
     lab.test('basic', function (done) {
       var err = error.errorCaster(404, 'anand', { type:'test' });
-      Lab.expect(err.output.statusCode).to.equal(404);
-      Lab.expect(err.data.type).to.equal('test');
-      Lab.expect(err.stack).to.be.a('string');
-      Lab.expect(err.message).to.equal('anand');
+      expect(err.output.statusCode).to.equal(404);
+      expect(err.data.type).to.equal('test');
+      expect(err.stack).to.be.a.string();
+      expect(err.message).to.equal('anand');
       done();
     });
   });
@@ -21,11 +23,11 @@ lab.experiment('error.js unit test', function () {
       var err = error.errorCaster(404, 'anand', { type:'test' });
       var resTest = {
         json: function (error) {
-          Lab.expect(error).to.equal(err.output.payload);
+          expect(error).to.equal(err.output.payload);
           done();
         },
         status: function (errCode) {
-          Lab.expect(errCode).to.equal(404);
+          expect(errCode).to.equal(404);
           return this;
         }
       };
@@ -35,7 +37,7 @@ lab.experiment('error.js unit test', function () {
       var err = new Error('test');
       var resTest = {
         json: function (error) {
-          Lab.expect(error).to.eql({
+          expect(error).to.deep.equal({
             statusCode: 500,
             error: 'Internal Server Error',
             message: 'An internal server error occurred'
@@ -43,7 +45,7 @@ lab.experiment('error.js unit test', function () {
           done();
         },
         status: function (errCode) {
-          Lab.expect(errCode).to.equal(500);
+          expect(errCode).to.equal(500);
           return this;
         }
       };
@@ -73,7 +75,7 @@ lab.experiment('error.js unit test', function () {
           json: noop,
         };
         rollbar.handleErrorWithPayloadData = function (error) {
-          Lab.expect(error.message).to.equal(err.message);
+          expect(error.message).to.equal(err.message);
           done(); // make sure report is called
         };
         error.errorResponder(err, null, mockRes, null);
