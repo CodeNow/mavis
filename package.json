@@ -9,7 +9,7 @@
     "unit": "NODE_ENV=test lab -m 2000  -v -c test/unit",
     "test": "npm run lint && NODE_ENV=test lab -m 2000 -v -c",
     "loadTest": "NODE_ENV=test lab -m 2000 -v -c ./load-test/*",
-    "start": "node index.js"
+    "start": "node --abort-on-uncaught-exception index.js"
   },
   "repository": {
     "type": "git",
