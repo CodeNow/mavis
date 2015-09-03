@@ -6,9 +6,7 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var after = lab.after;
 var afterEach = lab.afterEach;
-var before = lab.before;
 var beforeEach = lab.beforeEach;
 var Code = require('code');
 var expect = Code.expect;
@@ -108,15 +106,57 @@ describe('on-dock-unhealthy unit test', function () {
     });
 
     it('should delete host', function(done) {
+      var testHost = 'http://10.20.1.26:4242';
+      var testGihubId = 2194285;
+      var testData = {
+        host: testHost,
+        githubId: testGihubId
+      };
       Worker._isValidHost.returns(true);
       dockData.deleteHost.yieldsAsync();
       rabbitMQ.hermesClient.publish.returns();
-      worker.handle({host: 'http://10.0.0.0:4242'}, function (err) {
+      worker.handle(testData, function (err) {
         expect(err).to.not.exist();
         expect(dockData.deleteHost.called).to.be.true();
         expect(error.log.called).to.be.false();
+        done();
+      });
+    });
+
+    it('should publish on-dock-removed', function(done) {
+      var testHost = 'http://10.20.1.26:4242';
+      var testGihubId = 2194285;
+      var testData = {
+        host: testHost,
+        githubId: testGihubId
+      };
+      Worker._isValidHost.returns(true);
+      dockData.deleteHost.yieldsAsync();
+      rabbitMQ.hermesClient.publish.returns();
+      worker.handle(testData, function (err) {
+        expect(err).to.not.exist();
+        expect(error.log.called).to.be.false();
         expect(rabbitMQ.hermesClient.publish
-          .withArgs('on-dock-removed', {host: 'http://10.0.0.0:4242'}));
+          .withArgs('on-dock-removed', {host: testHost}));
+        done();
+      });
+    });
+
+    it('should publish cluster-instance-provision', function(done) {
+      var testHost = 'http://10.20.1.26:4242';
+      var testGihubId = 2194285;
+      var testData = {
+        host: testHost,
+        githubId: testGihubId
+      };
+      Worker._isValidHost.returns(true);
+      dockData.deleteHost.yieldsAsync();
+      rabbitMQ.hermesClient.publish.returns();
+      worker.handle(testData, function (err) {
+        expect(err).to.not.exist();
+        expect(error.log.called).to.be.false();
+        expect(rabbitMQ.hermesClient.publish
+          .withArgs('cluster-instance-provision', {githubId: testGihubId}));
         done();
       });
     });
