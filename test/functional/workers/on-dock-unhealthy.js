@@ -5,6 +5,7 @@ require('loadenv')();
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
+var it = lab.it;
 var after = lab.after;
 var before = lab.before;
 var beforeEach = lab.beforeEach;
@@ -38,8 +39,8 @@ describe('on-dock-unhealthy functional test', function () {
     server.stop(done);
   });
 
-  lab.experiment('on-docker-unhealthy event', function () {
-    lab.test('should remove host and publish two events', function (done) {
+  describe('on-docker-unhealthy event', function () {
+    it('should remove host and publish two events', function (done) {
       var count = createCount(2, done);
 
       rabbitMQ.hermesClient.subscribe('cluster-instance-provision', function (data, cb) {
