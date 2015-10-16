@@ -89,7 +89,7 @@ PUT /docks
   
   `body.host` = host to add  
   EX:  
-  `DELETE http://mavis.runnable-beta.com/docks?host=http://10.29.134.72:4242`
+  `DELETE http://mavis.runnable-beta.com/docks?host=http://10.29.134.72:4242`  
   returns: nothing 
 
 GET /
