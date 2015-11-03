@@ -57,6 +57,11 @@ lab.experiment('docker.js unit test', function () {
           ip: '0.0.0.0',
           host: host,
           from: containerRunFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -71,7 +76,12 @@ lab.experiment('docker.js unit test', function () {
         var eventData = {
           ip: '0.0.0.0',
           host: host,
-          from: containerRunFrom
+          from: containerRunFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         };
         dockerEvents.handleDie(eventData);
         dockerEvents.handleDie(eventData);
@@ -88,7 +98,12 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDie({
           ip: null,
           host: null,
-          from: containerRunFrom
+          from: containerRunFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
 
         dockData.getAllDocks(function test(err, data) {
@@ -104,7 +119,12 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDie({
           ip: '0.0.1.0',
           host: 'http://0.0.1.0:4242',
-          from: containerRunFrom
+          from: containerRunFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -119,7 +139,12 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDie({
           ip: '0.0.0.0',
           host: host,
-          from: null
+          from: null,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -134,7 +159,12 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDie({
           ip: '0.0.0.0',
           host: host,
-          from: 'zettio/weavetools:0.9.0'
+          from: 'zettio/weavetools:0.9.0',
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -149,7 +179,12 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDie({
           ip: '0.0.0.0',
           host: host,
-          from: imageBuilderFrom
+          from: imageBuilderFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: process.env.IMAGE_BUILDER_LABEL }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -164,7 +199,12 @@ lab.experiment('docker.js unit test', function () {
         var eventData = {
           ip: '0.0.0.0',
           host: host,
-          from: imageBuilderFrom
+          from: imageBuilderFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: process.env.IMAGE_BUILDER_LABEL }
+            }
+          }
         };
         dockerEvents.handleDie(eventData);
         dockerEvents.handleDie(eventData);
@@ -180,7 +220,12 @@ lab.experiment('docker.js unit test', function () {
       lab.test('should not decrement container build count with invalid ip', function (done) {
         dockerEvents.handleDie({
           ip: null,
-          from: imageBuilderFrom
+          from: imageBuilderFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: process.env.IMAGE_BUILDER_LABEL }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -206,7 +251,12 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDie({
           ip: '0.0.1.0',
           host: 'http://0.0.1.0:4242',
-          from: imageBuilderFrom
+          from: imageBuilderFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: process.env.IMAGE_BUILDER_LABEL }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -237,6 +287,11 @@ lab.experiment('docker.js unit test', function () {
           ip: '0.0.0.0',
           host: host,
           from: containerRunFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -251,7 +306,12 @@ lab.experiment('docker.js unit test', function () {
         var eventData = {
           ip: '0.0.0.0',
           host: host,
-          from: containerRunFrom
+          from: containerRunFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         };
         dockerEvents.handleDestroy(eventData);
         dockerEvents.handleDestroy(eventData);
@@ -268,7 +328,12 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDestroy({
           ip: null,
           host: null,
-          from: containerRunFrom
+          from: containerRunFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
 
         dockData.getAllDocks(function test(err, data) {
@@ -284,7 +349,12 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDestroy({
           ip: '0.0.1.0',
           host: 'http://0.0.1.0:4242',
-          from: containerRunFrom
+          from: containerRunFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -299,7 +369,12 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDestroy({
           ip: '0.0.0.0',
           host: host,
-          from: null
+          from: null,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -314,7 +389,12 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDestroy({
           ip: '0.0.0.0',
           host: host,
-          from: 'zettio/weavetools:0.9.0'
+          from: 'zettio/weavetools:0.9.0',
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -329,7 +409,12 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDestroy({
           ip: '0.0.0.0',
           host: host,
-          from: imageBuilderFrom
+          from: imageBuilderFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: process.env.IMAGE_BUILDER_LABEL }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -344,7 +429,12 @@ lab.experiment('docker.js unit test', function () {
         var eventData = {
           ip: '0.0.0.0',
           host: host,
-          from: imageBuilderFrom
+          from: imageBuilderFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: process.env.IMAGE_BUILDER_LABEL }
+            }
+          }
         };
         dockerEvents.handleDestroy(eventData);
         dockerEvents.handleDestroy(eventData);
@@ -360,7 +450,12 @@ lab.experiment('docker.js unit test', function () {
       lab.test('should not decrement container build count with invalid ip', function (done) {
         dockerEvents.handleDestroy({
           ip: null,
-          from: imageBuilderFrom
+          from: imageBuilderFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: process.env.IMAGE_BUILDER_LABEL }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -386,7 +481,12 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDestroy({
           ip: '0.0.1.0',
           host: 'http://0.0.1.0:4242',
-          from: imageBuilderFrom
+          from: imageBuilderFrom,
+          inspectData: {
+            Config: {
+              Labels: { type: process.env.IMAGE_BUILDER_LABEL }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -404,7 +504,12 @@ lab.experiment('docker.js unit test', function () {
       lab.test('should add host without tags', function (done) {
         dockerEvents.handleDockUp({
           ip: '0.0.0.0',
-          host: host
+          host: host,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -419,7 +524,12 @@ lab.experiment('docker.js unit test', function () {
         dockerEvents.handleDockUp({
           ip: '0.0.0.0',
           host: host,
-          tags: tags
+          tags: tags,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -434,11 +544,21 @@ lab.experiment('docker.js unit test', function () {
       lab.test('should add host only once', function (done) {
         dockerEvents.handleDockUp({
           ip: '0.0.0.0',
-          host: host
+          host: host,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockerEvents.handleDockUp({
           ip: '0.0.0.0',
-          host: host
+          host: host,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -452,11 +572,21 @@ lab.experiment('docker.js unit test', function () {
       lab.test('should add different hosts', function (done) {
         dockerEvents.handleDockUp({
           ip: '0.0.0.0',
-          host: host
+          host: host,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockerEvents.handleDockUp({
           ip: '0.0.1.0',
-          host: 'http://0.0.1.0:4242'
+          host: 'http://0.0.1.0:4242',
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -471,7 +601,12 @@ lab.experiment('docker.js unit test', function () {
 
       lab.test('should not add host if data invalid', function (done) {
         dockerEvents.handleDockUp({
-          ip: null
+          ip: null,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -497,14 +632,24 @@ lab.experiment('docker.js unit test', function () {
       lab.beforeEach(function(done) {
         dockerEvents.handleDockUp({
           ip: '0.0.0.0',
-          host: host
+          host: host,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         done();
       });
       lab.test('should remove host', function (done) {
         dockerEvents.handleDockDown({
           ip: '0.0.0.0',
-          host: host
+          host: host,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -517,11 +662,21 @@ lab.experiment('docker.js unit test', function () {
       lab.test('should do nothing if host removed twice', function (done) {
         dockerEvents.handleDockDown({
           ip: '0.0.0.0',
-          host: host
+          host: host,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockerEvents.handleDockDown({
           ip: '0.0.0.0',
-          host: host
+          host: host,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -534,7 +689,12 @@ lab.experiment('docker.js unit test', function () {
       lab.test('should not remove host if diff ip', function (done) {
         dockerEvents.handleDockDown({
           ip: '0.0.1.0',
-          host: 'http://0.0.1.0:4242'
+          host: 'http://0.0.1.0:4242',
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {
@@ -546,7 +706,12 @@ lab.experiment('docker.js unit test', function () {
       });
       lab.test('should not remove host if invalid ip', function (done) {
         dockerEvents.handleDockDown({
-          ip: null
+          ip: null,
+          inspectData: {
+            Config: {
+              Labels: { type: '' }
+            }
+          }
         });
         dockData.getAllDocks(function test(err, data) {
           if (err || !data) {

@@ -33,6 +33,7 @@
     "express": "^4.13.3",
     "express-bunyan-logger": "^1.1.1",
     "hermes-private": "git+ssh://git@github.com:CodeNow/hermes-private#v7.1.0",
+    "keypather": "^1.10.1",
     "loadenv": "^1.1.0",
     "monitor-dog": "^1.4.1",
     "newrelic": "^1.22.0",
