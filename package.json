@@ -45,6 +45,7 @@
     "runnable-hermes": "^6.4.0"
   },
   "devDependencies": {
+    "callback-count": "^0.2.0",
     "code": "^1.5.0",
     "jshint": "^2.8.0",
     "lab": "5.15.1",
