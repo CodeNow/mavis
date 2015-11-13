@@ -12,10 +12,10 @@ var sinon = require('sinon');
 
 require('loadenv')('mavis:test');
 var monitor = require('monitor-dog');
-var monitorFixture = require('../fixtures/monitor');
-var dockDataFixture = require('../fixtures/dockData');
-var dockData = require('../../lib/models/dockData');
-var docksMonitor = require('../../lib/models/docks-monitor');
+var monitorFixture = require('../../fixtures/monitor');
+var dockDataFixture = require('../../fixtures/dockData');
+var dockData = require('../../../lib/models/dockData');
+var docksMonitor = require('../../../lib/models/docks-monitor');
 
 describe('docks-monitor', function() {
   var clock;
