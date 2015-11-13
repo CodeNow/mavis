@@ -135,29 +135,6 @@ lab.experiment('events test', function () {
         done();
       });
     });
-    // lab.experiment('missing host error', function() {
-    //   lab.test('should show build container die', function(done){
-    //     pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_down', {
-    //       ip: '0.0.0.0',
-    //       from: 'ubuntu',
-    //       inspectData: {
-    //         Config: {
-    //           Labels: { type: '' }
-    //         }
-    //       }
-    //     });
-    //     var spy = sinon.stub(error, 'log');
-    //     getDocks(function test () {
-    //       expect(spy.calledOnce).to.be.true();
-    //       expect(spy.firstCall).to.exist();
-    //       expect(spy.firstCall.args).to.exist();
-    //       expect(spy.firstCall.args[0]).to.exist();
-    //       expect(spy.firstCall.args[0]).to.match(/invalid data/);
-    //       error.log.restore();
-    //       done();
-    //     });
-    //   });
-    // });
   }); // docker.events-stream.disconnected
 
   lab.experiment('docker.events-stream.connected', function () {
@@ -198,28 +175,5 @@ lab.experiment('events test', function () {
         done();
       });
     });
-    // lab.experiment('missing host error', function() {
-    //   lab.test('should show build container die', function(done){
-    //     pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
-    //       ip: '0.0.0.0',
-    //       from: 'ubuntu',
-    //       inspectData: {
-    //         Config: {
-    //           Labels: { type: '' }
-    //         }
-    //       }
-    //     });
-    //     var spy = sinon.stub(error, 'log');
-    //     getDocks(function test () {
-    //       expect(spy.calledOnce).to.be.true();
-    //       expect(spy.firstCall).to.exist();
-    //       expect(spy.firstCall.args).to.exist();
-    //       expect(spy.firstCall.args[0]).to.exist();
-    //       expect(spy.firstCall.args[0]).to.match(/invalid data/);
-    //       error.log.restore();
-    //       done();
-    //     });
-    //   });
-    // });
   }); // docker.events-stream.connected
 }); // events test
