@@ -4,8 +4,8 @@
 //
 // var Lab = require('lab');
 // var lab = exports.lab = Lab.script();
-// var redisClient = require('../../lib/models/redis.js');
-// var dockerEvents = require('../../lib/events/docker.js');
+// var redis = require('../../lib/models/redis.js');
+// var dockerEvents = require('../../lib/models/events.js');
 // var dockData = require('../../lib/models/dockData.js');
 // var host = 'http://0.0.0.0:4242';
 // var Code = require('code');
@@ -31,7 +31,7 @@
 //
 // lab.experiment('docker.js unit test', function () {
 //   lab.beforeEach(function (done) {
-//     redisClient.flushall(done);
+//     redis.client.flushall(done);
 //   });
 //
 //   lab.experiment('container', function () {
