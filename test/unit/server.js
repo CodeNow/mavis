@@ -111,7 +111,7 @@ describe('server.js unit test', function () {
 
       var server = new Server();
       server.server = {
-        stop: function (cb) {
+        close: function (cb) {
           cb();
         }
       }
@@ -135,7 +135,7 @@ describe('server.js unit test', function () {
 
       var server = new Server();
       server.server = {
-        stop: function (cb) {
+        close: function (cb) {
           cb();
         }
       }

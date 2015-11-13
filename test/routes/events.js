@@ -4,12 +4,12 @@
 // var Code = require('code');
 // var expect = Code.expect;
 // var redis = require('../../lib/models/redis.js');
-// var pubSub = require('../../lib/models/redis.js').pubSub;
 // var dockData = require('../../lib/models/dockData.js');
 // var sinon = require('sinon');
-// var error = require('../../lib/error');
 // var Server = require('../../lib/server.js');
 // var request = require('request');
+// var Hermes = require('runnable-hermes');
+//
 //
 // function dataExpect1(data, numContainers, numBuilds, host) {
 //   expect(data.length).to.equal(1);
@@ -55,220 +55,247 @@
 //     redis.client.flushall(done);
 //   });
 //
-//   lab.experiment('runnable:docker:events:die', function () {
+//   lab.beforeEach(function (done) {
+//     var opts = {
+//       hostname: process.env.RABBITMQ_HOSTNAME,
+//       password: process.env.RABBITMQ_PASSWORD,
+//       port: process.env.RABBITMQ_PORT,
+//       username: process.env.RABBITMQ_USERNAME,
+//       name: 'mavis'
+//     };
+//
+//     ctx.rabbit = new Hermes(put({
+//       queues: [
+//         'on-dock-unhealthy'
+//       ],
+//       publishedEvents: [
+//         'container.life-cycle.died',
+//         'docker.events-stream.connected',
+//         'docker.events-stream.disconnected'
+//       ]
+//       }, opts))
+//     .connect(done)
+//     .on('error', done);
+//   });
+//   lab.afterEach(function (done) {
+//     ctx.rabbit.close(done);
+//   })
+//
+//   lab.experiment('container.life-cycle.died', function () {
 //     var containerRunFrom = process.env.RUNNABLE_REGISTRY +
 //       '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
 //
 //     lab.beforeEach(function (done) {
 //       dockData.addHost(host, '', done);
-//       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
-//         ip: '0.0.0.0',
-//         host: host,
-//         from: process.env.IMAGE_BUILDER,
-//         inspectData: {
-//           Config: {
-//             Labels: { type: '' }
-//           }
-//         }
-//       });
-//       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
-//         ip: '0.0.0.0',
-//         host: host,
-//         from: containerRunFrom,
-//         inspectData: {
-//           Config: {
-//             Labels: { type: '' }
-//           }
-//         }
-//       });
+//       // ctx.rabbit.publish('container.life-cycle.died',)
+//       // pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
+//       //   ip: '0.0.0.0',
+//       //   host: host,
+//       //   from: process.env.IMAGE_BUILDER,
+//       //   inspectData: {
+//       //     Config: {
+//       //       Labels: { type: '' }
+//       //     }
+//       //   }
+//       // });
+//       // pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'start', {
+//       //   ip: '0.0.0.0',
+//       //   host: host,
+//       //   from: containerRunFrom,
+//       //   inspectData: {
+//       //     Config: {
+//       //       Labels: { type: '' }
+//       //     }
+//       //   }
+//       // });
 //     });
 //
-//     lab.test('should not update container count', function(done){
-//       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
-//         ip: '0.0.0.0',
-//         host: host,
-//         from: containerRunFrom,
-//         inspectData: {
-//           Config: {
-//             Labels: { type: '' }
-//           }
-//         }
-//       });
-//       getDocks(function test (err, data) {
-//         if (data.length === 0) { return getDocks(test); }
-//         dataExpect1(data, 0, 0, host);
-//         done();
-//       });
-//     });
-//
-//     lab.test('should decrement build count', function(done){
-//       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
-//         ip: '0.0.0.0',
-//         host: host,
-//         from: process.env.IMAGE_BUILDER,
-//         inspectData: {
-//           Config: {
-//             Labels: { type: process.env.IMAGE_BUILDER_LABEL }
-//           }
-//         }
-//       });
-//       getDocks(function test(err, data) {
-//         if (data.length === 0) { return getDocks(test); }
-//         dataExpect1(data, 0, -1, host);
-//         done();
-//       });
-//     });
-//
-//     lab.test('should not update any counts for unknown images', function(done) {
-//       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
-//         ip: '0.0.0.0',
-//         host: host,
-//         from: 'zettio/weavetools:0.9.0',
-//         inspectData: {
-//           Config: {
-//             Labels: { type: '' }
-//           }
-//         }
-//       });
-//       getDocks(function test (err, data) {
-//         if (data.length === 0) { return getDocks(test); }
-//         dataExpect1(data, 0, 0, host);
-//         done();
-//       });
-//     });
-//
-//     lab.experiment('missing host error', function() {
-//       lab.test('should show build container die', function(done){
-//         pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
-//           ip: '0.0.0.0',
-//           from: process.env.IMAGE_BUILDER,
-//           inspectData: {
-//             Config: {
-//               Labels: { type: process.env.IMAGE_BUILDER_LABEL }
-//             }
-//           }
-//         });
-//         var spy = sinon.stub(error, 'log');
-//         getDocks(function test () {
-//           expect(spy.calledOnce).to.be.true();
-//           expect(spy.firstCall).to.exist();
-//           expect(spy.firstCall.args).to.exist();
-//           expect(spy.firstCall.args[0]).to.exist();
-//           expect(spy.firstCall.args[0]).to.match(/invalid data/);
-//           error.log.restore();
-//           done();
-//         });
-//       });
-//     });
+//     // lab.test('should not update container count', function(done){
+//     //   pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
+//     //     ip: '0.0.0.0',
+//     //     host: host,
+//     //     from: containerRunFrom,
+//     //     inspectData: {
+//     //       Config: {
+//     //         Labels: { type: '' }
+//     //       }
+//     //     }
+//     //   });
+//     //   getDocks(function test (err, data) {
+//     //     if (data.length === 0) { return getDocks(test); }
+//     //     dataExpect1(data, 0, 0, host);
+//     //     done();
+//     //   });
+//     // });
+//     //
+//     // lab.test('should decrement build count', function(done){
+//     //   pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
+//     //     ip: '0.0.0.0',
+//     //     host: host,
+//     //     from: process.env.IMAGE_BUILDER,
+//     //     inspectData: {
+//     //       Config: {
+//     //         Labels: { type: process.env.IMAGE_BUILDER_LABEL }
+//     //       }
+//     //     }
+//     //   });
+//     //   getDocks(function test(err, data) {
+//     //     if (data.length === 0) { return getDocks(test); }
+//     //     dataExpect1(data, 0, -1, host);
+//     //     done();
+//     //   });
+//     // });
+//     //
+//     // lab.test('should not update any counts for unknown images', function(done) {
+//     //   pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
+//     //     ip: '0.0.0.0',
+//     //     host: host,
+//     //     from: 'zettio/weavetools:0.9.0',
+//     //     inspectData: {
+//     //       Config: {
+//     //         Labels: { type: '' }
+//     //       }
+//     //     }
+//     //   });
+//     //   getDocks(function test (err, data) {
+//     //     if (data.length === 0) { return getDocks(test); }
+//     //     dataExpect1(data, 0, 0, host);
+//     //     done();
+//     //   });
+//     // });
+//     //
+//     // lab.experiment('missing host error', function() {
+//     //   lab.test('should show build container die', function(done){
+//     //     pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'die', {
+//     //       ip: '0.0.0.0',
+//     //       from: process.env.IMAGE_BUILDER,
+//     //       inspectData: {
+//     //         Config: {
+//     //           Labels: { type: process.env.IMAGE_BUILDER_LABEL }
+//     //         }
+//     //       }
+//     //     });
+//     //     var spy = sinon.stub(error, 'log');
+//     //     getDocks(function test () {
+//     //       expect(spy.calledOnce).to.be.true();
+//     //       expect(spy.firstCall).to.exist();
+//     //       expect(spy.firstCall.args).to.exist();
+//     //       expect(spy.firstCall.args[0]).to.exist();
+//     //       expect(spy.firstCall.args[0]).to.match(/invalid data/);
+//     //       error.log.restore();
+//     //       done();
+//     //     });
+//     //   });
+//     // });
 //   }); // runnable:docker:events:die
 //
-//   lab.experiment('runnable:docker:events:docker_daemon_down', function () {
-//     lab.beforeEach(function (done) {
-//       dockData.addHost(host, '', done);
-//     });
-//
-//     lab.test('should remove host', function(done){
-//       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_down', {
-//         ip: '0.0.0.0',
-//         host: host,
-//         from: 'ubuntu',
-//         inspectData: {
-//           Config: {
-//             Labels: { type: '' }
-//           }
-//         }
-//       });
-//       getDocks(function test (err, data) {
-//         if (data.length !== 0) { return getDocks(test); }
-//         dataExpectNone(data);
-//         done();
-//       });
-//     });
-//     lab.experiment('missing host error', function() {
-//       lab.test('should show build container die', function(done){
-//         pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_down', {
-//           ip: '0.0.0.0',
-//           from: 'ubuntu',
-//           inspectData: {
-//             Config: {
-//               Labels: { type: '' }
-//             }
-//           }
-//         });
-//         var spy = sinon.stub(error, 'log');
-//         getDocks(function test () {
-//           expect(spy.calledOnce).to.be.true();
-//           expect(spy.firstCall).to.exist();
-//           expect(spy.firstCall.args).to.exist();
-//           expect(spy.firstCall.args[0]).to.exist();
-//           expect(spy.firstCall.args[0]).to.match(/invalid data/);
-//           error.log.restore();
-//           done();
-//         });
-//       });
-//     });
-//   }); // runnable:docker:events:docker_daemon_down
-//
-//   lab.experiment('runnable:docker:events:docker_daemon_up', function () {
-//     lab.test('should add host without tags', function(done){
-//       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
-//         ip: '0.0.0.0',
-//         host: host,
-//         from: 'ubuntu',
-//         inspectData: {
-//           Config: {
-//             Labels: { type: '' }
-//           }
-//         }
-//       });
-//       getDocks(function test (err, data) {
-//         if (data.length === 0) { return getDocks(test); }
-//         dataExpect1(data, 0, 0, host);
-//         done();
-//       });
-//     });
-//     lab.test('should add host with tags', function(done){
-//       var tags = 'test,tags';
-//       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
-//         ip: '0.0.0.0',
-//         host: host,
-//         from: 'ubuntu',
-//         tags: tags,
-//         inspectData: {
-//           Config: {
-//             Labels: { type: '' }
-//           }
-//         }
-//       });
-//       getDocks(function test (err, data) {
-//         if (data.length === 0) { return getDocks(test); }
-//         expect(data[0].tags).to.deep.equal(tags);
-//         dataExpect1(data, 0, 0, host);
-//         done();
-//       });
-//     });
-//     lab.experiment('missing host error', function() {
-//       lab.test('should show build container die', function(done){
-//         pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
-//           ip: '0.0.0.0',
-//           from: 'ubuntu',
-//           inspectData: {
-//             Config: {
-//               Labels: { type: '' }
-//             }
-//           }
-//         });
-//         var spy = sinon.stub(error, 'log');
-//         getDocks(function test () {
-//           expect(spy.calledOnce).to.be.true();
-//           expect(spy.firstCall).to.exist();
-//           expect(spy.firstCall.args).to.exist();
-//           expect(spy.firstCall.args[0]).to.exist();
-//           expect(spy.firstCall.args[0]).to.match(/invalid data/);
-//           error.log.restore();
-//           done();
-//         });
-//       });
-//     });
-//   }); // runnable:docker:events:docker_daemon_up
+//   // lab.experiment('runnable:docker:events:docker_daemon_down', function () {
+//   //   lab.beforeEach(function (done) {
+//   //     dockData.addHost(host, '', done);
+//   //   });
+//   //
+//   //   lab.test('should remove host', function(done){
+//   //     pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_down', {
+//   //       ip: '0.0.0.0',
+//   //       host: host,
+//   //       from: 'ubuntu',
+//   //       inspectData: {
+//   //         Config: {
+//   //           Labels: { type: '' }
+//   //         }
+//   //       }
+//   //     });
+//   //     getDocks(function test (err, data) {
+//   //       if (data.length !== 0) { return getDocks(test); }
+//   //       dataExpectNone(data);
+//   //       done();
+//   //     });
+//   //   });
+//   //   lab.experiment('missing host error', function() {
+//   //     lab.test('should show build container die', function(done){
+//   //       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_down', {
+//   //         ip: '0.0.0.0',
+//   //         from: 'ubuntu',
+//   //         inspectData: {
+//   //           Config: {
+//   //             Labels: { type: '' }
+//   //           }
+//   //         }
+//   //       });
+//   //       var spy = sinon.stub(error, 'log');
+//   //       getDocks(function test () {
+//   //         expect(spy.calledOnce).to.be.true();
+//   //         expect(spy.firstCall).to.exist();
+//   //         expect(spy.firstCall.args).to.exist();
+//   //         expect(spy.firstCall.args[0]).to.exist();
+//   //         expect(spy.firstCall.args[0]).to.match(/invalid data/);
+//   //         error.log.restore();
+//   //         done();
+//   //       });
+//   //     });
+//   //   });
+//   // }); // runnable:docker:events:docker_daemon_down
+//   //
+//   // lab.experiment('runnable:docker:events:docker_daemon_up', function () {
+//   //   lab.test('should add host without tags', function(done){
+//   //     pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
+//   //       ip: '0.0.0.0',
+//   //       host: host,
+//   //       from: 'ubuntu',
+//   //       inspectData: {
+//   //         Config: {
+//   //           Labels: { type: '' }
+//   //         }
+//   //       }
+//   //     });
+//   //     getDocks(function test (err, data) {
+//   //       if (data.length === 0) { return getDocks(test); }
+//   //       dataExpect1(data, 0, 0, host);
+//   //       done();
+//   //     });
+//   //   });
+//   //   lab.test('should add host with tags', function(done){
+//   //     var tags = 'test,tags';
+//   //     pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
+//   //       ip: '0.0.0.0',
+//   //       host: host,
+//   //       from: 'ubuntu',
+//   //       tags: tags,
+//   //       inspectData: {
+//   //         Config: {
+//   //           Labels: { type: '' }
+//   //         }
+//   //       }
+//   //     });
+//   //     getDocks(function test (err, data) {
+//   //       if (data.length === 0) { return getDocks(test); }
+//   //       expect(data[0].tags).to.deep.equal(tags);
+//   //       dataExpect1(data, 0, 0, host);
+//   //       done();
+//   //     });
+//   //   });
+//   //   lab.experiment('missing host error', function() {
+//   //     lab.test('should show build container die', function(done){
+//   //       pubSub.publish(process.env.DOCKER_EVENTS_NAMESPACE + 'docker_daemon_up', {
+//   //         ip: '0.0.0.0',
+//   //         from: 'ubuntu',
+//   //         inspectData: {
+//   //           Config: {
+//   //             Labels: { type: '' }
+//   //           }
+//   //         }
+//   //       });
+//   //       var spy = sinon.stub(error, 'log');
+//   //       getDocks(function test () {
+//   //         expect(spy.calledOnce).to.be.true();
+//   //         expect(spy.firstCall).to.exist();
+//   //         expect(spy.firstCall.args).to.exist();
+//   //         expect(spy.firstCall.args[0]).to.exist();
+//   //         expect(spy.firstCall.args[0]).to.match(/invalid data/);
+//   //         error.log.restore();
+//   //         done();
+//   //       });
+//   //     });
+//   //   });
+//   // }); // runnable:docker:events:docker_daemon_up
 // }); // events test
