@@ -7,7 +7,7 @@ var async = require('async');
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var redis = require('../../../lib/models/redis.js');
-var dockerEvents = require('../../../lib/models/events.js');
+var events = require('../../../lib/models/events.js');
 var dockData = require('../../../lib/models/dockData.js');
 var host = 'http://0.0.0.0:4242';
 var Code = require('code');
@@ -57,7 +57,7 @@ lab.experiment('events.js unit test', function () {
       });
 
       lab.test('should not decrement container run count', function (done) {
-        dockerEvents.handleDied({
+        events.handleDied({
           ip: '0.0.0.0',
           host: host,
           from: containerRunFrom,
@@ -90,8 +90,8 @@ lab.experiment('events.js unit test', function () {
           }
         };
         async.series([
-          dockerEvents.handleDied.bind(dockerEvents, eventData),
-          dockerEvents.handleDied.bind(dockerEvents, eventData)
+          events.handleDied.bind(events, eventData),
+          events.handleDied.bind(events, eventData)
         ], function (err) {
           if (err) {
             return done(err);
@@ -107,7 +107,7 @@ lab.experiment('events.js unit test', function () {
       });
 
       lab.test('should not decrement counts for invalid `ip` field', function (done) {
-        dockerEvents.handleDied({
+        events.handleDied({
           ip: null,
           host: null,
           from: containerRunFrom,
@@ -130,7 +130,7 @@ lab.experiment('events.js unit test', function () {
       });
 
       lab.test('should not do anything when given a non registered dock', function (done) {
-        dockerEvents.handleDied({
+        events.handleDied({
           ip: '0.0.1.0',
           host: 'http://0.0.1.0:4242',
           from: containerRunFrom,
@@ -152,7 +152,7 @@ lab.experiment('events.js unit test', function () {
       });
 
       lab.test('should handle container die with invalid `from` field', function (done) {
-        dockerEvents.handleDied({
+        events.handleDied({
           ip: '0.0.0.0',
           host: host,
           from: null,
@@ -176,7 +176,7 @@ lab.experiment('events.js unit test', function () {
       });
 
       lab.test('should do nothing when given unknown container type via `from`', function(done) {
-        dockerEvents.handleDied({
+        events.handleDied({
           ip: '0.0.0.0',
           host: host,
           from: 'zettio/weavetools:0.9.0',
@@ -198,7 +198,7 @@ lab.experiment('events.js unit test', function () {
       });
 
       lab.test('should decrement container build count', function (done) {
-        dockerEvents.handleDied({
+        events.handleDied({
           ip: '0.0.0.0',
           host: host,
           from: imageBuilderFrom,
@@ -231,8 +231,8 @@ lab.experiment('events.js unit test', function () {
           }
         };
         async.series([
-          dockerEvents.handleDied.bind(dockerEvents, eventData),
-          dockerEvents.handleDied.bind(dockerEvents, eventData)
+          events.handleDied.bind(events, eventData),
+          events.handleDied.bind(events, eventData)
         ], function (err) {
           expect(err).to.not.exist();
           dockData.getAllDocks(function test(err, data) {
@@ -246,7 +246,7 @@ lab.experiment('events.js unit test', function () {
       });
 
       lab.test('should not decrement container build count with invalid ip', function (done) {
-        dockerEvents.handleDied({
+        events.handleDied({
           ip: null,
           from: imageBuilderFrom,
           inspectData: {
@@ -268,7 +268,7 @@ lab.experiment('events.js unit test', function () {
       });
 
       lab.test('should do nothing when given invalid data', function (done) {
-        dockerEvents.handleDied(null, function (err) {
+        events.handleDied(null, function (err) {
           expect(err).to.exist();
           expect(err.message).to.equal('container.life-cycle.died: Failed validation');
           dockData.getAllDocks(function test(err, data) {
@@ -282,7 +282,7 @@ lab.experiment('events.js unit test', function () {
       });
 
       lab.test('should not do anything when given a non registered dock from image builder', function (done) {
-        dockerEvents.handleDied({
+        events.handleDied({
           ip: '0.0.1.0',
           host: 'http://0.0.1.0:4242',
           from: imageBuilderFrom,
@@ -306,7 +306,7 @@ lab.experiment('events.js unit test', function () {
   lab.experiment('deamon', function () {
     lab.experiment('handleDockUp', function () {
       lab.test('should add host without tags', function (done) {
-        dockerEvents.handleDockUp({
+        events.handleDockUp({
           ip: '0.0.0.0',
           host: host,
           inspectData: {
@@ -327,7 +327,7 @@ lab.experiment('events.js unit test', function () {
       });
       lab.test('should add host with tags', function (done) {
         var tags = 'test,tags';
-        dockerEvents.handleDockUp({
+        events.handleDockUp({
           ip: '0.0.0.0',
           host: host,
           tags: tags,
@@ -360,8 +360,8 @@ lab.experiment('events.js unit test', function () {
           }
         };
         async.series([
-          dockerEvents.handleDockUp.bind(dockerEvents, data),
-          dockerEvents.handleDockUp.bind(dockerEvents, data)
+          events.handleDockUp.bind(events, data),
+          events.handleDockUp.bind(events, data)
         ], function (err) {
           expect(err).to.not.exists();
           dockData.getAllDocks(function test(err, data) {
@@ -377,7 +377,7 @@ lab.experiment('events.js unit test', function () {
       lab.test('should add different hosts', function (done) {
         async.series([
             function (cb) {
-              dockerEvents.handleDockUp({
+              events.handleDockUp({
                 ip: '0.0.0.0',
                 host: host,
                 inspectData: {
@@ -388,7 +388,7 @@ lab.experiment('events.js unit test', function () {
               }, cb);
             },
             function (cb) {
-              dockerEvents.handleDockUp({
+              events.handleDockUp({
                 ip: '0.0.1.0',
                 host: 'http://0.0.1.0:4242',
                 inspectData: {
@@ -413,7 +413,7 @@ lab.experiment('events.js unit test', function () {
       });
 
       lab.test('should not add host if data invalid', function (done) {
-        dockerEvents.handleDockUp({
+        events.handleDockUp({
           ip: null,
           inspectData: {
             Config: {
@@ -433,7 +433,7 @@ lab.experiment('events.js unit test', function () {
         });
       });
       lab.test('should not add host if invalid data', function (done) {
-        dockerEvents.handleDockUp(null, function (err) {
+        events.handleDockUp(null, function (err) {
           expect(err).to.exist();
           expect(err.message).to.equal('docker.events-stream.connected: Failed validation: no host');
           dockData.getAllDocks(function test(err, data) {
@@ -449,7 +449,7 @@ lab.experiment('events.js unit test', function () {
 
     lab.experiment('handleDockDown', function () {
       lab.beforeEach(function(done) {
-        dockerEvents.handleDockUp({
+        events.handleDockUp({
           ip: '0.0.0.0',
           host: host,
           inspectData: {
@@ -460,7 +460,7 @@ lab.experiment('events.js unit test', function () {
         }, done);
       });
       lab.test('should remove host', function (done) {
-        dockerEvents.handleDockDown({
+        events.handleDockDown({
           ip: '0.0.0.0',
           host: host,
           inspectData: {
@@ -490,8 +490,8 @@ lab.experiment('events.js unit test', function () {
           }
         };
         async.series([
-          dockerEvents.handleDockDown.bind(dockerEvents, data),
-          dockerEvents.handleDockDown.bind(dockerEvents, data)
+          events.handleDockDown.bind(events, data),
+          events.handleDockDown.bind(events, data)
         ], function (err) {
           expect(err).to.not.exists();
           dockData.getAllDocks(function test(err, data) {
@@ -504,7 +504,7 @@ lab.experiment('events.js unit test', function () {
         });
       });
       lab.test('should not remove host if diff ip', function (done) {
-        dockerEvents.handleDockDown({
+        events.handleDockDown({
           ip: '0.0.1.0',
           host: 'http://0.0.1.0:4242',
           inspectData: {
@@ -524,7 +524,7 @@ lab.experiment('events.js unit test', function () {
         });
       });
       lab.test('should not remove host if invalid ip', function (done) {
-        dockerEvents.handleDockDown({
+        events.handleDockDown({
           ip: null,
           inspectData: {
             Config: {
@@ -544,7 +544,7 @@ lab.experiment('events.js unit test', function () {
         });
       });
       lab.test('should not remove host if invalid data', function (done) {
-        dockerEvents.handleDockDown(null, function (err) {
+        events.handleDockDown(null, function (err) {
           expect(err).to.exist();
           expect(err.message).to.equal('docker.events-stream.disconnected: Failed validation: no host');
           dockData.getAllDocks(function test(err, data) {
