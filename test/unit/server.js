@@ -126,7 +126,7 @@ describe('server.js unit test', function () {
       });
     });
 
-    it('should sawllow error', function (done) {
+    it('should swallow error', function (done) {
       monitor.stopSocketsMonitor.returns();
       docksMonitor.stop.returns();
       Redis.disconnect.returns();
