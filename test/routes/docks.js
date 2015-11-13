@@ -6,14 +6,14 @@ var expect = Code.expect;
 var app = require('../../lib/app.js');
 var createCount = require('callback-count');
 var supertest = require('supertest');
-var redis = require('redis');
-var redisClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_IPADDRESS);
+var Redis = require('../../lib/models/redis.js');
 var dock = ['http://10.101.2.1:4242','http://10.101.2.2:4242','http://10.101.2.3:4242'];
 var dockData = require('../../lib/models/dockData.js');
 
 lab.experiment('docks route tests', function () {
   lab.beforeEach(function (done) {
-    redisClient.flushall(done);
+    Redis.connect();
+    Redis.client.flushall(done);
   });
   lab.experiment('GET /docks', function () {
     lab.experiment('docks with no tags', function () {
