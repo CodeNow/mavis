@@ -44,19 +44,6 @@ var host = 'http://0.0.0.0:4242';
 var ctx = {};
 
 lab.experiment('events test', function () {
-  lab.before(function(done) {
-    ctx.server = new Server();
-    ctx.server.start(done);
-  });
-
-  lab.after(function(done) {
-    ctx.server.stop(done);
-  });
-
-  lab.beforeEach(function (done) {
-    redis.client.flushall(done);
-  });
-
   lab.beforeEach(function (done) {
     var opts = {
       hostname: process.env.RABBITMQ_HOSTNAME,
@@ -76,11 +63,24 @@ lab.experiment('events test', function () {
         'docker.events-stream.disconnected'
       ]
       }, opts))
-    .connect(done)
-    .on('error', done);
+    .on('error', done)
+    .connect(done);
   });
   lab.afterEach(function (done) {
     ctx.rabbit.close(done);
+  });
+
+  lab.beforeEach(function(done) {
+    ctx.server = new Server();
+    ctx.server.start(done);
+  });
+
+  lab.afterEach(function(done) {
+    ctx.server.stop(done);
+  });
+
+  lab.beforeEach(function (done) {
+    redis.client.flushall(done);
   });
 
   lab.experiment('container.life-cycle.died', function () {
