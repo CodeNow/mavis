@@ -31,6 +31,7 @@ function stub() {
   // Note: this needs to be .yields and not .yieldsAsync to work with the
   //       tests below.
   sinon.stub(dockData, 'getValidDocks').yields(null, docks);
+  sinon.stub(dockData, 'incKey').yields(null);
 }
 
 /**
@@ -38,4 +39,5 @@ function stub() {
  */
 function restore() {
   dockData.getValidDocks.restore();
+  dockData.incKey.restore();
 }
