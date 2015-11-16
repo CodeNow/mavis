@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "jshint lib/",
     "functional": "NODE_ENV=test lab -m 4000 -v -c test/routes",
-    "unit": "NODE_ENV=test lab -m 4000  -v -c test/unit",
+    "unit": "NODE_ENV=test lab -m 4000  -v -c test/unit/",
     "test": "npm run lint && NODE_ENV=test lab -m 4000 -v -c",
     "loadTest": "NODE_ENV=test lab -m 4000 -v -c ./load-test/*",
     "start": "node --abort-on-uncaught-exception index.js"
