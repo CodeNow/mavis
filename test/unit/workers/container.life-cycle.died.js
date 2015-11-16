@@ -84,7 +84,7 @@ describe('container.life-cycle.died.js unit test', function () {
       sinon.stub(Events, '_getType').returns('container_build');
       sinon.stub(dockData, 'incKey').yieldsAsync(null);
       containerLifeCycleDied({
-        host: '10.12.12.14'
+        host: 'https://10.12.12.14:4242'
       })
       .then(function () {
         expect(Events._hasValidFrom.calledOnce).to.be.true();
@@ -92,7 +92,7 @@ describe('container.life-cycle.died.js unit test', function () {
         expect(Events._getType.calledOnce).to.be.true();
         expect(dockData.incKey.calledOnce).to.be.true();
         var incArgs = dockData.incKey.getCall(0).args;
-        expect(incArgs[0]).to.equal('10.12.12.14');
+        expect(incArgs[0]).to.equal('https://10.12.12.14:4242');
         expect(incArgs[1]).to.equal('container_build');
         expect(incArgs[2]).to.equal(-1);
         Events._hasValidFrom.restore();
