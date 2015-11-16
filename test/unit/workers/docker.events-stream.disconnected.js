@@ -43,7 +43,7 @@ describe('docker.events-stream.disconnected.js unit test', function () {
     sinon.stub(dockData, 'deleteHost').yieldsAsync(null);
     dockerEventsStreamDisconnected({
       host: 'https://10.10.11.12:4242',
-      tags: ['build', 'run']
+      tags: 'build, run'
     })
     .then(function () {
       expect(Events._hasValidHost.calledOnce).to.be.true();
