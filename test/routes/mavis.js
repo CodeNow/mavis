@@ -56,7 +56,7 @@ lab.experiment('mavis tests', function () {
         .send({
           type: 'container_run'
         })
-        .expect(503)
+        .expect(404)
         .end(done);
     });
   });
