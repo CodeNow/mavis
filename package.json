@@ -5,10 +5,10 @@
   "main": "./lib/app.js",
   "scripts": {
     "lint": "jshint lib/",
-    "functional": "NODE_ENV=test lab -m 2000 -v -c test/routes",
-    "unit": "NODE_ENV=test lab -m 2000  -v -c test/unit",
-    "test": "npm run lint && NODE_ENV=test lab -m 2000 -v -c",
-    "loadTest": "NODE_ENV=test lab -m 2000 -v -c ./load-test/*",
+    "functional": "NODE_ENV=test lab -m 4000 -v -c test/routes",
+    "unit": "NODE_ENV=test lab -m 4000  -v -c test/unit/",
+    "test": "npm run lint && NODE_ENV=test lab -m 4000 -v -c",
+    "loadTest": "NODE_ENV=test lab -m 4000 -v -c ./load-test/*",
     "start": "node --abort-on-uncaught-exception index.js"
   },
   "repository": {
@@ -27,20 +27,22 @@
   "dependencies": {
     "101": "^1.0.0",
     "async": "^1.4.2",
+    "bluebird": "^3.0.5",
     "body-parser": "^1.13.3",
     "boom": "^2.6.1",
     "bunyan": "^1.4.0",
+    "error-cat": "^1.4.0",
     "express": "^4.13.3",
     "express-bunyan-logger": "^1.1.1",
-    "hermes-private": "git+ssh://git@github.com:CodeNow/hermes-private#v7.1.0",
     "keypather": "^1.10.1",
     "loadenv": "^1.1.0",
     "monitor-dog": "^1.4.1",
     "newrelic": "^1.22.0",
     "node-dogstatsd": "0.0.6",
+    "ponos": "^1.1.1",
     "redis": "^0.12.1",
-    "redis-pubsub-emitter": "^0.4.0",
-    "rollbar": "^0.5.6"
+    "rollbar": "^0.5.6",
+    "runnable-hermes": "^6.4.0"
   },
   "devDependencies": {
     "callback-count": "^0.2.0",
@@ -48,7 +50,7 @@
     "jshint": "^2.8.0",
     "lab": "5.15.1",
     "request": "^2.61.0",
-    "sinon": "^1.16.1",
+    "sinon": "^1.17.2",
     "supertest": "^1.0.1"
   }
 }

@@ -20,6 +20,7 @@ function augmentHost(host) {
 }
 
 lab.experiment('mavis tests', function () {
+
   lab.beforeEach(function (done) {
     redisClient.keys(process.env.REDIS_HOST_KEYS+'*', function(err, data) {
       if (!data) { return done(); }
