@@ -15,6 +15,7 @@ var mavis = require('../../lib/mavis');
 
 var monitorFixture = require('../fixtures/monitor');
 var dockDataFixture = require('../fixtures/dockData');
+var dockData = require('../../lib/models/dockData');
 
 describe('mavis', function() {
   beforeEach(function (done) {
@@ -40,5 +41,47 @@ describe('mavis', function() {
         done();
       });
     });
+
+    describe('with a previous dock that no longer exists', function () {
+      beforeEach(function (done) {
+        dockData.getValidDocks.yieldsAsync(null, [
+          {
+            host: '4567'
+          }
+        ]);
+        done();
+      });
+      it('should find a new dock', function (done) {
+        var hint = { prevDock: '1234', type: 'container_build' };
+        mavis.obtainOptimalHost(hint, function (err, host) {
+          if (err) { return done(err); }
+          expect(host).to.equal('4567');
+          done();
+        });
+      });
+    });
+
+    describe('with a previous dock that still exists', function () {
+      beforeEach(function (done) {
+        dockData.getValidDocks.yieldsAsync(null, [
+          {
+            host: '4567'
+          },
+          {
+            host: '1234'
+          }
+        ]);
+        done();
+      });
+      it('should find a new dock', function (done) {
+        var hint = { prevDock: '1234', type: 'container_build' };
+        mavis.obtainOptimalHost(hint, function (err, host) {
+          if (err) { return done(err); }
+          expect(host).to.equal('1234');
+          done();
+        });
+      });
+    });
+
   });
 });

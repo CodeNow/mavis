@@ -382,13 +382,25 @@ lab.experiment('mavis tests', function () {
       });
     });
 
-    lab.test('should return prev dock if sent', function (done) {
-      var dock = '10.5.1.4';
+    lab.test('should return prev dock if sent and still exists', function (done) {
+      var dock = 'http://10.101.2.3:4242';
       getDock({
         type: 'container_run',
         prevDock: dock
       }, function (err, res) {
         expect(res.body.dockHost).to.equal(dock);
+        done(err);
+      });
+    });
+
+    lab.test('should return new dock if prev dock sent but no longer exists', function (done) {
+      var testDock = 'http://10.101.66.66:4242';
+      getDock({
+        type: 'container_run',
+        prevDock: testDock
+      }, function (err, res) {
+        expect(res.body.dockHost).to.not.equal(testDock);
+        expect(dock).to.contain(res.body.dockHost);
         done(err);
       });
     });
