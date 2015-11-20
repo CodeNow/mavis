@@ -394,13 +394,13 @@ lab.experiment('mavis tests', function () {
     });
 
     lab.test('should return new dock if prev dock sent but no longer exists', function (done) {
-      var defaultDock = 'http://10.101.2.2:4242';
-      var dock = 'http://10.101.66.66:4242';
+      var testDock = 'http://10.101.66.66:4242';
       getDock({
         type: 'container_run',
-        prevDock: dock
+        prevDock: testDock
       }, function (err, res) {
-        expect(res.body.dockHost).to.equal(defaultDock);
+        expect(res.body.dockHost).to.not.equal(testDock);
+        expect(dock).to.contain(res.body.dockHost);
         done(err);
       });
     });
