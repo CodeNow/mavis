@@ -45,10 +45,13 @@ describe('on-dock-unhealthy functional test', function () {
     };
     ctx.rabbitClient = new Hermes(put({
       queues: [
+        'wait-for-dock-removed',
         'on-dock-unhealthy',
-        'on-dock-removed',
         'cluster-instance-provision'
       ],
+      subscribedEvents: [
+        'dock-removed'
+      ]
     }, opts))
     // connect publisher only since ponos is handling subscriber
     .connect(done);
@@ -83,7 +86,7 @@ describe('on-dock-unhealthy functional test', function () {
         cb();
         count.next();
       });
-      ctx.rabbitClient.subscribe('on-dock-removed', function (data, cb) {
+      ctx.rabbitClient.subscribe('dock-removed', function (data, cb) {
         expect(data.host).to.equal(testHost);
         cb();
         dockData.getAllDocks(function (err, data) {

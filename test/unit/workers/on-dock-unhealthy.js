@@ -82,7 +82,7 @@ describe('on-dock-unhealthy unit test', function () {
         expect(dockData.deleteHost.getCall(0).args[0]).to.equal('http://10.12.12.11:4242');
         dockData.deleteHost.restore();
 
-        expect(rabbitMQ._publisher.publish.getCall(0).args[0]).to.equal('on-dock-removed');
+        expect(rabbitMQ._publisher.publish.getCall(0).args[0]).to.equal('dock-removed');
         expect(rabbitMQ._publisher.publish.getCall(0).args[1]).to.deep.equal({
           host: 'http://10.12.12.11:4242',
           githubId: 12312
