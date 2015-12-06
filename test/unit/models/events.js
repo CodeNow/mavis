@@ -592,7 +592,7 @@ lab.experiment('events.js unit test', function () {
       });
     });
 
-    lab.test('should publish dock-removed', function (done) {
+    lab.test('should publish dock.removed', function (done) {
       var dockerUrl = 'http://10.0.102.2:4242';
       Consul.waitForDockRemoved.yieldsAsync(null);
 
@@ -610,7 +610,7 @@ lab.experiment('events.js unit test', function () {
         sinon.assert.calledOnce(publishStub);
         sinon.assert.calledWith(
           publishStub,
-          'dock-removed',
+          'dock.removed',
           sinon.match({ host: dockerUrl })
         );
 

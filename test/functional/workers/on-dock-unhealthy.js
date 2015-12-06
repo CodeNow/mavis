@@ -28,7 +28,7 @@ var publishedEvents = [
 ];
 
 var subscribedEvents = [
-  'dock-removed'
+  'dock.removed'
 ];
 
 var queues = [
@@ -120,7 +120,7 @@ describe('on-dock-unhealthy functional test', function () {
         count.next();
       });
 
-      testSubscriber.subscribe('dock-removed', function (data, cb) {
+      testSubscriber.subscribe('dock.removed', function (data, cb) {
         expect(data.host).to.equal(testHost);
         cb();
         dockData.getAllDocks(function (err, data) {
