@@ -126,7 +126,7 @@ describe('on-dock-unhealthy unit test', function () {
 
         sinon.assert.calledWith(
           rabbitMQ._publisher.publish.getCall(1),
-          'wait-for-dock-removed',
+          'dock.wait-for-removal',
           sinon.match({ dockerUrl: dockerUrl })
         );
 

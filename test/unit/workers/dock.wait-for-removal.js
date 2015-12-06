@@ -14,9 +14,9 @@ var sinon = require('sinon');
 var TaskFatalError = require('ponos').TaskFatalError;
 
 var Events = require('../../../lib/models/events.js');
-var waitForDockRemovedWorker = require('../../../lib/workers/wait-for-dock-removed.js');
+var waitForDockRemovedWorker = require('../../../lib/workers/dock.wait-for-removal.js');
 
-describe('wait-for-dock-removed unit test', function () {
+describe('dock.wait-for-removal unit test', function () {
   describe('run', function () {
     beforeEach(function (done) {
       sinon.stub(Events, 'handleWaitForDockRemovedAsync');
