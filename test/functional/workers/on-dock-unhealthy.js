@@ -2,91 +2,125 @@
 
 require('loadenv')();
 
-var put = require('101/put');
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var after = lab.after;
-var before = lab.before;
 var beforeEach = lab.beforeEach;
+var afterEach = lab.afterEach;
 var Code = require('code');
 var expect = Code.expect;
 
 var createCount = require('callback-count');
+var nock = require('nock');
+var redis = require('redis');
 
 var Hermes = require('runnable-hermes');
 var dockData = require('../../../lib/models/dockData.js');
 var Server = require('../../../lib/server.js');
-var rabbitMQ = require('../../../lib/rabbitmq.js');
-var WorkerServer = require('../../../lib/models/worker-server.js');
-var redis = require('../../../lib/models/redis.js');
+
+var server = new Server();
+
+var publishedEvents = [
+  'container.life-cycle.died',
+  'docker.events-stream.connected',
+  'docker.events-stream.disconnected'
+];
+
+var subscribedEvents = [
+  'dock-removed'
+];
+
+var queues = [
+  'weave.start',
+  'on-dock-unhealthy',
+  'cluster-instance-provision'
+];
+
+var testPublisher = new Hermes({
+  hostname: process.env.RABBITMQ_HOSTNAME,
+  password: process.env.RABBITMQ_PASSWORD,
+  port: process.env.RABBITMQ_PORT,
+  username: process.env.RABBITMQ_USERNAME,
+  publishedEvents: publishedEvents,
+  queues: queues,
+  name: 'testPublisher'
+});
+
+var testSubscriber = new Hermes({
+  hostname: process.env.RABBITMQ_HOSTNAME,
+  password: process.env.RABBITMQ_PASSWORD,
+  port: process.env.RABBITMQ_PORT,
+  username: process.env.RABBITMQ_USERNAME,
+  subscribedEvents: subscribedEvents,
+  queues: queues,
+  name: 'testSubscriber'
+});
+
+var testRedis = redis.createClient(
+  process.env.REDIS_PORT,
+  process.env.REDIS_IPADDRESS);
+
 
 describe('on-dock-unhealthy functional test', function () {
   var testHost = 'http://10.20.1.26:4242';
   var testGihubId = 2194285;
-  var ctx = {};
 
-  before(function (done) {
-    redis.connect();
-    rabbitMQ.create(done);
-  });
-  before(function (done) {
-    WorkerServer.listen(done);
+  beforeEach(function (done) {
+    // connect publisher so exchanges are generated before sever init
+    testPublisher.connect(done);
   });
 
-  before(function (done) {
-    var opts = {
-      hostname: process.env.RABBITMQ_HOSTNAME,
-      password: process.env.RABBITMQ_PASSWORD,
-      port: process.env.RABBITMQ_PORT,
-      username: process.env.RABBITMQ_USERNAME,
-      name: 'mavis'
-    };
-    ctx.rabbitClient = new Hermes(put({
-      queues: [
-        'wait-for-dock-removed',
-        'on-dock-unhealthy',
-        'cluster-instance-provision'
-      ],
-      subscribedEvents: [
-        'dock-removed'
-      ]
-    }, opts))
-    // connect publisher only since ponos is handling subscriber
-    .connect(done);
+  beforeEach(function (done) {
+    server.start(done);
   });
 
-  after(function (done) {
-    ctx.rabbitClient.close(done);
+  beforeEach(function (done) {
+    // connect subscriber after server has started
+    testSubscriber.connect(done);
   });
 
   lab.beforeEach(function (done) {
-    redis.client.flushall(done);
+    // nock docker call
+    nock(testHost)
+      .post('/containers/swarm/kill')
+      .reply(200);
+
+    // nock consul call
+    nock('http://consul.com:8500')
+      .get('/v1/kv/swarm%2Fdocker%2Fswarm%2Fnodes%2F10.20.1.26%3A4242')
+      .reply(404);
+
+    testRedis.flushall(done);
   });
 
   beforeEach(function(done) {
     dockData.addHost(testHost, 'test,tags', done);
   });
 
-  after(function (done) {
-    WorkerServer.stop(done);
-  })
-  after(function (done) {
-    redis.disconnect();
-    rabbitMQ.close(done);
+  afterEach(function (done) {
+    testSubscriber.close(done);
+  });
+
+  afterEach(function (done) {
+    testPublisher.close(done);
+  });
+
+  afterEach(function (done) {
+    server.stop(done);
   });
 
   describe('on-docker-unhealthy event', function () {
     it('should remove host and publish two events', function (done) {
       var count = createCount(2, done);
 
-      ctx.rabbitClient.subscribe('cluster-instance-provision', function (data, cb) {
+      testSubscriber.subscribe('cluster-instance-provision', function (data, cb) {
         expect(data.githubId).to.equal(testGihubId);
         cb();
         count.next();
       });
-      ctx.rabbitClient.subscribe('dock-removed', function (data, cb) {
+
+      testSubscriber.subscribe('dock-removed', function (data, cb) {
         expect(data.host).to.equal(testHost);
         cb();
         dockData.getAllDocks(function (err, data) {
@@ -95,7 +129,7 @@ describe('on-dock-unhealthy functional test', function () {
           count.next();
         });
       });
-      ctx.rabbitClient.publish('on-dock-unhealthy', {
+      testPublisher.publish('on-dock-unhealthy', {
         host: testHost,
         githubId: testGihubId
       });

@@ -6,7 +6,6 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var afterEach = lab.afterEach;
 var beforeEach = lab.beforeEach;
 var Code = require('code');
 var expect = Code.expect;
@@ -16,7 +15,7 @@ var sinon = require('sinon');
 
 var Docker = require('../../../lib/models/docker.js');
 
-describe('consul unit test', function () {
+describe('docker unit test', function () {
   describe('constructor', function () {
     it('should create Docker', function (done) {
       var docker = new Docker('http://10.0.0.1:4242');

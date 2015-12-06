@@ -611,7 +611,7 @@ lab.experiment('events.js unit test', function () {
         sinon.assert.calledWith(
           publishStub,
           'dock-removed',
-          sinon.match({ dockerUrl: dockerUrl })
+          sinon.match({ host: dockerUrl })
         );
 
         done();
