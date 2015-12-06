@@ -2,16 +2,23 @@
 
 require('loadenv')('mavis:env');
 
-var async = require('async');
-
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
+var Code = require('code');
+var expect = Code.expect;
+var afterEach = lab.afterEach;
+var beforeEach = lab.beforeEach;
+
 var redis = require('../../../lib/models/redis.js');
 var events = require('../../../lib/models/events.js');
 var dockData = require('../../../lib/models/dockData.js');
+var RabbitMQ = require('../../../lib/rabbitmq.js');
+var Consul = require('../../../lib/models/consul.js');
+
+var async = require('async');
+var sinon = require('sinon');
+
 var host = 'http://0.0.0.0:4242';
-var Code = require('code');
-var expect = Code.expect;
 
 
 function dataExpect1(data, numContainers, numBuilds, host) {
@@ -558,4 +565,57 @@ lab.experiment('events.js unit test', function () {
       });
     }); // handleDockDown
   }); // deamon
+
+  lab.experiment('handleWaitForDockRemoved', function () {
+    var publishStub;
+    beforeEach(function (done) {
+      sinon.stub(Consul, 'waitForDockRemoved');
+      publishStub = sinon.stub();
+      sinon.stub(RabbitMQ, 'getPublisher').returns({
+        publish: publishStub
+      });
+      done();
+    });
+
+    afterEach(function (done) {
+      Consul.waitForDockRemoved.restore();
+      RabbitMQ.getPublisher.restore();
+      done();
+    });
+
+    lab.test('should cb err if waitForDockRemoved failed', function (done) {
+      Consul.waitForDockRemoved.yieldsAsync(new Error('blue'));
+
+      events.handleWaitForDockRemoved({}, function (err) {
+        expect(err).to.exist();
+        done();
+      });
+    });
+
+    lab.test('should publish dock-removed', function (done) {
+      var dockerUrl = 'http://10.0.102.2:4242';
+      Consul.waitForDockRemoved.yieldsAsync(null);
+
+      events.handleWaitForDockRemoved({
+        dockerUrl: dockerUrl
+      }, function (err) {
+        expect(err).to.not.exist();
+
+        sinon.assert.calledOnce(Consul.waitForDockRemoved);
+        sinon.assert.calledWith(
+          Consul.waitForDockRemoved,
+          dockerUrl
+        );
+
+        sinon.assert.calledOnce(publishStub);
+        sinon.assert.calledWith(
+          publishStub,
+          'dock-removed',
+          sinon.match({ dockerUrl: dockerUrl })
+        );
+
+        done();
+      });
+    });
+  }); // end handleWaitForDockRemoved
 }); // docker events
