@@ -16,14 +16,13 @@ var sinon = require('sinon');
 var ponos = require('ponos');
 var TaskFatalError = ponos.TaskFatalError;
 var TaskError = ponos.TaskError;
-var Worker = require('../../../lib/workers/on-dock-unhealthy.js');
 var dockData = require('../../../lib/models/dockData.js');
 var rabbitMQ = require('../../../lib/rabbitmq.js');
 var Events = require('../../../lib/models/events.js');
 var Docker = require('../../../lib/models/docker.js');
 var onDockUnhealthy = require('../../../lib/workers/on-dock-unhealthy.js');
 
-describe('on-dock-unhealthy unit test', function () {
+describe('lib/workers/on-dock-unhealthy unit test', function () {
   it('should throw error if invalid host', function (done) {
     sinon.spy(Events, '_hasValidHost');
     onDockUnhealthy({})

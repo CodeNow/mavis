@@ -39,7 +39,7 @@ function dataExpectNone (data) {
   expect(data.length).to.equal(0);
 }
 
-lab.experiment('events.js unit test', function () {
+lab.experiment('lib/models/events.js unit test', function () {
   lab.beforeEach(function (done) {
     redis.connect();
     redis.client.flushall(done);
@@ -584,10 +584,11 @@ lab.experiment('events.js unit test', function () {
     });
 
     lab.test('should cb err if waitForDockRemoved failed', function (done) {
-      Consul.waitForDockRemoved.yieldsAsync(new Error('blue'));
+      var error = new Error('blue');
+      Consul.waitForDockRemoved.yieldsAsync(error);
 
       events.handleWaitForDockRemoved({}, function (err) {
-        expect(err).to.exist();
+        expect(err).to.equal(error);
         done();
       });
     });

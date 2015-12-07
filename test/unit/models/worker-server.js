@@ -16,7 +16,7 @@ var ponos = require('ponos');
 var RabbitMQ = require('../../../lib/rabbitmq.js');
 var WorkerServer = require('../../../lib/models/worker-server.js');
 
-describe('WorkerServer unit test', function () {
+describe('lib/models/worker-server unit test', function () {
   describe('listen', function () {
     beforeEach(function (done) {
       sinon.stub(RabbitMQ, 'getSubscriber');

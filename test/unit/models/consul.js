@@ -16,7 +16,7 @@ var TaskError = require('ponos').TaskError;
 
 var Consul = require('../../../lib/models/consul.js');
 
-describe('consul unit test', function () {
+describe('lib/models/consul unit test', function () {
   describe('waitForDockRemoved', function () {
     var dockerUrl = 'http://11.17.38.11:4242';
 
@@ -31,15 +31,18 @@ describe('consul unit test', function () {
     });
 
     it('should cb TaskError if get errd', function (done) {
-      Consul._client.kv.get.yieldsAsync(new Error('starcraft'));
+      var error = new Error('starcraft');
+
+      Consul._client.kv.get.yieldsAsync(error);
 
       Consul.waitForDockRemoved(dockerUrl, function (err) {
-        expect(err).to.exist();
+        expect(err).to.equal(error);
         done();
       });
     });
 
     it('should cb TaskError if result exist', function (done) {
+      // returning non falsey means the dock hasn't been removed
       Consul._client.kv.get.yieldsAsync(null, {some: 'stuff'});
 
       Consul.waitForDockRemoved(dockerUrl, function (err) {
@@ -49,6 +52,7 @@ describe('consul unit test', function () {
     });
 
     it('should cb with no err if result does not exist', function (done) {
+      // returning null means the dock hasn't been removed
       Consul._client.kv.get.yieldsAsync(null, null);
 
       Consul.waitForDockRemoved(dockerUrl, function (err) {

@@ -62,7 +62,7 @@ var testRedis = redis.createClient(
   process.env.REDIS_IPADDRESS);
 
 
-describe('on-dock-unhealthy functional test', function () {
+describe('lib/workers/on-dock-unhealthy functional test', function () {
   var testHost = 'http://10.20.1.26:4242';
   var testGihubId = 2194285;
 

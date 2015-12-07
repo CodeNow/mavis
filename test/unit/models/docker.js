@@ -15,11 +15,11 @@ var sinon = require('sinon');
 
 var Docker = require('../../../lib/models/docker.js');
 
-describe('docker unit test', function () {
+describe('lib/models/docker unit test', function () {
   describe('constructor', function () {
     it('should create Docker', function (done) {
       var docker = new Docker('http://10.0.0.1:4242');
-      expect(docker.client).to.be.an.instanceof(Dockerode);
+      expect(docker._client).to.be.an.instanceof(Dockerode);
       done();
     });
   }); // end constructor
@@ -57,7 +57,7 @@ describe('docker unit test', function () {
 
     describe('killSwarmContainer', function () {
       beforeEach(function (done) {
-        docker.client = {
+        docker._client = {
           getContainer: sinon.stub().returnsThis(),
           kill: sinon.stub()
         };
@@ -65,26 +65,27 @@ describe('docker unit test', function () {
       });
 
       it('should cb error if kill failed', function (done) {
-        docker.client.kill.yieldsAsync(new Error('iceberg'));
+        var error = new Error('iceberg');
+        docker._client.kill.yieldsAsync(error);
 
         docker.killSwarmContainer(function (err) {
-          expect(err).to.exist();
+          expect(err).to.equal(error);
           done();
         });
       });
 
       it('should cb on success', function (done) {
-        docker.client.kill.yieldsAsync();
+        docker._client.kill.yieldsAsync();
 
         docker.killSwarmContainer(function (err) {
           expect(err).to.not.exist();
 
-          sinon.assert.calledOnce(docker.client.getContainer);
+          sinon.assert.calledOnce(docker._client.getContainer);
           sinon.assert.calledWith(
-            docker.client.getContainer,
+            docker._client.getContainer,
             'swarm'
           );
-          sinon.assert.calledOnce(docker.client.kill);
+          sinon.assert.calledOnce(docker._client.kill);
 
           done();
         });

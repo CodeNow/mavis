@@ -16,7 +16,7 @@ var TaskFatalError = require('ponos').TaskFatalError;
 var Events = require('../../../lib/models/events.js');
 var waitForDockRemovedWorker = require('../../../lib/workers/dock.wait-for-removal.js');
 
-describe('dock.wait-for-removal unit test', function () {
+describe('lib/workers/dock.wait-for-removal unit test', function () {
   describe('run', function () {
     beforeEach(function (done) {
       sinon.stub(Events, 'handleWaitForDockRemovedAsync');
@@ -29,7 +29,8 @@ describe('dock.wait-for-removal unit test', function () {
     });
 
     it('should throw error if handleWaitForDockRemovedAsync failed', function (done) {
-      Events.handleWaitForDockRemovedAsync.throws(new Error('test'));
+      var error = new Error('test');
+      Events.handleWaitForDockRemovedAsync.throws(error);
       waitForDockRemovedWorker({
         dockerUrl: '10.0.0.1:4224',
       })
@@ -37,7 +38,7 @@ describe('dock.wait-for-removal unit test', function () {
         throw new Error('should have thrown');
       })
       .catch(function (err) {
-        expect(err).to.be.instanceOf(Error);
+        expect(err).to.equal(error);
         done();
       });
     });
