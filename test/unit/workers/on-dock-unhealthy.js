@@ -23,64 +23,77 @@ var Docker = require('../../../lib/models/docker.js');
 var onDockUnhealthy = require('../../../lib/workers/on-dock-unhealthy.js');
 
 describe('lib/workers/on-dock-unhealthy unit test', function () {
-  it('should throw error if invalid host', function (done) {
-    sinon.spy(Events, '_hasValidHost');
-    onDockUnhealthy({})
+  describe('failed', function () {
+    beforeEach(function (done) {
+      sinon.spy(Events, '_hasValidHost');
+      sinon.stub(dockData, 'deleteHost')
+      sinon.stub(Docker.prototype, 'killSwarmContainer').yieldsAsync(null);
+      done();
+    });
+
+    afterEach(function (done) {
+      Events._hasValidHost.restore();
+      dockData.deleteHost.restore();
+      Docker.prototype.killSwarmContainer.restore();
+      done();
+    });
+
+    it('should throw error if invalid host', function (done) {
+      onDockUnhealthy({})
+        .then(function () {
+          throw new Error('Should not happen');
+        })
+        .catch(function (err) {
+          expect(err).to.be.instanceOf(TaskFatalError);
+          sinon.assert.calledOnce(Events._hasValidHost);
+          done();
+        });
+    });
+
+    it('should throw error delete host failed', function (done) {
+      dockData.deleteHost.yieldsAsync(new Error('Redis error'));
+      onDockUnhealthy({
+        host: 'http://10.12.12.11:4242',
+      })
       .then(function () {
         throw new Error('Should not happen');
       })
       .catch(function (err) {
-        expect(err).to.be.instanceOf(TaskFatalError);
-        expect(Events._hasValidHost.calledOnce).to.be.true();
-        Events._hasValidHost.restore();
+        expect(err).to.be.instanceOf(TaskError);
+        sinon.assert.calledOnce(Events._hasValidHost);
+        sinon.assert.calledOnce(dockData.deleteHost);
+        sinon.assert.calledWith(
+          dockData.deleteHost,
+          'http://10.12.12.11:4242'
+        );
         done();
       });
-  });
-
-  it('should throw error delete host failed', function (done) {
-    sinon.spy(Events, '_hasValidHost');
-    sinon.stub(dockData, 'deleteHost').yieldsAsync(new Error('Redis error'));
-    onDockUnhealthy({
-      host: 'http://10.12.12.11:4242',
-    })
-    .then(function () {
-      throw new Error('Should not happen');
-    })
-    .catch(function (err) {
-      expect(err).to.be.instanceOf(TaskError);
-      expect(Events._hasValidHost.calledOnce).to.be.true();
-      expect(dockData.deleteHost.called).to.be.true();
-      expect(dockData.deleteHost.getCall(0).args[0]).to.equal('http://10.12.12.11:4242');
-      dockData.deleteHost.restore();
-      Events._hasValidHost.restore();
-      done();
     });
-  });
 
-  it('should throw if killingSwarmContainer failed', function (done) {
-    var dockerUrl = 'http://10.12.12.11:4242';
+    it('should throw if killingSwarmContainer failed', function (done) {
+      var dockerUrl = 'http://10.12.12.11:4242';
 
-    sinon.spy(Events, '_hasValidHost');
-    sinon.stub(dockData, 'deleteHost').yieldsAsync(null);
-    sinon.stub(Docker.prototype, 'killSwarmContainer').yieldsAsync(new Error('Docker Error'));
+      dockData.deleteHost.yieldsAsync(null);
+      Docker.prototype.killSwarmContainer.yieldsAsync(new Error('Docker Error'));
 
-    onDockUnhealthy({
-      host: dockerUrl,
-    })
-    .then(function () {
-      throw new Error('Should not happen');
-    })
-    .catch(function (err) {
-      expect(err).to.be.instanceOf(TaskError);
-      expect(Events._hasValidHost.calledOnce).to.be.true();
-      expect(dockData.deleteHost.called).to.be.true();
-      expect(dockData.deleteHost.getCall(0).args[0]).to.equal(dockerUrl);
-      dockData.deleteHost.restore();
-      Events._hasValidHost.restore();
-      Docker.prototype.killSwarmContainer.restore();
-      done();
+      onDockUnhealthy({
+        host: dockerUrl,
+      })
+      .then(function () {
+        throw new Error('Should not happen');
+      })
+      .catch(function (err) {
+        expect(err).to.be.instanceOf(TaskError);
+        sinon.assert.calledOnce(Events._hasValidHost);
+        sinon.assert.calledOnce(dockData.deleteHost);
+        sinon.assert.calledWith(
+          dockData.deleteHost,
+          dockerUrl
+        );
+        done();
+      });
     });
-  });
+  }); // end failed
 
   describe('success', function () {
     beforeEach(function (done) {
@@ -110,19 +123,20 @@ describe('lib/workers/on-dock-unhealthy unit test', function () {
         githubId: 12312
       })
       .then(function () {
-        expect(Events._hasValidHost.calledOnce).to.be.true();
+        sinon.assert.calledOnce(Events._hasValidHost);
 
-        expect(dockData.deleteHost.called).to.be.true();
-        expect(dockData.deleteHost.getCall(0).args[0]).to.equal(dockerUrl);
+        sinon.assert.calledOnce(dockData.deleteHost);
+        sinon.assert.calledWith(
+          dockData.deleteHost,
+          dockerUrl
+        );
 
         sinon.assert.calledTwice(rabbitMQ._publisher.publish);
-
         sinon.assert.calledWith(
           rabbitMQ._publisher.publish.getCall(0),
           'cluster-instance-provision',
           sinon.match({ githubId: 12312 })
         );
-
         sinon.assert.calledWith(
           rabbitMQ._publisher.publish.getCall(1),
           'dock.wait-for-removal',

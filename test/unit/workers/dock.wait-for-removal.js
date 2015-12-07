@@ -45,13 +45,13 @@ describe('lib/workers/dock.wait-for-removal unit test', function () {
 
     it('should throw missing dockerUrl', function (done) {
       ensureDockRemovedWorker({})
-        .then(function () {
-          throw new Error('should have thrown');
-        })
-        .catch(function (err) {
-          expect(err).to.be.instanceOf(TaskFatalError);
-          done();
-        });
+      .then(function () {
+        throw new Error('should have thrown');
+      })
+      .catch(function (err) {
+        expect(err).to.be.instanceOf(TaskFatalError);
+        done();
+      });
     });
 
     it('should be fine if no errors', function (done) {

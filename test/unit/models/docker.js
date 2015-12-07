@@ -29,18 +29,14 @@ describe('lib/models/docker unit test', function () {
       it('should throw if missing certs', function (done) {
         process.env.DOCKER_CERT_PATH = 'fake/path';
 
-        expect(function () {
-          Docker.loadCerts();
-        }).to.throw();
+        expect(Docker.loadCerts).to.throw();
         done();
       });
 
       it('should load certs', function (done) {
         process.env.DOCKER_CERT_PATH = './test/fixtures/certs';
 
-        expect(function () {
-          Docker.loadCerts();
-        }).to.not.throw();
+        expect(Docker.loadCerts).to.not.throw();
         done();
       });
     }); // end loadCerts

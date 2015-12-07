@@ -30,7 +30,7 @@ describe('lib/models/consul unit test', function () {
       done();
     });
 
-    it('should cb TaskError if get errd', function (done) {
+    it('should cb with error from Consul._client.kv.get', function (done) {
       var error = new Error('starcraft');
 
       Consul._client.kv.get.yieldsAsync(error);
@@ -41,12 +41,12 @@ describe('lib/models/consul unit test', function () {
       });
     });
 
-    it('should cb TaskError if result exist', function (done) {
+    it('should cb an err if result exists', function (done) {
       // returning non falsey means the dock hasn't been removed
       Consul._client.kv.get.yieldsAsync(null, {some: 'stuff'});
 
       Consul.ensureDockRemoved(dockerUrl, function (err) {
-        expect(err).to.exist(Error);
+        expect(err).to.exist();
         done();
       });
     });
