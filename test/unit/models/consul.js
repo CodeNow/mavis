@@ -17,7 +17,7 @@ var TaskError = require('ponos').TaskError;
 var Consul = require('../../../lib/models/consul.js');
 
 describe('lib/models/consul unit test', function () {
-  describe('waitForDockRemoved', function () {
+  describe('ensureDockRemoved', function () {
     var dockerUrl = 'http://11.17.38.11:4242';
 
     beforeEach(function (done) {
@@ -35,7 +35,7 @@ describe('lib/models/consul unit test', function () {
 
       Consul._client.kv.get.yieldsAsync(error);
 
-      Consul.waitForDockRemoved(dockerUrl, function (err) {
+      Consul.ensureDockRemoved(dockerUrl, function (err) {
         expect(err).to.equal(error);
         done();
       });
@@ -45,7 +45,7 @@ describe('lib/models/consul unit test', function () {
       // returning non falsey means the dock hasn't been removed
       Consul._client.kv.get.yieldsAsync(null, {some: 'stuff'});
 
-      Consul.waitForDockRemoved(dockerUrl, function (err) {
+      Consul.ensureDockRemoved(dockerUrl, function (err) {
         expect(err).to.be.an.instanceof(TaskError);
         done();
       });
@@ -55,7 +55,7 @@ describe('lib/models/consul unit test', function () {
       // returning null means the dock hasn't been removed
       Consul._client.kv.get.yieldsAsync(null, null);
 
-      Consul.waitForDockRemoved(dockerUrl, function (err) {
+      Consul.ensureDockRemoved(dockerUrl, function (err) {
         expect(err).to.not.exist();
         sinon.assert.calledOnce(Consul._client.kv.get);
 
@@ -67,5 +67,5 @@ describe('lib/models/consul unit test', function () {
         done();
       });
     });
-  }); // end waitForDockRemoved
+  }); // end ensureDockRemoved
 });

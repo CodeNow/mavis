@@ -14,24 +14,24 @@ var sinon = require('sinon');
 var TaskFatalError = require('ponos').TaskFatalError;
 
 var Events = require('../../../lib/models/events.js');
-var waitForDockRemovedWorker = require('../../../lib/workers/dock.wait-for-removal.js');
+var ensureDockRemovedWorker = require('../../../lib/workers/dock.wait-for-removal.js');
 
 describe('lib/workers/dock.wait-for-removal unit test', function () {
   describe('run', function () {
     beforeEach(function (done) {
-      sinon.stub(Events, 'handleWaitForDockRemovedAsync');
+      sinon.stub(Events, 'handleensureDockRemovedAsync');
       done();
     });
 
     afterEach(function (done) {
-      Events.handleWaitForDockRemovedAsync.restore();
+      Events.handleensureDockRemovedAsync.restore();
       done();
     });
 
-    it('should throw error if handleWaitForDockRemovedAsync failed', function (done) {
+    it('should throw error if handleensureDockRemovedAsync failed', function (done) {
       var error = new Error('test');
-      Events.handleWaitForDockRemovedAsync.throws(error);
-      waitForDockRemovedWorker({
+      Events.handleensureDockRemovedAsync.throws(error);
+      ensureDockRemovedWorker({
         dockerUrl: '10.0.0.1:4224',
       })
       .then(function () {
@@ -44,7 +44,7 @@ describe('lib/workers/dock.wait-for-removal unit test', function () {
     });
 
     it('should throw missing dockerUrl', function (done) {
-      waitForDockRemovedWorker({})
+      ensureDockRemovedWorker({})
         .then(function () {
           throw new Error('should have thrown');
         })
@@ -55,8 +55,8 @@ describe('lib/workers/dock.wait-for-removal unit test', function () {
     });
 
     it('should be fine if no errors', function (done) {
-      Events.handleWaitForDockRemovedAsync.returns();
-      waitForDockRemovedWorker({
+      Events.handleensureDockRemovedAsync.returns();
+      ensureDockRemovedWorker({
         dockerUrl: '10.0.0.1:4224'
       })
       .then(done)

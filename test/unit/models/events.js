@@ -566,10 +566,10 @@ lab.experiment('lib/models/events.js unit test', function () {
     }); // handleDockDown
   }); // deamon
 
-  lab.experiment('handleWaitForDockRemoved', function () {
+  lab.experiment('handleensureDockRemoved', function () {
     var publishStub;
     beforeEach(function (done) {
-      sinon.stub(Consul, 'waitForDockRemoved');
+      sinon.stub(Consul, 'ensureDockRemoved');
       publishStub = sinon.stub();
       sinon.stub(RabbitMQ, 'getPublisher').returns({
         publish: publishStub
@@ -578,16 +578,16 @@ lab.experiment('lib/models/events.js unit test', function () {
     });
 
     afterEach(function (done) {
-      Consul.waitForDockRemoved.restore();
+      Consul.ensureDockRemoved.restore();
       RabbitMQ.getPublisher.restore();
       done();
     });
 
-    lab.test('should cb err if waitForDockRemoved failed', function (done) {
+    lab.test('should cb err if ensureDockRemoved failed', function (done) {
       var error = new Error('blue');
-      Consul.waitForDockRemoved.yieldsAsync(error);
+      Consul.ensureDockRemoved.yieldsAsync(error);
 
-      events.handleWaitForDockRemoved({}, function (err) {
+      events.handleensureDockRemoved({}, function (err) {
         expect(err).to.equal(error);
         done();
       });
@@ -595,16 +595,16 @@ lab.experiment('lib/models/events.js unit test', function () {
 
     lab.test('should publish dock.removed', function (done) {
       var dockerUrl = 'http://10.0.102.2:4242';
-      Consul.waitForDockRemoved.yieldsAsync(null);
+      Consul.ensureDockRemoved.yieldsAsync(null);
 
-      events.handleWaitForDockRemoved({
+      events.handleensureDockRemoved({
         dockerUrl: dockerUrl
       }, function (err) {
         expect(err).to.not.exist();
 
-        sinon.assert.calledOnce(Consul.waitForDockRemoved);
+        sinon.assert.calledOnce(Consul.ensureDockRemoved);
         sinon.assert.calledWith(
-          Consul.waitForDockRemoved,
+          Consul.ensureDockRemoved,
           dockerUrl
         );
 
@@ -618,5 +618,5 @@ lab.experiment('lib/models/events.js unit test', function () {
         done();
       });
     });
-  }); // end handleWaitForDockRemoved
+  }); // end handleensureDockRemoved
 }); // docker events
