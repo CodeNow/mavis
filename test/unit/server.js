@@ -18,6 +18,7 @@ var docksMonitor = require('../../lib/models/docks-monitor');
 var RabbitMQ = require('../../lib/rabbitmq.js');
 var Server = require('../../lib/server.js');
 var app = require('../../lib/app');
+var Docker = require('../../lib/models/docker.js');
 
 
 describe('server.js unit test', function () {
@@ -29,6 +30,7 @@ describe('server.js unit test', function () {
       sinon.stub(app, 'listen');
       sinon.stub(RabbitMQ, 'create');
       sinon.stub(WorkerServer, 'listen');
+      sinon.stub(Docker, 'loadCerts');
       done();
     });
 
@@ -39,6 +41,7 @@ describe('server.js unit test', function () {
       app.listen.restore();
       RabbitMQ.create.restore();
       WorkerServer.listen.restore();
+      Docker.loadCerts.restore();
       done();
     });
 
@@ -46,6 +49,7 @@ describe('server.js unit test', function () {
       monitor.startSocketsMonitor.returns();
       docksMonitor.start.returns();
       Redis.connect.returns();
+      Docker.loadCerts.returns();
       app.listen.yieldsAsync();
       RabbitMQ.create.yieldsAsync();
       WorkerServer.listen.yieldsAsync();

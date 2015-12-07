@@ -1,29 +1,22 @@
 'use strict';
 require('loadenv')();
 
-var Promise = require('bluebird')
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var describe = lab.describe;
 var it = lab.it;
-var afterEach = lab.afterEach;
-var beforeEach = lab.beforeEach;
 var Code = require('code');
 var expect = Code.expect;
-
 
 var sinon = require('sinon');
 var ponos = require('ponos');
 var TaskFatalError = ponos.TaskFatalError;
-var ErrorCat = require('error-cat');
 
-var RabbitMQ = require('../../../lib/rabbitmq.js');
 var Events = require('../../../lib/models/events.js');
 var dockData = require('../../../lib/models/dockData.js');
 var containerLifeCycleDied = require('../../../lib/workers/container.life-cycle.died.js');
 
 describe('container.life-cycle.died.js unit test', function () {
-
   it('should throw error if invalid from', function (done) {
     sinon.stub(Events, '_hasValidFrom').returns(false);
     containerLifeCycleDied({})
@@ -72,9 +65,7 @@ describe('container.life-cycle.died.js unit test', function () {
         dockData.incKey.restore();
         done();
       })
-      .catch(function (err) {
-        throw new Error('Should not happen');
-      });
+      .catch(done);
   });
 
   it('should increment counter if build container', function (done) {
@@ -100,8 +91,6 @@ describe('container.life-cycle.died.js unit test', function () {
       dockData.incKey.restore();
       done();
     })
-    .catch(function (err) {
-      throw new Error('Should not happen');
-    });
+    .catch(done);
   });
 }); // end container.life-cycle.died unit test

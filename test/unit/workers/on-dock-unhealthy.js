@@ -16,86 +16,134 @@ var sinon = require('sinon');
 var ponos = require('ponos');
 var TaskFatalError = ponos.TaskFatalError;
 var TaskError = ponos.TaskError;
-var Worker = require('../../../lib/workers/on-dock-unhealthy.js');
 var dockData = require('../../../lib/models/dockData.js');
 var rabbitMQ = require('../../../lib/rabbitmq.js');
 var Events = require('../../../lib/models/events.js');
+var Docker = require('../../../lib/models/docker.js');
 var onDockUnhealthy = require('../../../lib/workers/on-dock-unhealthy.js');
 
-describe('on-dock-unhealthy unit test', function () {
+describe('lib/workers/on-dock-unhealthy unit test', function () {
+  describe('failed', function () {
+    beforeEach(function (done) {
+      sinon.spy(Events, '_hasValidHost');
+      sinon.stub(dockData, 'deleteHost')
+      sinon.stub(Docker.prototype, 'killSwarmContainer').yieldsAsync(null);
+      done();
+    });
 
-  it('should throw error if invalid host', function (done) {
-    sinon.spy(Events, '_hasValidHost');
-    onDockUnhealthy({})
+    afterEach(function (done) {
+      Events._hasValidHost.restore();
+      dockData.deleteHost.restore();
+      Docker.prototype.killSwarmContainer.restore();
+      done();
+    });
+
+    it('should throw error if invalid host', function (done) {
+      onDockUnhealthy({})
+        .then(function () {
+          throw new Error('Should not happen');
+        })
+        .catch(function (err) {
+          expect(err).to.be.instanceOf(TaskFatalError);
+          sinon.assert.calledOnce(Events._hasValidHost);
+          done();
+        });
+    });
+
+    it('should throw error delete host failed', function (done) {
+      dockData.deleteHost.yieldsAsync(new Error('Redis error'));
+      onDockUnhealthy({
+        host: 'http://10.12.12.11:4242',
+      })
       .then(function () {
         throw new Error('Should not happen');
       })
       .catch(function (err) {
-        expect(err).to.be.instanceOf(TaskFatalError);
-        expect(Events._hasValidHost.calledOnce).to.be.true();
-        Events._hasValidHost.restore();
+        expect(err).to.be.instanceOf(TaskError);
+        sinon.assert.calledOnce(Events._hasValidHost);
+        sinon.assert.calledOnce(dockData.deleteHost);
+        sinon.assert.calledWith(
+          dockData.deleteHost,
+          'http://10.12.12.11:4242'
+        );
         done();
       });
-  });
-
-  it('should throw error delete host failed', function (done) {
-    sinon.spy(Events, '_hasValidHost');
-    sinon.stub(dockData, 'deleteHost').yieldsAsync(new Error('Redis error'));
-    onDockUnhealthy({
-      host: 'http://10.12.12.11:4242',
-    })
-    .then(function () {
-      throw new Error('Should not happen');
-    })
-    .catch(function (err) {
-      expect(err).to.be.instanceOf(TaskError);
-      expect(Events._hasValidHost.calledOnce).to.be.true();
-      expect(dockData.deleteHost.called).to.be.true();
-      expect(dockData.deleteHost.getCall(0).args[0]).to.equal('http://10.12.12.11:4242');
-      dockData.deleteHost.restore();
-      Events._hasValidHost.restore();
-      done();
     });
-  });
+
+    it('should throw if killingSwarmContainer failed', function (done) {
+      var dockerUrl = 'http://10.12.12.11:4242';
+
+      dockData.deleteHost.yieldsAsync(null);
+      Docker.prototype.killSwarmContainer.yieldsAsync(new Error('Docker Error'));
+
+      onDockUnhealthy({
+        host: dockerUrl,
+      })
+      .then(function () {
+        throw new Error('Should not happen');
+      })
+      .catch(function (err) {
+        expect(err).to.be.instanceOf(TaskError);
+        sinon.assert.calledOnce(Events._hasValidHost);
+        sinon.assert.calledOnce(dockData.deleteHost);
+        sinon.assert.calledWith(
+          dockData.deleteHost,
+          dockerUrl
+        );
+        done();
+      });
+    });
+  }); // end failed
 
   describe('success', function () {
+    beforeEach(function (done) {
+      sinon.spy(Events, '_hasValidHost');
+      sinon.stub(dockData, 'deleteHost').yieldsAsync(null);
+      sinon.stub(Docker.prototype, 'killSwarmContainer').yieldsAsync(null);
+      done();
+    });
+
     afterEach(function (done) {
+      Events._hasValidHost.restore();
+      dockData.deleteHost.restore();
+      Docker.prototype.killSwarmContainer.restore();
       rabbitMQ._publisher = null;
       done();
     });
-    it('should delete host if valid', function (done) {
-      sinon.spy(Events, '_hasValidHost');
-      sinon.stub(dockData, 'deleteHost').yieldsAsync(null);
+
+    it('should emit provision and wait events', function (done) {
+      var dockerUrl = 'http://10.12.12.11:4242';
+
       rabbitMQ._publisher = {
         publish: function (name, data) {}
       };
       sinon.spy(rabbitMQ._publisher, 'publish');
       onDockUnhealthy({
-        host: 'http://10.12.12.11:4242',
+        host: dockerUrl,
         githubId: 12312
       })
       .then(function () {
-        expect(Events._hasValidHost.calledOnce).to.be.true();
-        Events._hasValidHost.restore();
+        sinon.assert.calledOnce(Events._hasValidHost);
 
-        expect(dockData.deleteHost.called).to.be.true();
-        expect(dockData.deleteHost.getCall(0).args[0]).to.equal('http://10.12.12.11:4242');
-        dockData.deleteHost.restore();
+        sinon.assert.calledOnce(dockData.deleteHost);
+        sinon.assert.calledWith(
+          dockData.deleteHost,
+          dockerUrl
+        );
 
-        expect(rabbitMQ._publisher.publish.getCall(0).args[0]).to.equal('on-dock-removed');
-        expect(rabbitMQ._publisher.publish.getCall(0).args[1]).to.deep.equal({
-          host: 'http://10.12.12.11:4242',
-          githubId: 12312
-        });
-        expect(rabbitMQ._publisher.publish.getCall(1).args[0]).to.equal('cluster-instance-provision');
-        expect(rabbitMQ._publisher.publish.getCall(1).args[1]).to.deep.equal({
-          githubId: 12312
-        });
-        rabbitMQ._publisher.publish.restore();
+        sinon.assert.calledTwice(rabbitMQ._publisher.publish);
+        sinon.assert.calledWith(
+          rabbitMQ._publisher.publish.getCall(0),
+          'cluster-instance-provision',
+          sinon.match({ githubId: 12312 })
+        );
+        sinon.assert.calledWith(
+          rabbitMQ._publisher.publish.getCall(1),
+          'dock.wait-for-removal',
+          sinon.match({ dockerUrl: dockerUrl })
+        );
+
         done();
-      })
-      .catch(function (err) {
-        throw new Error('Should not happen');
       });
     });
   });

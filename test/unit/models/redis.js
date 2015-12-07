@@ -14,7 +14,7 @@ var redis = require('redis');
 
 var Redis = require('../../../lib/models/redis.js');
 
-describe('redis.js unit test', function () {
+describe('lib/models/redis.js unit test', function () {
   describe('connect', function () {
     beforeEach(function (done) {
       sinon.stub(redis, 'createClient');

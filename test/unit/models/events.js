@@ -2,16 +2,24 @@
 
 require('loadenv')('mavis:env');
 
-var async = require('async');
-
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
+var Code = require('code');
+var expect = Code.expect;
+var afterEach = lab.afterEach;
+var beforeEach = lab.beforeEach;
+
 var redis = require('../../../lib/models/redis.js');
 var events = require('../../../lib/models/events.js');
 var dockData = require('../../../lib/models/dockData.js');
+var RabbitMQ = require('../../../lib/rabbitmq.js');
+var Consul = require('../../../lib/models/consul.js');
+
+var async = require('async');
+var sinon = require('sinon');
+var TaskError = require('ponos').TaskError;
+
 var host = 'http://0.0.0.0:4242';
-var Code = require('code');
-var expect = Code.expect;
 
 
 function dataExpect1(data, numContainers, numBuilds, host) {
@@ -32,7 +40,7 @@ function dataExpectNone (data) {
   expect(data.length).to.equal(0);
 }
 
-lab.experiment('events.js unit test', function () {
+lab.experiment('lib/models/events.js unit test', function () {
   lab.beforeEach(function (done) {
     redis.connect();
     redis.client.flushall(done);
@@ -558,4 +566,57 @@ lab.experiment('events.js unit test', function () {
       });
     }); // handleDockDown
   }); // deamon
+
+  lab.experiment('handleEnsureDockRemoved', function () {
+    var publishStub;
+    beforeEach(function (done) {
+      sinon.stub(Consul, 'ensureDockRemoved');
+      publishStub = sinon.stub();
+      sinon.stub(RabbitMQ, 'getPublisher').returns({
+        publish: publishStub
+      });
+      done();
+    });
+
+    afterEach(function (done) {
+      Consul.ensureDockRemoved.restore();
+      RabbitMQ.getPublisher.restore();
+      done();
+    });
+
+    lab.test('should cb err if ensureDockRemoved failed', function (done) {
+      Consul.ensureDockRemoved.yieldsAsync(new Error('dock not removed'));
+
+      events.handleEnsureDockRemoved({}, function (err) {
+        expect(err).to.be.an.instanceOf(TaskError);
+        done();
+      });
+    });
+
+    lab.test('should publish dock.removed', function (done) {
+      var dockerUrl = 'http://10.0.102.2:4242';
+      Consul.ensureDockRemoved.yieldsAsync(null);
+
+      events.handleEnsureDockRemoved({
+        dockerUrl: dockerUrl
+      }, function (err) {
+        expect(err).to.not.exist();
+
+        sinon.assert.calledOnce(Consul.ensureDockRemoved);
+        sinon.assert.calledWith(
+          Consul.ensureDockRemoved,
+          dockerUrl
+        );
+
+        sinon.assert.calledOnce(publishStub);
+        sinon.assert.calledWith(
+          publishStub,
+          'dock.removed',
+          sinon.match({ host: dockerUrl })
+        );
+
+        done();
+      });
+    });
+  }); // end handleEnsureDockRemoved
 }); // docker events
