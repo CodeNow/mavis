@@ -51,7 +51,8 @@ describe('lib/models/consul unit test', function () {
       });
     });
 
-    it('should cb with no err if result does not exist', function (done) {
+    // result and error will both be null when the key does not exist in consul
+    it('should cb with no err and null if result is null', function (done) {
       // returning null means the dock hasn't been removed
       Consul._client.kv.get.yieldsAsync(null, null);
 
