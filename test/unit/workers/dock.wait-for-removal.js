@@ -19,18 +19,18 @@ var ensureDockRemovedWorker = require('../../../lib/workers/dock.wait-for-remova
 describe('lib/workers/dock.wait-for-removal unit test', function () {
   describe('run', function () {
     beforeEach(function (done) {
-      sinon.stub(Events, 'handleensureDockRemovedAsync');
+      sinon.stub(Events, 'handleEnsureDockRemovedAsync');
       done();
     });
 
     afterEach(function (done) {
-      Events.handleensureDockRemovedAsync.restore();
+      Events.handleEnsureDockRemovedAsync.restore();
       done();
     });
 
-    it('should throw error if handleensureDockRemovedAsync failed', function (done) {
+    it('should throw error if handleEnsureDockRemovedAsync failed', function (done) {
       var error = new Error('test');
-      Events.handleensureDockRemovedAsync.throws(error);
+      Events.handleEnsureDockRemovedAsync.throws(error);
       ensureDockRemovedWorker({
         dockerUrl: '10.0.0.1:4224',
       })
@@ -55,7 +55,7 @@ describe('lib/workers/dock.wait-for-removal unit test', function () {
     });
 
     it('should be fine if no errors', function (done) {
-      Events.handleensureDockRemovedAsync.returns();
+      Events.handleEnsureDockRemovedAsync.returns();
       ensureDockRemovedWorker({
         dockerUrl: '10.0.0.1:4224'
       })

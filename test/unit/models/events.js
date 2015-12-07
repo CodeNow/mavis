@@ -17,6 +17,7 @@ var Consul = require('../../../lib/models/consul.js');
 
 var async = require('async');
 var sinon = require('sinon');
+var TaskError = require('ponos').TaskError;
 
 var host = 'http://0.0.0.0:4242';
 
@@ -566,7 +567,7 @@ lab.experiment('lib/models/events.js unit test', function () {
     }); // handleDockDown
   }); // deamon
 
-  lab.experiment('handleensureDockRemoved', function () {
+  lab.experiment('handleEnsureDockRemoved', function () {
     var publishStub;
     beforeEach(function (done) {
       sinon.stub(Consul, 'ensureDockRemoved');
@@ -584,11 +585,10 @@ lab.experiment('lib/models/events.js unit test', function () {
     });
 
     lab.test('should cb err if ensureDockRemoved failed', function (done) {
-      var error = new Error('blue');
-      Consul.ensureDockRemoved.yieldsAsync(error);
+      Consul.ensureDockRemoved.yieldsAsync(new Error('dock not removed'));
 
-      events.handleensureDockRemoved({}, function (err) {
-        expect(err).to.equal(error);
+      events.handleEnsureDockRemoved({}, function (err) {
+        expect(err).to.be.an.instanceOf(TaskError);
         done();
       });
     });
@@ -597,7 +597,7 @@ lab.experiment('lib/models/events.js unit test', function () {
       var dockerUrl = 'http://10.0.102.2:4242';
       Consul.ensureDockRemoved.yieldsAsync(null);
 
-      events.handleensureDockRemoved({
+      events.handleEnsureDockRemoved({
         dockerUrl: dockerUrl
       }, function (err) {
         expect(err).to.not.exist();
@@ -618,5 +618,5 @@ lab.experiment('lib/models/events.js unit test', function () {
         done();
       });
     });
-  }); // end handleensureDockRemoved
+  }); // end handleEnsureDockRemoved
 }); // docker events

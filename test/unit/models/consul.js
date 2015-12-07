@@ -46,7 +46,7 @@ describe('lib/models/consul unit test', function () {
       Consul._client.kv.get.yieldsAsync(null, {some: 'stuff'});
 
       Consul.ensureDockRemoved(dockerUrl, function (err) {
-        expect(err).to.be.an.instanceof(TaskError);
+        expect(err).to.exist(Error);
         done();
       });
     });
