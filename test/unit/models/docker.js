@@ -43,32 +43,50 @@ describe('lib/models/docker unit test', function () {
     }); // end loadCerts
 
     describe('_ignorableKillError', function () {
-      [
-        {}, { statusCode: 400 }, { json: 'bood' }, { statusCode: 503 },
-        { statusCode: 503, json: 'runnning' }
-      ].forEach(function (testArgs) {
-        it('should return false', function (done) {
-          expect(Docker._ignorableKillError(testArgs))
-            .to.be.false();
-          done();
-        });
+      it('should return false for {}', function (done) {
+        expect(Docker._ignorableKillError({}))
+          .to.be.false();
+        done();
       });
-      var real500Error = new Error('HTTP code is 500 which indicates error: server error - Cannot kill container swarm: notrunning: Container 1d413830f8b51a79633fb5101daa1d72851c14551dec2e26f364567097188b5e is not running')
-      real500Error.reason = 'server error';
-      real500Error.statusCode = 500;
-      real500Error.json = 'Cannot kill container swarm: notrunning: Container 1d413830f8b51a79633fb5101daa1d72851c14551dec2e26f364567097188b5e is not running\n';
 
-      var real404Error = new Error('Error: HTTP code is 404 which indicates error: no such container - Cannot kill container block: nosuchcontainer: no such id: block')
-      real404Error.reason = 'no such container';
-      real404Error.statusCode = 404;
-      real404Error.json = 'Cannot kill container block: nosuchcontainer: no such id: block\n';
+      it('should return false for { statusCode: 400 }', function (done) {
+        expect(Docker._ignorableKillError({ statusCode: 400 }))
+          .to.be.false();
+        done();
+      });
 
-      [real500Error, real404Error].forEach(function (testArgs) {
-        it('should return true', function (done) {
-          expect(Docker._ignorableKillError(testArgs))
-            .to.be.true();
-          done();
-        });
+      it('should return false for { json: "blood" }', function (done) {
+        expect(Docker._ignorableKillError({ json: 'blood' }))
+          .to.be.false();
+        done();
+      });
+
+      it('should return false for { statusCode: 503, json: "runnning" }', function (done) {
+        expect(Docker._ignorableKillError({ statusCode: 503, json: 'runnning' }))
+          .to.be.false();
+        done();
+      });
+
+      it('should return true for 500 error', function (done) {
+        var real404Error = new Error('Error: HTTP code is 404 which indicates error: no such container - Cannot kill container block: nosuchcontainer: no such id: block')
+        real404Error.reason = 'no such container';
+        real404Error.statusCode = 404;
+        real404Error.json = 'Cannot kill container block: nosuchcontainer: no such id: block\n';
+
+        expect(Docker._ignorableKillError(real404Error))
+          .to.be.true();
+        done();
+      });
+
+      it('should return true for 500 error', function (done) {
+        var real500Error = new Error('HTTP code is 500 which indicates error: server error - Cannot kill container swarm: notrunning: Container 1d413830f8b51a79633fb5101daa1d72851c14551dec2e26f364567097188b5e is not running')
+        real500Error.reason = 'server error';
+        real500Error.statusCode = 500;
+        real500Error.json = 'Cannot kill container swarm: notrunning: Container 1d413830f8b51a79633fb5101daa1d72851c14551dec2e26f364567097188b5e is not running\n';
+
+        expect(Docker._ignorableKillError(real500Error))
+          .to.be.true();
+        done();
       });
     }); // end _ignorableKillError
   }); // end staticMethods

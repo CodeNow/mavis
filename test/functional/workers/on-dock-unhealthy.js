@@ -129,6 +129,7 @@ describe('lib/workers/on-dock-unhealthy functional test', function () {
           count.next();
         });
       });
+
       testPublisher.publish('on-dock-unhealthy', {
         host: testHost,
         githubId: testGihubId
@@ -158,6 +159,7 @@ describe('lib/workers/on-dock-unhealthy functional test', function () {
           count.next();
         });
       });
+
       testPublisher.publish('on-dock-unhealthy', {
         host: testHost,
         githubId: testGihubId
@@ -187,6 +189,7 @@ describe('lib/workers/on-dock-unhealthy functional test', function () {
           count.next();
         });
       });
+
       testPublisher.publish('on-dock-unhealthy', {
         host: testHost,
         githubId: testGihubId
