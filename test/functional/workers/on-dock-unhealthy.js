@@ -81,11 +81,6 @@ describe('lib/workers/on-dock-unhealthy functional test', function () {
   });
 
   lab.beforeEach(function (done) {
-    // nock docker call
-    nock(testHost)
-      .post('/containers/swarm/kill')
-      .reply(200);
-
     // nock consul call
     nock('http://consul.com:8500')
       .get('/v1/kv/swarm%2Fdocker%2Fswarm%2Fnodes%2F10.20.1.26%3A4242')
@@ -112,6 +107,69 @@ describe('lib/workers/on-dock-unhealthy functional test', function () {
 
   describe('on-docker-unhealthy event', function () {
     it('should remove host and publish two events', function (done) {
+      // nock docker call
+      nock(testHost)
+        .post('/containers/swarm/kill')
+        .reply(200);
+
+      var count = createCount(2, done);
+
+      testSubscriber.subscribe('cluster-instance-provision', function (data, cb) {
+        expect(data.githubId).to.equal(testGihubId);
+        cb();
+        count.next();
+      });
+
+      testSubscriber.subscribe('dock.removed', function (data, cb) {
+        expect(data.host).to.equal(testHost);
+        cb();
+        dockData.getAllDocks(function (err, data) {
+          if (err) { return count.next(err); }
+          expect(data.length).to.equal(0);
+          count.next();
+        });
+      });
+      testPublisher.publish('on-dock-unhealthy', {
+        host: testHost,
+        githubId: testGihubId
+      });
+    });
+
+    it('should remove host and publish two events if kill 404', function (done) {
+      // nock docker call
+      nock(testHost)
+        .post('/containers/swarm/kill')
+        .reply(404);
+
+      var count = createCount(2, done);
+
+      testSubscriber.subscribe('cluster-instance-provision', function (data, cb) {
+        expect(data.githubId).to.equal(testGihubId);
+        cb();
+        count.next();
+      });
+
+      testSubscriber.subscribe('dock.removed', function (data, cb) {
+        expect(data.host).to.equal(testHost);
+        cb();
+        dockData.getAllDocks(function (err, data) {
+          if (err) { return count.next(err); }
+          expect(data.length).to.equal(0);
+          count.next();
+        });
+      });
+      testPublisher.publish('on-dock-unhealthy', {
+        host: testHost,
+        githubId: testGihubId
+      });
+    });
+
+    it('should remove host and publish two events if kill 500', function (done) {
+      // nock docker call
+      nock(testHost)
+        .post('/containers/swarm/kill')
+        .reply(500, 'Cannot kill container swarm: notrunning: Container 1d413830f8b51a79633fb5101daa1d72851c14551dec2e26f364567097188b5e is not running\n');
+
       var count = createCount(2, done);
 
       testSubscriber.subscribe('cluster-instance-provision', function (data, cb) {
