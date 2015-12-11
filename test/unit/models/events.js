@@ -13,7 +13,7 @@ var redis = require('../../../lib/models/redis.js');
 var events = require('../../../lib/models/events.js');
 var dockData = require('../../../lib/models/dockData.js');
 var RabbitMQ = require('../../../lib/rabbitmq.js');
-var Consul = require('../../../lib/models/consul.js');
+var Docker = require('../../../lib/models/docker.js');
 
 var async = require('async');
 var sinon = require('sinon');
@@ -570,7 +570,7 @@ lab.experiment('lib/models/events.js unit test', function () {
   lab.experiment('handleEnsureDockRemoved', function () {
     var publishStub;
     beforeEach(function (done) {
-      sinon.stub(Consul, 'ensureDockRemoved');
+      sinon.stub(Docker, 'ensureDockRemoved');
       publishStub = sinon.stub();
       sinon.stub(RabbitMQ, 'getPublisher').returns({
         publish: publishStub
@@ -579,13 +579,13 @@ lab.experiment('lib/models/events.js unit test', function () {
     });
 
     afterEach(function (done) {
-      Consul.ensureDockRemoved.restore();
+      Docker.ensureDockRemoved.restore();
       RabbitMQ.getPublisher.restore();
       done();
     });
 
     lab.test('should cb err if ensureDockRemoved failed', function (done) {
-      Consul.ensureDockRemoved.yieldsAsync(new Error('dock not removed'));
+      Docker.ensureDockRemoved.yieldsAsync(new Error('dock not removed'));
 
       events.handleEnsureDockRemoved({}, function (err) {
         expect(err).to.be.an.instanceOf(TaskError);
@@ -595,16 +595,16 @@ lab.experiment('lib/models/events.js unit test', function () {
 
     lab.test('should publish dock.removed', function (done) {
       var dockerUrl = 'http://10.0.102.2:4242';
-      Consul.ensureDockRemoved.yieldsAsync(null);
+      Docker.ensureDockRemoved.yieldsAsync(null);
 
       events.handleEnsureDockRemoved({
         dockerUrl: dockerUrl
       }, function (err) {
         expect(err).to.not.exist();
 
-        sinon.assert.calledOnce(Consul.ensureDockRemoved);
+        sinon.assert.calledOnce(Docker.ensureDockRemoved);
         sinon.assert.calledWith(
-          Consul.ensureDockRemoved,
+          Docker.ensureDockRemoved,
           dockerUrl
         );
 
