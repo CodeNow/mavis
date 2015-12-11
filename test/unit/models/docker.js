@@ -113,10 +113,6 @@ describe('lib/models/docker unit test', function () {
         done();
       });
 
-      afterEach(function (done) {
-        done();
-      });
-
       it('should cb error if kill failed', function (done) {
         var error = new Error('iceberg');
         docker._client.kill.yieldsAsync(error);
