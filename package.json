@@ -31,7 +31,6 @@
     "body-parser": "^1.13.3",
     "boom": "^2.6.1",
     "bunyan": "^1.4.0",
-    "consul": "^0.19.0",
     "dockerode": "^2.2.6",
     "error-cat": "^1.4.0",
     "express": "^4.13.3",

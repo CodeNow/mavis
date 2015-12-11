@@ -93,54 +93,6 @@ describe('lib/models/docker unit test', function () {
         });
       });
     }); // end ensureDockRemoved
-
-    describe('_ignorableKillError', function () {
-      it('should return false for {}', function (done) {
-        expect(Docker._ignorableKillError({}))
-          .to.be.false();
-        done();
-      });
-
-      it('should return false for { statusCode: 400 }', function (done) {
-        expect(Docker._ignorableKillError({ statusCode: 400 }))
-          .to.be.false();
-        done();
-      });
-
-      it('should return false for { json: "blood" }', function (done) {
-        expect(Docker._ignorableKillError({ json: 'blood' }))
-          .to.be.false();
-        done();
-      });
-
-      it('should return false for { statusCode: 503, json: "runnning" }', function (done) {
-        expect(Docker._ignorableKillError({ statusCode: 503, json: 'runnning' }))
-          .to.be.false();
-        done();
-      });
-
-      it('should return true for 500 error', function (done) {
-        var real404Error = new Error('Error: HTTP code is 404 which indicates error: no such container - Cannot kill container block: nosuchcontainer: no such id: block')
-        real404Error.reason = 'no such container';
-        real404Error.statusCode = 404;
-        real404Error.json = 'Cannot kill container block: nosuchcontainer: no such id: block\n';
-
-        expect(Docker._ignorableKillError(real404Error))
-          .to.be.true();
-        done();
-      });
-
-      it('should return true for 500 error', function (done) {
-        var real500Error = new Error('HTTP code is 500 which indicates error: server error - Cannot kill container swarm: notrunning: Container 1d413830f8b51a79633fb5101daa1d72851c14551dec2e26f364567097188b5e is not running')
-        real500Error.reason = 'server error';
-        real500Error.statusCode = 500;
-        real500Error.json = 'Cannot kill container swarm: notrunning: Container 1d413830f8b51a79633fb5101daa1d72851c14551dec2e26f364567097188b5e is not running\n';
-
-        expect(Docker._ignorableKillError(real500Error))
-          .to.be.true();
-        done();
-      });
-    }); // end _ignorableKillError
   }); // end staticMethods
 
   describe('prototype methods', function () {
@@ -158,41 +110,19 @@ describe('lib/models/docker unit test', function () {
           getContainer: sinon.stub().returnsThis(),
           kill: sinon.stub()
         };
-        sinon.stub(Docker, '_ignorableKillError');
         done();
       });
 
       afterEach(function (done) {
-        Docker._ignorableKillError.restore();
         done();
       });
 
       it('should cb error if kill failed', function (done) {
         var error = new Error('iceberg');
         docker._client.kill.yieldsAsync(error);
-        Docker._ignorableKillError.returns(false);
 
         docker.killSwarmContainer(function (err) {
           expect(err).to.equal(error);
-          done();
-        });
-      });
-
-      it('should cb w/o error if kill error is _ignorableKillError', function (done) {
-        var error = new Error('notFound');
-        docker._client.kill.yieldsAsync(error);
-        Docker._ignorableKillError.returns(true);
-
-        docker.killSwarmContainer(function (err) {
-          expect(err).to.not.exist();
-
-          sinon.assert.calledOnce(docker._client.getContainer);
-          sinon.assert.calledWith(
-            docker._client.getContainer,
-            'swarm'
-          );
-          sinon.assert.calledOnce(docker._client.kill);
-
           done();
         });
       });

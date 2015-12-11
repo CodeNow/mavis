@@ -571,6 +571,7 @@ lab.experiment('lib/models/events.js unit test', function () {
     var publishStub;
     beforeEach(function (done) {
       sinon.stub(Docker, 'ensureDockRemoved');
+      sinon.stub(Docker.prototype, 'killSwarmContainer');
       publishStub = sinon.stub();
       sinon.stub(RabbitMQ, 'getPublisher').returns({
         publish: publishStub
@@ -580,14 +581,18 @@ lab.experiment('lib/models/events.js unit test', function () {
 
     afterEach(function (done) {
       Docker.ensureDockRemoved.restore();
+      Docker.prototype.killSwarmContainer.restore();
       RabbitMQ.getPublisher.restore();
       done();
     });
 
     lab.test('should cb err if ensureDockRemoved failed', function (done) {
+      Docker.prototype.killSwarmContainer.yieldsAsync();
       Docker.ensureDockRemoved.yieldsAsync(new Error('dock not removed'));
 
-      events.handleEnsureDockRemoved({}, function (err) {
+      events.handleEnsureDockRemoved({
+        dockerUrl: 'http://10.0.0.1:4242'
+      }, function (err) {
         expect(err).to.be.an.instanceOf(TaskError);
         done();
       });
@@ -595,6 +600,7 @@ lab.experiment('lib/models/events.js unit test', function () {
 
     lab.test('should publish dock.removed', function (done) {
       var dockerUrl = 'http://10.0.102.2:4242';
+      Docker.prototype.killSwarmContainer.yieldsAsync();
       Docker.ensureDockRemoved.yieldsAsync(null);
 
       events.handleEnsureDockRemoved({
@@ -618,5 +624,33 @@ lab.experiment('lib/models/events.js unit test', function () {
         done();
       });
     });
+
+    lab.test('should publish dock.removed if killSwarm failed', function (done) {
+      var dockerUrl = 'http://10.0.102.2:4242';
+      Docker.prototype.killSwarmContainer.yieldsAsync(new Error('ladybug'));
+      Docker.ensureDockRemoved.yieldsAsync(null);
+
+      events.handleEnsureDockRemoved({
+        dockerUrl: dockerUrl
+      }, function (err) {
+        expect(err).to.not.exist();
+
+        sinon.assert.calledOnce(Docker.ensureDockRemoved);
+        sinon.assert.calledWith(
+          Docker.ensureDockRemoved,
+          dockerUrl
+        );
+
+        sinon.assert.calledOnce(publishStub);
+        sinon.assert.calledWith(
+          publishStub,
+          'dock.removed',
+          sinon.match({ host: dockerUrl })
+        );
+
+        done();
+      });
+    });
+
   }); // end handleEnsureDockRemoved
 }); // docker events
