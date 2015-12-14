@@ -59,6 +59,8 @@ describe('lib/models/docker unit test', function () {
 
         Docker.ensureDockRemoved('http://8.8.8.8:4242', function (err) {
           expect(err).to.equal(testError);
+          sinon.assert.calledOnce(Dockerode.prototype.info);
+
           done();
         });
       });
@@ -74,6 +76,8 @@ describe('lib/models/docker unit test', function () {
 
         Docker.ensureDockRemoved('http://10.0.0.1:4242', function (err) {
           expect(err.output.statusCode).to.equal(412);
+          sinon.assert.calledOnce(Dockerode.prototype.info);
+
           done();
         });
       });
@@ -88,7 +92,9 @@ describe('lib/models/docker unit test', function () {
         });
 
         Docker.ensureDockRemoved('http://10.0.0.2:4242', function (err) {
-          expect(err).to.not.exist();
+          if (err) { return done(err); }
+          sinon.assert.calledOnce(Dockerode.prototype.info);
+
           done();
         });
       });
@@ -119,6 +125,9 @@ describe('lib/models/docker unit test', function () {
 
         docker.killSwarmContainer(function (err) {
           expect(err).to.equal(error);
+          sinon.assert.calledOnce(docker._client.getContainer);
+          sinon.assert.calledOnce(docker._client.kill);
+
           done();
         });
       });
@@ -127,7 +136,7 @@ describe('lib/models/docker unit test', function () {
         docker._client.kill.yieldsAsync();
 
         docker.killSwarmContainer(function (err) {
-          expect(err).to.not.exist();
+          if (err) { return done(err); }
 
           sinon.assert.calledOnce(docker._client.getContainer);
           sinon.assert.calledWith(

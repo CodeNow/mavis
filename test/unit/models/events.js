@@ -633,7 +633,7 @@ lab.experiment('lib/models/events.js unit test', function () {
       events.handleEnsureDockRemoved({
         dockerUrl: dockerUrl
       }, function (err) {
-        expect(err).to.not.exist();
+        if (err) { return done(err); }
 
         sinon.assert.calledOnce(Docker.ensureDockRemoved);
         sinon.assert.calledWith(
