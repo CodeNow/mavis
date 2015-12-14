@@ -58,7 +58,7 @@ describe('lib/models/docker unit test', function () {
         Dockerode.prototype.info.yieldsAsync(testError);
 
         Docker.ensureDockRemoved('http://8.8.8.8:4242', function (err) {
-          expect(err).to.equal(err);
+          expect(err).to.equal(testError);
           done();
         });
       });
