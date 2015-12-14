@@ -108,12 +108,15 @@ describe('lib/workers/on-dock-unhealthy functional test', function () {
   });
 
   describe('on-docker-unhealthy event', function () {
-    it('should remove host and publish two events', function (done) {
-      // nock docker call
-      nock(testHost)
-        .post('/containers/swarm/kill')
-        .reply(200);
+    var killRouteNock;
 
+    beforeEach(function (done) {
+      killRouteNock = nock(testHost).post('/containers/swarm/kill');
+      done();
+    });
+
+    it('should remove host and publish two events', function (done) {
+      killRouteNock.reply(200);
       var count = createCount(2, done);
 
       testSubscriber.subscribe('cluster-instance-provision', function (data, cb) {
@@ -139,11 +142,7 @@ describe('lib/workers/on-dock-unhealthy functional test', function () {
     });
 
     it('should remove host and publish two events if kill errors', function (done) {
-      // nock docker call
-      nock(testHost)
-        .post('/containers/swarm/kill')
-        .reply(404);
-
+      killRouteNock.reply(404);
       var count = createCount(2, done);
 
       testSubscriber.subscribe('cluster-instance-provision', function (data, cb) {
