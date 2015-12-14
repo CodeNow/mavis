@@ -27,14 +27,12 @@ describe('lib/workers/on-dock-unhealthy unit test', function () {
     beforeEach(function (done) {
       sinon.spy(Events, '_hasValidHost');
       sinon.stub(dockData, 'deleteHost')
-      sinon.stub(Docker.prototype, 'killSwarmContainer').yieldsAsync(null);
       done();
     });
 
     afterEach(function (done) {
       Events._hasValidHost.restore();
       dockData.deleteHost.restore();
-      Docker.prototype.killSwarmContainer.restore();
       done();
     });
 
@@ -69,44 +67,18 @@ describe('lib/workers/on-dock-unhealthy unit test', function () {
         done();
       });
     });
-
-    it('should throw if killingSwarmContainer failed', function (done) {
-      var dockerUrl = 'http://10.12.12.11:4242';
-
-      dockData.deleteHost.yieldsAsync(null);
-      Docker.prototype.killSwarmContainer.yieldsAsync(new Error('Docker Error'));
-
-      onDockUnhealthy({
-        host: dockerUrl,
-      })
-      .then(function () {
-        throw new Error('Should not happen');
-      })
-      .catch(function (err) {
-        expect(err).to.be.instanceOf(TaskError);
-        sinon.assert.calledOnce(Events._hasValidHost);
-        sinon.assert.calledOnce(dockData.deleteHost);
-        sinon.assert.calledWith(
-          dockData.deleteHost,
-          dockerUrl
-        );
-        done();
-      });
-    });
   }); // end failed
 
   describe('success', function () {
     beforeEach(function (done) {
       sinon.spy(Events, '_hasValidHost');
       sinon.stub(dockData, 'deleteHost').yieldsAsync(null);
-      sinon.stub(Docker.prototype, 'killSwarmContainer').yieldsAsync(null);
       done();
     });
 
     afterEach(function (done) {
       Events._hasValidHost.restore();
       dockData.deleteHost.restore();
-      Docker.prototype.killSwarmContainer.restore();
       rabbitMQ._publisher = null;
       done();
     });

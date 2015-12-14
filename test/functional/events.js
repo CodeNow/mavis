@@ -4,10 +4,9 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var Code = require('code');
 var expect = Code.expect;
+
 var redis = require('../../lib/models/redis.js');
 var dockData = require('../../lib/models/dockData.js');
-var events = require('../../lib/models/events.js');
-var sinon = require('sinon');
 var Server = require('../../lib/server.js');
 var request = require('request');
 var Hermes = require('runnable-hermes');
@@ -84,9 +83,6 @@ lab.experiment('events test', function () {
   });
 
   lab.experiment('container.life-cycle.died', function () {
-    var containerRunFrom = process.env.RUNNABLE_REGISTRY +
-      '/146592/5511da373f57ab170045d58d:5511da373f57ab170045d590';
-
     lab.beforeEach(function (done) {
       dockData.addHost(host, '', done);
     });
