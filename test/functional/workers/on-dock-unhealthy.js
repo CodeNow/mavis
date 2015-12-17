@@ -35,8 +35,7 @@ var subscribedEvents = [
 
 var queues = [
   'weave.start',
-  'on-dock-unhealthy',
-  'cluster-instance-provision'
+  'on-dock-unhealthy'
 ];
 
 var testPublisher = new Hermes({
@@ -117,21 +116,14 @@ describe('lib/workers/on-dock-unhealthy functional test', function () {
 
     it('should remove host and publish two events', function (done) {
       killRouteNock.reply(200);
-      var count = createCount(2, done);
-
-      testSubscriber.subscribe('cluster-instance-provision', function (data, cb) {
-        expect(data.githubId).to.equal(testGihubId);
-        cb();
-        count.next();
-      });
 
       testSubscriber.subscribe('dock.removed', function (data, cb) {
         expect(data.host).to.equal(testHost);
         cb();
         dockData.getAllDocks(function (err, data) {
-          if (err) { return count.next(err); }
+          if (err) { return done(err); }
           expect(data.length).to.equal(0);
-          count.next();
+          done();
         });
       });
 
@@ -143,21 +135,14 @@ describe('lib/workers/on-dock-unhealthy functional test', function () {
 
     it('should remove host and publish two events if kill errors', function (done) {
       killRouteNock.reply(404);
-      var count = createCount(2, done);
-
-      testSubscriber.subscribe('cluster-instance-provision', function (data, cb) {
-        expect(data.githubId).to.equal(testGihubId);
-        cb();
-        count.next();
-      });
 
       testSubscriber.subscribe('dock.removed', function (data, cb) {
         expect(data.host).to.equal(testHost);
         cb();
         dockData.getAllDocks(function (err, data) {
-          if (err) { return count.next(err); }
+          if (err) { return done(err); }
           expect(data.length).to.equal(0);
-          count.next();
+          done();
         });
       });
 

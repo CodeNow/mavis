@@ -103,14 +103,9 @@ describe('lib/workers/on-dock-unhealthy unit test', function () {
           dockerUrl
         );
 
-        sinon.assert.calledTwice(rabbitMQ._publisher.publish);
+        sinon.assert.calledOnce(rabbitMQ._publisher.publish);
         sinon.assert.calledWith(
-          rabbitMQ._publisher.publish.getCall(0),
-          'cluster-instance-provision',
-          sinon.match({ githubId: 12312 })
-        );
-        sinon.assert.calledWith(
-          rabbitMQ._publisher.publish.getCall(1),
+          rabbitMQ._publisher.publish,
           'dock.wait-for-removal',
           sinon.match({ dockerUrl: dockerUrl })
         );
