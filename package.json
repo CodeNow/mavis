@@ -1,6 +1,6 @@
 {
   "name": "mavis",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "Master Tactician, schedules task on the docks",
   "main": "./lib/app.js",
   "scripts": {
