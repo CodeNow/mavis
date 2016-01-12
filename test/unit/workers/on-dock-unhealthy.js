@@ -52,6 +52,7 @@ describe('lib/workers/on-dock-unhealthy unit test', function () {
       dockData.deleteHost.yieldsAsync(new Error('Redis error'));
       onDockUnhealthy({
         host: 'http://10.12.12.11:4242',
+        githubId: '2335750'
       })
       .then(function () {
         throw new Error('Should not happen');

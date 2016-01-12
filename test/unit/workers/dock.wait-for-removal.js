@@ -33,6 +33,7 @@ describe('lib/workers/dock.wait-for-removal unit test', function () {
       Events.handleEnsureDockRemovedAsync.throws(error);
       ensureDockRemovedWorker({
         dockerUrl: '10.0.0.1:4224',
+        githubId: '2335750'
       })
       .then(function () {
         throw new Error('should have thrown');
@@ -54,13 +55,25 @@ describe('lib/workers/dock.wait-for-removal unit test', function () {
       });
     });
 
+    it('should throw missing githubId', function (done) {
+      ensureDockRemovedWorker({
+        dockerUrl: '10.0.0.1:4224',
+      })
+      .then(function () {
+        throw new Error('should have thrown');
+      })
+      .catch(function (err) {
+        expect(err).to.be.instanceOf(TaskFatalError);
+        done();
+      });
+    });
+
     it('should be fine if no errors', function (done) {
       Events.handleEnsureDockRemovedAsync.returns();
       ensureDockRemovedWorker({
-        dockerUrl: '10.0.0.1:4224'
-      })
-      .then(done)
-      .catch(done);
+        dockerUrl: '10.0.0.1:4224',
+        githubId: '2335750'
+      }).asCallback(done);
     });
   }); // end run
 }); // end docker.events-stream.connected unit test
