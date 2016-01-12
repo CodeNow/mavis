@@ -27,7 +27,7 @@
   "dependencies": {
     "101": "^1.0.0",
     "async": "^1.4.2",
-    "bluebird": "^3.0.5",
+    "bluebird": "^3.1.1",
     "body-parser": "^1.13.3",
     "boom": "^2.6.1",
     "bunyan": "^1.4.0",
@@ -39,7 +39,6 @@
     "loadenv": "^1.1.0",
     "monitor-dog": "^1.4.1",
     "newrelic": "^1.22.0",
-    "nock": "^3.3.2",
     "node-dogstatsd": "0.0.6",
     "ponos": "^1.1.1",
     "redis": "^0.12.1",
@@ -51,6 +50,7 @@
     "code": "^1.5.0",
     "jshint": "^2.8.0",
     "lab": "5.15.1",
+    "nock": "^3.3.2",
     "request": "^2.61.0",
     "sinon": "^1.17.2",
     "supertest": "^1.0.1"
