@@ -20,10 +20,7 @@ describe('lib/workers/docker.events-stream.connected.js unit test', function () 
   it('should throw error if invalid host', function (done) {
     sinon.stub(Events, '_hasValidHost').returns(false);
     dockerEventsStreamConnected({})
-      .then(function () {
-        throw new Error('Should not happen');
-      })
-      .catch(function (err) {
+      .asCallback(function (err) {
         expect(err).to.be.instanceOf(TaskFatalError);
         expect(Events._hasValidHost.calledOnce).to.be.true();
         Events._hasValidHost.restore();
@@ -38,7 +35,8 @@ describe('lib/workers/docker.events-stream.connected.js unit test', function () 
       host: 'https://10.10.11.12:4242',
       tags: ['build', 'run']
     })
-    .then(function () {
+    .asCallback(function (err) {
+      expect(err).to.not.exist()
       expect(Events._hasValidHost.calledOnce).to.be.true();
       Events._hasValidHost.restore();
       expect(dockData.addHost.calledOnce).to.be.true();
@@ -48,6 +46,5 @@ describe('lib/workers/docker.events-stream.connected.js unit test', function () 
       dockData.addHost.restore();
       done();
     })
-    .catch(done);
   });
 }); // end docker.events-stream.connected unit test

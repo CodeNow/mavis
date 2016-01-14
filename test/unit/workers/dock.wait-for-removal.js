@@ -35,10 +35,7 @@ describe('lib/workers/dock.wait-for-removal unit test', function () {
         dockerUrl: '10.0.0.1:4224',
         githubId: '2335750'
       })
-      .then(function () {
-        throw new Error('should have thrown');
-      })
-      .catch(function (err) {
+      .asCallback(function (err) {
         expect(err).to.equal(error);
         done();
       });
@@ -46,10 +43,7 @@ describe('lib/workers/dock.wait-for-removal unit test', function () {
 
     it('should throw missing dockerUrl', function (done) {
       ensureDockRemovedWorker({})
-      .then(function () {
-        throw new Error('should have thrown');
-      })
-      .catch(function (err) {
+      .asCallback(function (err) {
         expect(err).to.be.instanceOf(TaskFatalError);
         done();
       });
@@ -59,10 +53,7 @@ describe('lib/workers/dock.wait-for-removal unit test', function () {
       ensureDockRemovedWorker({
         dockerUrl: '10.0.0.1:4224',
       })
-      .then(function () {
-        throw new Error('should have thrown');
-      })
-      .catch(function (err) {
+      .asCallback(function (err) {
         expect(err).to.be.instanceOf(TaskFatalError);
         done();
       });
