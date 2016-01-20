@@ -20,10 +20,7 @@ describe('container.life-cycle.died.js unit test', function () {
   it('should throw error if invalid from', function (done) {
     sinon.stub(Events, '_hasValidFrom').returns(false);
     containerLifeCycleDied({})
-      .then(function () {
-        throw new Error('Should not happen');
-      })
-      .catch(function (err) {
+      .asCallback(function (err) {
         expect(err).to.be.instanceOf(TaskFatalError);
         expect(Events._hasValidFrom.calledOnce).to.be.true();
         Events._hasValidFrom.restore();
@@ -35,17 +32,14 @@ describe('container.life-cycle.died.js unit test', function () {
     sinon.stub(Events, '_hasValidFrom').returns(true);
     sinon.stub(Events, '_hasValidHost').returns(false);
     containerLifeCycleDied({})
-      .then(function () {
-        throw new Error('Should not happen');
-      })
-      .catch(function (err) {
-        expect(err).to.be.instanceOf(TaskFatalError);
-        expect(Events._hasValidFrom.calledOnce).to.be.true();
-        expect(Events._hasValidHost.calledOnce).to.be.true();
-        Events._hasValidFrom.restore();
-        Events._hasValidHost.restore();
-        done();
-      });
+    .asCallback(function (err) {
+      expect(err).to.be.instanceOf(TaskFatalError);
+      expect(Events._hasValidFrom.calledOnce).to.be.true();
+      expect(Events._hasValidHost.calledOnce).to.be.true();
+      Events._hasValidFrom.restore();
+      Events._hasValidHost.restore();
+      done();
+    });
   });
 
   it('should do nothing if not build container', function (done) {

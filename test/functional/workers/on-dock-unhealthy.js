@@ -34,7 +34,6 @@ var subscribedEvents = [
 ];
 
 var queues = [
-  'weave.start',
   'on-dock-unhealthy'
 ];
 
@@ -65,7 +64,7 @@ var testRedis = redis.createClient(
 
 describe('lib/workers/on-dock-unhealthy functional test', function () {
   var testHost = 'http://10.20.1.26:4242';
-  var testGihubId = 2194285;
+  var testGihubId = '2194285';
 
   beforeEach(function (done) {
     // connect publisher so exchanges are generated before sever init

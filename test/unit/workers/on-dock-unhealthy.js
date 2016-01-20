@@ -38,10 +38,7 @@ describe('lib/workers/on-dock-unhealthy unit test', function () {
 
     it('should throw error if invalid host', function (done) {
       onDockUnhealthy({})
-        .then(function () {
-          throw new Error('Should not happen');
-        })
-        .catch(function (err) {
+        .asCallback(function (err) {
           expect(err).to.be.instanceOf(TaskFatalError);
           sinon.assert.calledOnce(Events._hasValidHost);
           done();
@@ -52,9 +49,7 @@ describe('lib/workers/on-dock-unhealthy unit test', function () {
       dockData.deleteHost.yieldsAsync(new Error('Redis error'));
       onDockUnhealthy({
         host: 'http://10.12.12.11:4242',
-      })
-      .then(function () {
-        throw new Error('Should not happen');
+        githubId: '2335750'
       })
       .catch(function (err) {
         expect(err).to.be.instanceOf(TaskError);
