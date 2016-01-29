@@ -127,8 +127,7 @@ describe('lib/workers/on-dock-unhealthy functional test', function () {
       });
 
       testPublisher.publish('on-dock-unhealthy', {
-        host: testHost,
-        githubId: testGihubId
+        host: testHost
       });
     });
 
@@ -146,8 +145,7 @@ describe('lib/workers/on-dock-unhealthy functional test', function () {
       });
 
       testPublisher.publish('on-dock-unhealthy', {
-        host: testHost,
-        githubId: testGihubId
+        host: testHost
       });
     });
   }); // on-docker-unhealthy event
