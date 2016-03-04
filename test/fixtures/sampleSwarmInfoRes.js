@@ -8,7 +8,7 @@ module.exports = function (testHosts) {
     ID: '',
     Containers: 16,
     Driver: '',
-    DriverStatus: [
+    SystemStatus: [
       [ '\bRole', 'primary' ],
       [ '\bStrategy', 'spread' ],
       [ '\bFilters', 'health, port, dependency, affinity, constraint' ],
