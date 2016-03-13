@@ -56,6 +56,7 @@ describe('lib/models/redis.js unit test', function () {
           {
             host: process.env.REDIS_IPADDRESS,
             port: process.env.REDIS_PORT,
+            connect_timeout: 5000,
             tls: {
               rejectUnauthorized: true,
               ca: [ 'bar' ]
