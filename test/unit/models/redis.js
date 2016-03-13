@@ -9,6 +9,7 @@ var beforeEach = lab.beforeEach;
 var Code = require('code');
 var expect = Code.expect;
 
+var fs = require('fs');
 var sinon = require('sinon');
 var redis = require('redis');
 
@@ -24,6 +25,46 @@ describe('lib/models/redis.js unit test', function () {
     afterEach(function (done) {
       redis.createClient.restore();
       done();
+    });
+
+    describe('with tls', function (done) {
+      var prevCACert = process.env.REDIS_CACERT;
+
+      beforeEach(function (done) {
+        process.env.REDIS_CACERT = 'foo';
+        sinon.stub(fs, 'readFileSync').returns('bar');
+        redis.createClient.returns({ on: sinon.stub() });
+        done();
+      });
+
+      afterEach(function (done) {
+        process.env.REDIS_CACERT = prevCACert;
+        fs.readFileSync.restore();
+        done();
+      });
+
+      it('should create a client with tls options', function (done) {
+        Redis.connect();
+        sinon.assert.called(fs.readFileSync)
+        sinon.assert.calledWithExactly(
+          fs.readFileSync,
+          'foo',
+          'utf-8'
+        );
+        sinon.assert.calledWith(
+          redis.createClient,
+          {
+            host: process.env.REDIS_IPADDRESS,
+            port: process.env.REDIS_PORT,
+            connect_timeout: 5000,
+            tls: {
+              rejectUnauthorized: true,
+              ca: [ 'bar' ]
+            }
+          }
+        );
+        done();
+      });
     });
 
     it('should create clients and attach error handles', function (done) {
